@@ -5,6 +5,9 @@ Target for v1: an agent can block on "this run finished", "these checks passed",
 webhook on the repository and no admin rights. Later phases widen the event surface
 toward the 76 events in GitHub's catalog without changing the delivery format.
 
+Status: P0 and P1 are implemented; see [PROGRESS.md](PROGRESS.md). The phases below
+remain the plan for everything else.
+
 ## Principles
 
 1. State, not history. Every delivery is a reconstruction of an observable

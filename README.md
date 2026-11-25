@@ -49,6 +49,20 @@ The REST resource is the source, not `/repos/{owner}/{repo}/events`. That endpoi
 is a lagging feed of repository activity, not a queryable state log, and it cannot
 report the current status of a run or a check.
 
+## Running
+
+1. `npm install` (Node 24; `.mise.toml` pins 24.22.3).
+2. Copy `pollhook.example.json` to `~/.config/pollhook/config.json` and set the
+   repository and events.
+3. Run `pollhook daemon`. The token comes from `GH_TOKEN`, `GITHUB_TOKEN` or
+   `gh auth token`, in that order.
+4. Use `pollhook run <id>`, `pollhook checks <pr>`, `pollhook pr <n> --until
+   merged`, `pollhook pages <sha>` and `pollhook status`.
+
+The daemon serves consumers over a unix socket at
+`$XDG_RUNTIME_DIR/pollhook.sock`, so it opens no port. An optional `deliver.url`
+receives GitHub-shaped POSTs and must be a loopback address.
+
 ## Fidelity
 
 Polling sees state; webhooks are a history of transitions. Four consequences, all
@@ -90,7 +104,8 @@ agent actually needs. Event synthesis is the mechanism, not the product.
 ## Guarantees
 
 1. Read-only. pollhook never sends `POST`, `PUT`, `PATCH` or `DELETE` to GitHub.
-2. The delivery endpoint binds to `127.0.0.1` only.
+2. The control socket is a unix socket, and `deliver.url` must be loopback.
+   Nothing listens on a network interface.
 3. Deliveries are verifiable: with a secret configured, `X-Hub-Signature-256` is
    a real HMAC of the body, so consumers validate exactly as they do for GitHub.
 4. A waiting command reads current state before it subscribes, so a run that
@@ -100,13 +115,16 @@ agent actually needs. Event synthesis is the mechanism, not the product.
 
 ## Status
 
-Documentation only. No code yet. The plan and its acceptance criteria are in
+P0 and P1 are implemented and covered by 23 tests. What shipped and what comes
+next is in [PROGRESS.md](PROGRESS.md); phases and acceptance criteria are in
 [AGENDA.md](AGENDA.md).
 
 ## Layout
 
 1. `AGENDA.md`: phases, acceptance criteria, decisions and open questions.
-2. `docs/events.md`: the event catalog with REST source, cursor, fidelity and phase.
+2. `PROGRESS.md`: what is done, what was measured, what is next.
+3. `docs/events.md`: the event catalog with REST source, cursor, fidelity and phase.
+4. `pollhook.example.json`: a starting config.
 
 ## Name
 
