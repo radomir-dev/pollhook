@@ -75,15 +75,20 @@ export class Poller {
         const dueKey = `${repo.repo}:${adapter.name}`;
         if ((this.nextDue.get(dueKey) ?? 0) > Date.now()) continue;
         this.nextDue.set(dueKey, Date.now() + Math.max(adapter.intervalFloorMs, repo.intervalMs));
+        const primedKey = `primed:${repo.repo}:${adapter.name}`;
+        const cold = this.db.getCursor(primedKey) === null;
         try {
           await adapter.poll({
             repo: repo.repo,
             refs,
             db: this.db,
             gh: this.gh,
-            emit: (event, action, key, payload, state) =>
-              this.emit(repo.repo, event, action, key, payload, state),
+            emit: cold
+              ? () => {}
+              : (event, action, key, payload, state) =>
+                  this.emit(repo.repo, event, action, key, payload, state),
           });
+          if (cold) this.db.setCursor(primedKey, null, "1");
         } catch (error) {
           roundError = roundError ?? errorMessage(error);
         }
