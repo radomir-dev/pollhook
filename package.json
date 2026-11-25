@@ -20,10 +20,13 @@
     "lint": "oxlint src test scripts",
     "format": "oxfmt",
     "format:check": "oxfmt --check src test scripts",
-    "doctor": "node scripts/doctor.ts"
+    "doctor": "node scripts/doctor.ts",
+    "arch": "depcruise src test scripts --config .dependency-cruiser.cjs"
   },
   "devDependencies": {
+    "@swc/core": "^1.16.22",
     "@types/node": "^26.6.10",
+    "dependency-cruiser": "^18.9.0",
     "knip": "^6.48.0",
     "listr2": "^11.4.1",
     "oxfmt": "^0.80.0",

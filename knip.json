@@ -10,6 +10,7 @@
     "test/**/*.ts"
   ],
   "ignoreDependencies": [
-    "publint"
+    "publint",
+    "@swc/core"
   ]
 }

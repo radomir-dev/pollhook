@@ -116,13 +116,16 @@ result, which is what CI runs on every push and pull request:
 1. `tsc --noEmit` for types.
 2. `oxlint` for correctness and bug patterns.
 3. `oxfmt --check` for formatting.
-4. `knip` for dead code and unused dependencies.
-5. `npm audit --audit-level=high` for advisories.
-6. The suite, run once under `--experimental-test-coverage` so the pass and the
+4. `dependency-cruiser` for cycles and layer rules: the store never imports adapters,
+   adapters never import each other, core never imports the CLI, and `node:net` stays
+   in the daemon and CLI.
+5. `knip` for dead code and unused dependencies.
+6. `npm audit --audit-level=high` for advisories.
+7. The suite, run once under `--experimental-test-coverage` so the pass and the
    numbers come from the same execution, failing under 85% lines, 70% branches or
    80% functions.
-7. The generated README blocks (`docs:check`).
-8. `npm run build`, `publint --strict` and a `dist/cli.js --help` smoke test.
+8. The generated README blocks (`docs:check`).
+9. `npm run build`, `publint --strict` and a `dist/cli.js --help` smoke test.
 
 Mutation testing is not included: Stryker has no `node:test` runner; see issue 9.
 

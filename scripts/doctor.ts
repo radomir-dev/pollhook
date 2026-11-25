@@ -69,6 +69,18 @@ const tasks = new Listr(
       await exec("npx", "oxfmt", "--check", "src", "test", "scripts");
       return "formatting is current";
     }),
+    task("Architecture", async () => {
+      await exec(
+        "npx",
+        "depcruise",
+        "src",
+        "test",
+        "scripts",
+        "--config",
+        ".dependency-cruiser.cjs",
+      );
+      return "no cycles and no layer violations";
+    }),
     task("Dead code and unused dependencies", async () => {
       await exec("npx", "knip", "--no-progress");
       return "nothing unused";
