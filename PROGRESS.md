@@ -591,3 +591,18 @@ Next:
 
 1. P4: revisit the deferred events only if a consumer needs them.
 2. Ask the user before publishing 0.1.0 to npm.
+
+## 2026-11-25: catalog audit
+
+Compared the adapter registry with `docs/events.md`: 35 events are implemented and
+all are now marked done. The seven P1 rows still said `P1` and were corrected, and
+no row claims an event that is not implemented.
+
+The unattended backlog is down to decisions rather than code: the deferred P4
+events, only if a consumer needs them, and publishing 0.1.0, which needs approval.
+
+Verification: `tsc --noEmit` clean, 82 of 82 tests passing (docs only).
+
+Next:
+
+1. Ask about pausing the automation: there is no unattended code work left.

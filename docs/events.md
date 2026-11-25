@@ -22,13 +22,13 @@ name or commit SHA.
 
 | Event | REST source | Cursor | Fidelity | Phase |
 | --- | --- | --- | --- | --- |
-| `workflow_run` | `/repos/{o}/{r}/actions/runs` | `id` + `run_attempt` + `updated_at` | object | P1 |
+| `workflow_run` | `/repos/{o}/{r}/actions/runs` | `id` + `run_attempt` + `updated_at` | object | P1 done |
 | `workflow_job` | `/repos/{o}/{r}/actions/runs/{run_id}/jobs` | `id` + `status` + `completed_at` | object | P1 |
 | `workflow_dispatch` | runs where `event=workflow_dispatch` | run `id` | derived | P2 done |
-| `check_suite` | `/repos/{o}/{r}/commits/{ref}/check-suites` | `id` + `updated_at` | object | P1 |
-| `check_run` | `/repos/{o}/{r}/commits/{ref}/check-runs` | `id` + `status` + `conclusion` | object | P1 |
-| `status` | `/repos/{o}/{r}/commits/{ref}/statuses` | `id` + `updated_at` | object | P1 |
-| `page_build` | `/repos/{o}/{r}/pages/builds` | `id` + `updated_at` | object | P1 |
+| `check_suite` | `/repos/{o}/{r}/commits/{ref}/check-suites` | `id` + `updated_at` | object | P1 done |
+| `check_run` | `/repos/{o}/{r}/commits/{ref}/check-runs` | `id` + `status` + `conclusion` | object | P1 done |
+| `status` | `/repos/{o}/{r}/commits/{ref}/statuses` | `id` + `updated_at` | object | P1 done |
+| `page_build` | `/repos/{o}/{r}/pages/builds` | `id` + `updated_at` | object | P1 done |
 | `deployment` | `/repos/{o}/{r}/deployments` | `id` + `updated_at` | object | P3 done |
 | `deployment_status` | `/repos/{o}/{r}/deployments/{id}/statuses` | `id` + `updated_at` | object | P3 done |
 | `deployment_review` | `/repos/{o}/{r}/actions/runs/{run_id}/pending_deployments` | environment `id` + approval state | partial | deferred |
@@ -43,8 +43,8 @@ per active run, so it is opt-in per repository.
 
 | Event | REST source | Cursor | Fidelity | Phase |
 | --- | --- | --- | --- | --- |
-| `pull_request` | `/repos/{o}/{r}/pulls?state=all&sort=updated` | `number` + `updated_at` | object | P1 |
-| `pull_request_review` | `/repos/{o}/{r}/pulls/{number}/reviews` | `id` + `submitted_at` | object | P1 |
+| `pull_request` | `/repos/{o}/{r}/pulls?state=all&sort=updated` | `number` + `updated_at` | object | P1 done |
+| `pull_request_review` | `/repos/{o}/{r}/pulls/{number}/reviews` | `id` + `submitted_at` | object | P1 done |
 | `pull_request_review_comment` | `/repos/{o}/{r}/pulls/comments?sort=updated` | `id` + `updated_at` | object | P2 |
 | `pull_request_review_thread` | GraphQL `reviewThreads` ~ | thread `id` + `isResolved` | partial | P4 |
 | `issues` | `/repos/{o}/{r}/issues?state=all&sort=updated&since=` | `number` + `updated_at` | object | P2 done |
