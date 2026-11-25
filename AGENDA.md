@@ -120,6 +120,8 @@ App-only events are reported as unsupported instead of being silently dropped.
    real if a forwarder mode lands.
 4. `status` reports last poll, last event, quota and request counters. Next poll is
    not reported yet.
+5. Done: a ten-minute soak on `omnigame-studio/dev-server` measured 485 requests
+   and 135 bodies, about 800 billable per hour; see [PROGRESS.md](PROGRESS.md).
 
 Acceptance: a 24-hour soak on a quiet repository holds the request budget and
 leaves no hooks behind.

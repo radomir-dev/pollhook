@@ -340,3 +340,29 @@ Next:
    and record `http.requests`, `http.notModified` and the quota delta.
 2. P3 leftovers: branch protection, secret scanning locations and scans,
    deployment review, deployment protection rules.
+
+## 2026-11-25: ten-minute soak (P5)
+
+Ran the daemon for ten minutes against `omnigame-studio/dev-server` with the
+example config, sampling `status` every minute:
+
+1. 485 requests, 350 of them `304`; 135 bodies fetched.
+2. The quota fell by 176, so roughly 41 responses belonged to other clients on the
+   same token.
+3. 235 deliveries and no polling errors; the last poll landed one second before
+   shutdown.
+4. Extrapolated: about 2,900 requests per hour and 800 billable, well under the
+   5,000 limit. The repository is active, so this is a load figure, not an idle
+   one.
+
+The 30-second adapters dominate the request count; the five-minute alert,
+deployment and ruleset adapters add little.
+
+Verification: `tsc --noEmit` clean, 67 of 67 tests passing.
+
+Next:
+
+1. Apply the new size rules: `src/cli.ts` has 290 lines, `src/daemon.ts` 234 and
+   `src/db.ts` 224. Split them and bring functions under 30 lines.
+2. P3 leftovers: branch protection, secret scanning locations and scans,
+   deployment review, deployment protection rules.
