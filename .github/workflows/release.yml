@@ -35,16 +35,16 @@ jobs:
           config-file: release-please-config.json
           manifest-file: .release-please-manifest.json
       - uses: actions/checkout@v4
-        if: steps.release.outputs.release_created == 'true'
+        if: (steps.plan.outputs.release_created == 'true' || steps.release.outputs.release_created == 'true')
         with:
           ref: ${{ github.event.workflow_run.head_sha }}
       - uses: actions/setup-node@v4
-        if: steps.release.outputs.release_created == 'true'
+        if: (steps.plan.outputs.release_created == 'true' || steps.release.outputs.release_created == 'true')
         with:
           node-version: 24
           registry-url: https://registry.npmjs.org
       - name: Publish to npm
-        if: steps.release.outputs.release_created == 'true'
+        if: (steps.plan.outputs.release_created == 'true' || steps.release.outputs.release_created == 'true')
         run: |
           npm ci
           npm publish --provenance --access public
