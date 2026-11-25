@@ -6,6 +6,8 @@ const VALUE_FLAGS = new Set([
   "--limit",
   "--event",
   "--match",
+  "--events",
+  "--interval",
 ]);
 
 export function valueFlag(args: string[], name: string): string | undefined {

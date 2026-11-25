@@ -41,13 +41,15 @@ or run it without installing: `npx pollhook --help`.
 
 1. Authenticate. pollhook uses `POLLHOOK_TOKEN`, then your `gh auth login`, then
    `GH_TOKEN` or `GITHUB_TOKEN`. A token that can read the repository is enough.
-2. Create `~/.config/pollhook/config.json`:
+2. Create the config:
 
-        {
-          "repos": [
-            { "repo": "owner/name", "events": ["workflow_run", "pull_request", "check_run"] }
-          ]
-        }
+        pollhook init --repo owner/name --events workflow_run,pull_request,check_run
+
+   That writes `~/.config/pollhook/config.json` (it refuses to overwrite one without
+   `--force`). Add or remove repositories later with `pollhook config add-repo
+   owner/name` and `pollhook config remove-repo owner/name`; a running daemon picks
+   the change up. `pollhook config check` validates the file and prints the
+   resolved interval and strategy of every event.
 
 3. Start the daemon, in a terminal or as a service (see below):
 
@@ -154,6 +156,10 @@ without access); they retry hourly. `status --json` has the reasons.
 
 | Command | What it does |
 | --- | --- |
+| `pollhook init [--repo OWNER/NAME]... [--events a,b] [--force] [--config PATH]` | Writes a starter config and refuses to overwrite one. |
+| `pollhook config check [--config PATH]` | Validates the config and prints the resolved interval and strategy per event. |
+| `pollhook config add-repo OWNER/NAME [--events a,b] [--interval N] [--config PATH]` | Adds a repository to the config; a running daemon reloads it. |
+| `pollhook config remove-repo OWNER/NAME [--config PATH]` | Removes a repository from the config. |
 | `pollhook daemon [--config PATH]` | Polls GitHub and serves consumers over a unix socket. |
 | `pollhook status [--json]` | Shows last and next poll per target, quota, degraded adapters and waiters. |
 | `pollhook events` | Lists every implemented event with its polling floor. |
@@ -169,6 +175,10 @@ without access); they retry hourly. `status --json` has the reasons.
 
 Flags:
 
+- `pollhook init`: `--repo OWNER/NAME` repeatable, default a placeholder to edit; `--events a,b` comma-separated event names, default workflow_run,pull_request; `--force` overwrite an existing file; `--config PATH` config file, default ~/.config/pollhook/config.json
+- `pollhook config check`: `--config PATH` config file, default ~/.config/pollhook/config.json
+- `pollhook config add-repo`: `--events a,b` comma-separated event names, default workflow_run,pull_request; `--interval N` poll interval in seconds; `--config PATH` config file, default ~/.config/pollhook/config.json
+- `pollhook config remove-repo`: `--config PATH` config file, default ~/.config/pollhook/config.json
 - `pollhook daemon`: `--config PATH` config file, default ~/.config/pollhook/config.json
 - `pollhook status`: `--json` prints the raw status body
 - `pollhook deliveries`: `--limit N` how many to print, default 20; `--repo OWNER/NAME` targets one repository

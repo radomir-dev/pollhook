@@ -106,3 +106,20 @@ test("the SQLite experimental warning is not printed", async () => {
   assert.doesNotMatch(result.stderr, /ExperimentalWarning/);
   assert.match(result.stderr, /cannot reach pollhook/);
 });
+
+test("a first-time user is guided from no config to a valid one", async () => {
+  const stateDir = tempStateDir();
+  const path = join(stateDir, "fresh", "config.json");
+
+  const missing = await cli(["status"], path, stateDir);
+  assert.equal(missing.status, 2);
+  assert.match(missing.stderr, /pollhook init/);
+
+  const init = await cli(["init", "--config", path, "--repo", "acme/app"], path, stateDir);
+  assert.equal(init.status, 0, init.stderr);
+
+  const check = await cli(["config", "check"], path, stateDir);
+  assert.equal(check.status, 0, check.stderr);
+  assert.match(check.stdout, /acme\/app/);
+  assert.match(check.stdout, /workflow_run\s+every\s+60s\s+fixed/);
+});

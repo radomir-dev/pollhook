@@ -3,6 +3,7 @@ import "./quiet.ts";
 import { loadConfig } from "./config.ts";
 import { startDaemon } from "./daemon.ts";
 import { valueFlag } from "./cli/args.ts";
+import { runConfigCommand } from "./cli/config-commands.ts";
 import { dispatchCommand } from "./cli/commands.ts";
 import { brief } from "./cli/format.ts";
 import { stream } from "./cli/rpc.ts";
@@ -15,6 +16,9 @@ async function main(argv: string[]): Promise<number> {
     process.stdout.write(USAGE);
     return 0;
   }
+
+  const handled = runConfigCommand(command, args);
+  if (handled !== undefined) return handled;
 
   const config = loadConfig(valueFlag(args, "--config"));
   if (command === "daemon") {

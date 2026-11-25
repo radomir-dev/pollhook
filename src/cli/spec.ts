@@ -20,7 +20,45 @@ export const EXIT_CODES: FlagSpec[] = [
 const REPO: FlagSpec = { flag: "--repo OWNER/NAME", description: "targets one repository" };
 const TIMEOUT: FlagSpec = { flag: "--timeout 30m", description: "how long to wait" };
 
+const CONFIG: FlagSpec = {
+  flag: "--config PATH",
+  description: "config file, default ~/.config/pollhook/config.json",
+};
+const EVENTS: FlagSpec = {
+  flag: "--events a,b",
+  description: "comma-separated event names, default workflow_run,pull_request",
+};
+
 export const COMMANDS: CommandSpec[] = [
+  {
+    name: "init",
+    args: "[--repo OWNER/NAME]... [--events a,b] [--force] [--config PATH]",
+    summary: "Writes a starter config and refuses to overwrite one.",
+    flags: [
+      { flag: "--repo OWNER/NAME", description: "repeatable, default a placeholder to edit" },
+      EVENTS,
+      { flag: "--force", description: "overwrite an existing file" },
+      CONFIG,
+    ],
+  },
+  {
+    name: "config check",
+    args: "[--config PATH]",
+    summary: "Validates the config and prints the resolved interval and strategy per event.",
+    flags: [CONFIG],
+  },
+  {
+    name: "config add-repo",
+    args: "OWNER/NAME [--events a,b] [--interval N] [--config PATH]",
+    summary: "Adds a repository to the config; a running daemon reloads it.",
+    flags: [EVENTS, { flag: "--interval N", description: "poll interval in seconds" }, CONFIG],
+  },
+  {
+    name: "config remove-repo",
+    args: "OWNER/NAME [--config PATH]",
+    summary: "Removes a repository from the config.",
+    flags: [CONFIG],
+  },
   {
     name: "daemon",
     args: "[--config PATH]",
