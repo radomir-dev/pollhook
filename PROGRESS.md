@@ -473,3 +473,22 @@ Next:
 
 1. P4 remainder: `organization`, projects and packages.
 2. P5: report the next poll time in `status`.
+
+## 2026-11-25: next poll in status (P5)
+
+`status` reports `nextPollAt` for each target: the earliest due time among that
+target's enabled adapters, taken from the poller's schedule. The CLI prints
+`next_poll=` next to `last_poll=`.
+
+P4 stays where it is. The remaining organisation, project and package events need
+payload shapes the REST API does not expose: project board items are GraphQL-only
+and packages need one request per package type. They are recorded as deferred
+rather than approximated.
+
+Verification: `tsc --noEmit` clean, 80 of 80 tests passing.
+
+Next:
+
+1. Re-verify packaging after the module split: build, pack, install the tarball
+   and run the bin.
+2. Revisit P4 deferred events only if a consumer needs them.

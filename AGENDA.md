@@ -120,8 +120,7 @@ App-only events are reported as unsupported instead of being silently dropped.
    path is complete without it.
 3. `pollhook cleanup` stays a no-op while pollhook creates no hooks. It becomes
    real if a forwarder mode lands.
-4. `status` reports last poll, last event, quota and request counters. Next poll is
-   not reported yet.
+4. `status` reports last poll, next poll, last event, quota and request counters.
 5. Done: a ten-minute soak on `omnigame-studio/dev-server` measured 485 requests
    and 135 bodies, about 800 billable per hour; see [PROGRESS.md](PROGRESS.md).
 
