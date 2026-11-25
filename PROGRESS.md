@@ -127,3 +127,24 @@ Next:
 1. P2 activity events: `issues`, `issue_comment`, `release`, `label`, `milestone`.
 2. Verify whether `gh webhook forward` leaves a hook behind.
 3. Package for npm/npx: P6 in AGENDA.md.
+
+## 2026-11-25: issues and comments (P2)
+
+`issues` polls `/issues?state=all&sort=updated`, drops entries that carry a
+`pull_request` key, and derives opened, closed, reopened, labeled, unlabeled and
+edited from state, labels and a hash of title and body. `updated_at` is excluded on
+purpose: adding a comment bumps it and would otherwise look like an issue edit.
+
+`issue_comment` polls `/issues/comments?sort=updated`, emits `created` on first
+sight and `edited` when the body hash changes, and attaches the issue from the
+issues snapshot, falling back to the pull request snapshot and then `{number}`.
+Deleted comments are not detected: the feed is capped at 100 and absence is not
+evidence.
+
+Verification: `tsc --noEmit` clean, 47 of 47 tests passing.
+
+Next:
+
+1. P2 remainder: `release`, `label`, `milestone`.
+2. Verify whether `gh webhook forward` leaves a hook behind.
+3. Package for npm/npx: P6 in AGENDA.md.

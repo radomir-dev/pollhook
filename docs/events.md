@@ -47,8 +47,8 @@ per active run, so it is opt-in per repository.
 | `pull_request_review` | `/repos/{o}/{r}/pulls/{number}/reviews` | `id` + `submitted_at` | object | P1 |
 | `pull_request_review_comment` | `/repos/{o}/{r}/pulls/comments?sort=updated` | `id` + `updated_at` | object | P2 |
 | `pull_request_review_thread` | GraphQL `reviewThreads` ~ | thread `id` + `isResolved` | partial | P4 |
-| `issues` | `/repos/{o}/{r}/issues?state=all&sort=updated&since=` | `number` + `updated_at` | object | P2 |
-| `issue_comment` | `/repos/{o}/{r}/issues/comments?sort=updated` | `id` + `updated_at` | object | P2 |
+| `issues` | `/repos/{o}/{r}/issues?state=all&sort=updated&since=` | `number` + `updated_at` | object | P2 done |
+| `issue_comment` | `/repos/{o}/{r}/issues/comments?sort=updated` | `id` + `updated_at` | object | P2 done |
 | `sub_issues` | `/repos/{o}/{r}/issues/{number}/sub_issues` | `id` + `updated_at` | object | P3 |
 | `issue_dependencies` | `/repos/{o}/{r}/issues/{number}/dependencies/*` ~ | relationship `id` | partial | P4 |
 | `issue_relates_to` | `/repos/{o}/{r}/issues/{number}/timeline` ~ | timeline event `id` | partial | P4 |

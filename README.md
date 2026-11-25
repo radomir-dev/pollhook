@@ -119,8 +119,8 @@ agent actually needs. Event synthesis is the mechanism, not the product.
 
 ## Status
 
-P0, P1 and the git events of P2 (`push`, `create`, `delete`) are implemented and
-covered by 42 tests. What shipped and what comes next is in
+P0, P1 and part of P2 (`push`, `create`, `delete`, `issues`, `issue_comment`) are
+implemented and covered by 47 tests. What shipped and what comes next is in
 [PROGRESS.md](PROGRESS.md); phases and acceptance criteria are in
 [AGENDA.md](AGENDA.md).
 
