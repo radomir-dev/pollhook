@@ -492,3 +492,22 @@ Next:
 1. Re-verify packaging after the module split: build, pack, install the tarball
    and run the bin.
 2. Revisit P4 deferred events only if a consumer needs them.
+
+## 2026-11-25: packaging re-check
+
+After the module split the published shape still works:
+
+1. `npm run build` emits `dist/` with `.js` imports and the shebang intact.
+2. `node dist/cli.js --help` exits 0; `status` without a config exits 2.
+3. `npm pack`, install the tarball into a temporary prefix, `pollhook --help`
+   exits 0 and `pollhook status` exits 2.
+
+No changes were needed; `dist/` stays gitignored.
+
+Verification: `tsc --noEmit` clean, 80 of 80 tests passing.
+
+Next:
+
+1. P5: repeat the ten-minute soak including an org target and the newer adapters,
+   and confirm the request budget.
+2. P4: revisit the deferred events only if a consumer needs them.
