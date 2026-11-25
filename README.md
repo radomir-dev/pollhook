@@ -138,7 +138,8 @@ The unit keeps your home read-only except `~/.local/state`.
 A `304 Not Modified` does not count against GitHub's limit, and pollhook sends
 `If-None-Match` on every poll, so a quiet repository is cheap: a ten-minute soak on
 one repository made 485 requests, 135 of them with bodies, about 800 billable per
-hour. When quota runs low the daemon stretches every interval (3x under 15%
+hour. Every poll is delayed by up to 10% at random, so targets that share an
+interval do not hit the API in lockstep. When quota runs low the daemon stretches every interval (3x under 15%
 remaining, 10x under 5%) and honours `Retry-After`. `pollhook poke` polls
 immediately when you know something just happened.
 

@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { StateStore } from "../src/db.ts";
-import { delayFor } from "../src/poller/schedule.ts";
+import { delayFor, jitterMs } from "../src/poller/schedule.ts";
 import type { Adapter } from "../src/types.ts";
 
 const adapter = (name: Adapter["name"], floorMs: number): Adapter => ({
@@ -84,4 +84,20 @@ test("quota pressure stretches the interval without going below the floor", () =
   assert.equal(delayFor(adapter("push", 10_000), 10_000, db, repo, "fixed", 3), 30_000);
   assert.equal(delayFor(adapter("push", 10_000), 10_000, db, repo, "fixed", 0.5), 10_000);
   db.close();
+});
+
+test("jitter adds up to a tenth of the delay and never subtracts", () => {
+  assert.equal(
+    jitterMs(10_000, () => 0),
+    0,
+  );
+  assert.equal(
+    jitterMs(10_000, () => 0.5),
+    500,
+  );
+  assert.ok(jitterMs(10_000, () => 0.999999) < 1000);
+  assert.equal(
+    jitterMs(0, () => 0.9),
+    0,
+  );
 });

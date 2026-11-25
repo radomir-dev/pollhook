@@ -2,6 +2,7 @@ import type { Adapter, DurationStore, SnapshotStore } from "../types.ts";
 import type { EventTuning, Strategy } from "../config/tuning.ts";
 
 const SLOW_INTERVAL_MS = 30_000;
+const JITTER_SHARE = 0.1;
 const EARLY_SHARE = 0.5;
 
 export interface ScheduleStore extends SnapshotStore {
@@ -20,6 +21,10 @@ export function resolveStrategy(
   adapter: Adapter,
 ): Strategy {
   return target.strategies?.[adapter.name] ?? config.strategies?.[adapter.name] ?? "fixed";
+}
+
+export function jitterMs(delayMs: number, random: () => number = Math.random): number {
+  return Math.floor(random() * delayMs * JITTER_SHARE);
 }
 
 export function delayFor(

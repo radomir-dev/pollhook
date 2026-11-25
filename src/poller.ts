@@ -4,7 +4,7 @@ import type { StateStore } from "./db.ts";
 import type { Adapter, AdapterScope, Emit, EventName, GithubClient } from "./types.ts";
 import { adaptersFor } from "./registry.ts";
 import { HeadCache, refsFor } from "./poller/refs.ts";
-import { delayFor, resolveInterval, resolveStrategy } from "./poller/schedule.ts";
+import { delayFor, jitterMs, resolveInterval, resolveStrategy } from "./poller/schedule.ts";
 import {
   DEGRADED_MS,
   isPermanent,
@@ -28,8 +28,16 @@ export class Poller {
   private readonly db: StateStore;
   private readonly gh: GithubClient;
   private readonly emit: Emit;
+  private readonly random: () => number;
 
-  constructor(config: Config, db: StateStore, gh: GithubClient, emit: Emit) {
+  constructor(
+    config: Config,
+    db: StateStore,
+    gh: GithubClient,
+    emit: Emit,
+    random: () => number = Math.random,
+  ) {
+    this.random = random;
     this.config = config;
     this.db = db;
     this.gh = gh;
@@ -148,10 +156,8 @@ export class Poller {
     const dueKey = `${kind}:${name}:${adapter.name}`;
     if ((this.nextDue.get(dueKey) ?? 0) > Date.now()) return false;
     const pressure = this.gh.pressure?.() ?? 1;
-    this.nextDue.set(
-      dueKey,
-      Date.now() + delayFor(adapter, intervalMs, this.db, name, strategy, pressure),
-    );
+    const delay = delayFor(adapter, intervalMs, this.db, name, strategy, pressure);
+    this.nextDue.set(dueKey, Date.now() + delay + jitterMs(delay, this.random));
     const primedKey = `primed:${kind}:${name}:${adapter.name}`;
     const cold = this.db.getCursor(primedKey) === null;
     await adapter.poll({

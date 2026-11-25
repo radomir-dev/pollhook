@@ -161,3 +161,26 @@ test("a transient error stays in lastError", async () => {
   );
   db.close();
 });
+
+test("jitter spreads the next poll time without ever polling sooner than the interval", async () => {
+  const slow: Config = {
+    ...workflowConfig,
+    repos: [{ ...workflowConfig.repos[0]!, intervalMs: 100_000 }],
+  };
+  const runs = { "/repos/acme/app/actions/runs?per_page=50": { workflow_runs: [] } };
+  const nextPoll = async (random: () => number): Promise<number> => {
+    const db = new StateStore(":memory:");
+    const poller = new Poller(slow, db, new FakeGitHub(runs), () => {}, random);
+    const before = Date.now();
+    await poller.pollOnce();
+    const due = Date.parse(poller.listStatuses()[0]!.nextPollAt!) - before;
+    db.close();
+    return due;
+  };
+
+  const steady = await nextPoll(() => 0);
+  const jittered = await nextPoll(() => 0.5);
+
+  assert.ok(steady >= 100_000, "never sooner than the interval");
+  assert.ok(jittered - steady >= 4_000 && jittered - steady <= 6_000, `got ${jittered - steady}`);
+});
