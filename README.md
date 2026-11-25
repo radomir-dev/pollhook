@@ -118,11 +118,11 @@ result, which is what CI runs on every push and pull request:
 3. `oxfmt --check` for formatting.
 4. `knip` for dead code and unused dependencies.
 5. `npm audit --audit-level=high` for advisories.
-6. `node --test` for the suite.
-7. The same suite under `--experimental-test-coverage`, failing under 85% lines,
-   70% branches or 80% functions.
-8. The generated README blocks (`docs:check`).
-9. `npm run build`, `publint --strict` and a `dist/cli.js --help` smoke test.
+6. The suite, run once under `--experimental-test-coverage` so the pass and the
+   numbers come from the same execution, failing under 85% lines, 70% branches or
+   80% functions.
+7. The generated README blocks (`docs:check`).
+8. `npm run build`, `publint --strict` and a `dist/cli.js --help` smoke test.
 
 Mutation testing is not included: Stryker has no `node:test` runner; see issue 9.
 

@@ -77,19 +77,16 @@ const tasks = new Listr(
       await exec("npm", "audit", "--audit-level=high");
       return "no high or critical advisories";
     }),
-    task("Tests", async () => {
-      await exec("npm", "test");
-      return "all tests pass";
-    }),
-    task("Coverage", async () => {
+    task("Tests and coverage", async () => {
       const { stdout, stderr } = await exec(
         process.execPath,
         "--test",
         "--experimental-test-coverage",
+        "test/*.test.ts",
       );
       const actual = coverageRow(`${stdout}\n${stderr}`);
       assertFloors(actual);
-      return `lines ${actual.lines}%, branches ${actual.branches}%, functions ${actual.funcs}%`;
+      return `all tests pass; lines ${actual.lines}%, branches ${actual.branches}%, functions ${actual.funcs}%`;
     }),
     task("Generated docs", async () => {
       await exec("node", "scripts/cli-docs.ts", "--check");
