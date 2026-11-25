@@ -1,5 +1,7 @@
 # Agenda
 
+When this will be ready I will want to be able to install it from npm or run via npx.
+
 Target for v1: an agent can block on "this run finished", "these checks passed",
 "this PR merged" and "Pages built this commit", through one local contract, with no
 webhook on the repository and no admin rights. Later phases widen the event surface
