@@ -25,6 +25,13 @@ export function observe(
   return { changed: true, prev };
 }
 
+export async function orgAndSender(
+  ctx: AdapterContext,
+): Promise<{ organization: { login: string }; sender: Record<string, unknown> }> {
+  const sender = await ctx.gh.sender();
+  return { organization: { login: ctx.org ?? "" }, sender };
+}
+
 export const SUCCESS_CONCLUSIONS = new Set(["success", "neutral", "skipped"]);
 
 export const FAILED_CONCLUSIONS = new Set([

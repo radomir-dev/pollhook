@@ -28,6 +28,7 @@ export type EventName =
   | "branch_protection_configuration"
   | "member"
   | "team"
+  | "membership"
   | "workflow_run"
   | "check_suite"
   | "check_run"
