@@ -90,3 +90,23 @@ Next:
    diffs.
 2. Verify whether `gh webhook forward` leaves a hook behind.
 3. Package for npm/npx: P6 in AGENDA.md.
+
+## 2026-11-25: push (P2)
+
+`push` polls `/branches` and reconstructs a delivery from `/compare` when a tip
+moves: `before`, `after`, `commits`, `head_commit` and `forced` when the compare
+reports `diverged`. A branch first seen after priming is reported as `created`
+with a zero `before` and up to 20 commits. A 404 from compare, which happens for
+orphaned or garbage-collected history, records the new tip without a delivery
+instead of retrying forever. Branches are capped at the first 100.
+
+Known gap: `pusher` is the authenticated user, not the person who pushed; the REST
+API does not record it.
+
+Verification: `tsc --noEmit` clean, 37 of 37 tests passing.
+
+Next:
+
+1. P2 continued: `create` and `delete` from branch and tag diffs.
+2. Verify whether `gh webhook forward` leaves a hook behind.
+3. Package for npm/npx: P6 in AGENDA.md.

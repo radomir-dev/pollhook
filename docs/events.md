@@ -62,7 +62,7 @@ per active run, so it is opt-in per repository.
 
 | Event | REST source | Cursor | Fidelity | Phase |
 | --- | --- | --- | --- | --- |
-| `push` | `/repos/{o}/{r}/compare/{before}...{after}` | branch tip SHA | derived | P2 |
+| `push` | `/repos/{o}/{r}/compare/{before}...{after}` | branch tip SHA | derived | P2 done |
 | `create` | `/repos/{o}/{r}/branches`, `/tags` | name + SHA | derived | P2 |
 | `delete` | `/repos/{o}/{r}/branches`, `/tags` (absence) | name | derived | P2 |
 | `fork` | `/repos/{o}/{r}/forks?sort=newest` | `id` + `created_at` | object | P3 |
