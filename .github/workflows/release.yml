@@ -18,7 +18,19 @@ jobs:
     environment: npm
     steps:
       - uses: googleapis/release-please-action@v4
+        id: plan
+        with:
+          config-file: release-please-config.json
+          manifest-file: .release-please-manifest.json
+      - name: Merge the release PR
+        if: steps.plan.outputs.prs_created == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR: ${{ fromJSON(steps.plan.outputs.pr || '{}').number }}
+        run: gh pr merge "$PR" --repo "$GITHUB_REPOSITORY" --squash
+      - uses: googleapis/release-please-action@v4
         id: release
+        if: steps.plan.outputs.prs_created == 'true' || steps.plan.outputs.release_created == 'true'
         with:
           config-file: release-please-config.json
           manifest-file: .release-please-manifest.json

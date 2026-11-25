@@ -1,7 +1,7 @@
 {
   "repos": [
     {
-      "repo": "omnigame-studio/dev-server",
+      "repo": "acme/app",
       "events": [
         "push",
         "create",
