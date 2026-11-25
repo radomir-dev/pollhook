@@ -216,3 +216,32 @@ Next:
    `secret_scanning_alert`.
 2. Verify whether `gh webhook forward` leaves a hook behind.
 3. Package for npm/npx: P6 in AGENDA.md.
+
+## 2026-11-25: security alerts (P3)
+
+Three alert adapters at a five-minute floor:
+
+1. `dependabot_alert` reads one request with the comma-separated state list
+   `open,dismissed,fixed,auto_dismissed`, verified against the API.
+2. `code_scanning_alert` reads `open`, `dismissed` and `fixed` as separate
+   requests, and `secret_scanning_alert` reads `open` and `resolved` the same way.
+   The docs do not promise a comma list for those two, and an extra request every
+   five minutes is cheaper than a wrong assumption.
+3. Actions: created, reopened, dismissed or closed, fixed, resolved, validated and
+   edited, derived from state and validation status transitions.
+
+Required scopes are not checked at startup; a disabled feature or missing scope
+surfaces in `status` as the endpoint error. On `dev-server`, code scanning answers
+403 because Code Security is off and secret scanning answers 404 because it is
+disabled, which is the expected shape of that failure.
+
+Verification: `tsc --noEmit` clean, 60 of 60 tests passing.
+
+Next:
+
+1. P3 remainder: `repository_advisory`, `repository_vulnerability_alert`,
+   `repository_ruleset`, `branch_protection_rule`,
+   `branch_protection_configuration`, `deploy_key`, `secret_scanning_alert_location`,
+   `secret_scanning_scan`, `deployment`, `deployment_status`.
+2. Verify whether `gh webhook forward` leaves a hook behind.
+3. Package for npm/npx: P6 in AGENDA.md.

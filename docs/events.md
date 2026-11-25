@@ -88,9 +88,9 @@ per active run, so it is opt-in per repository.
 
 | Event | REST source | Cursor | Fidelity | Phase |
 | --- | --- | --- | --- | --- |
-| `dependabot_alert` | `/repos/{o}/{r}/dependabot/alerts` | `number` + `updated_at` | object | P3 |
-| `code_scanning_alert` | `/repos/{o}/{r}/code-scanning/alerts` | `number` + `updated_at` | object | P3 |
-| `secret_scanning_alert` | `/repos/{o}/{r}/secret-scanning/alerts` | `number` + `updated_at` | object | P3 |
+| `dependabot_alert` | `/repos/{o}/{r}/dependabot/alerts` | `number` + `updated_at` | object | P3 done |
+| `code_scanning_alert` | `/repos/{o}/{r}/code-scanning/alerts` | `number` + `updated_at` | object | P3 done |
+| `secret_scanning_alert` | `/repos/{o}/{r}/secret-scanning/alerts` | `number` + `updated_at` | object | P3 done |
 | `secret_scanning_alert_location` | locations nested in the alert | alert `number` + location set | object | P3 |
 | `secret_scanning_scan` | `/repos/{o}/{r}/secret-scanning/scan-history` ~ | scan `id` + `updated_at` | partial | P3 |
 | `repository_advisory` | `/repos/{o}/{r}/security-advisories` | `ghsa_id` + `updated_at` | object | P3 |

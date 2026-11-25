@@ -119,10 +119,8 @@ agent actually needs. Event synthesis is the mechanism, not the product.
 
 ## Status
 
-P0, P1 and most of P2 (`push`, `create`, `delete`, `issues`, `issue_comment`,
-`release`, `label`, `milestone`, `repository`, `public`, `fork`,
-`commit_comment`, `workflow_dispatch`, `merge_group`) are implemented and
-covered by 57 tests. What shipped and what comes next is in
+P0, P1, most of P2 and the three alert events of P3 are implemented and covered
+by 60 tests. What shipped and what comes next is in
 [PROGRESS.md](PROGRESS.md); phases and acceptance criteria are in
 [AGENDA.md](AGENDA.md).
 

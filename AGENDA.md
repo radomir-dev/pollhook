@@ -7,10 +7,11 @@ Target for v1: an agent can block on "this run finished", "these checks passed",
 webhook on the repository and no admin rights. Later phases widen the event surface
 toward the 76 events in GitHub's catalog without changing the delivery format.
 
-Status: P0, P1 and most of P2 (`push`, `create`, `delete`, `issues`,
+Status: P0, P1, most of P2 (`push`, `create`, `delete`, `issues`,
 `issue_comment`, `release`, `label`, `milestone`, `repository`, `public`, `fork`,
-`commit_comment`, `workflow_dispatch`, `merge_group`) are implemented; see
-[PROGRESS.md](PROGRESS.md). The phases below remain the plan for everything else.
+`commit_comment`, `workflow_dispatch`, `merge_group`) and the three alert events
+of P3 are implemented; see [PROGRESS.md](PROGRESS.md). The phases below remain the
+plan for everything else.
 
 ## Principles
 
