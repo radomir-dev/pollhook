@@ -1,153 +1,151 @@
 # pollhook
 
-GitHub webhook deliveries without webhooks: a local listener that rebuilds them
-from the REST API.
+[![npm](https://img.shields.io/npm/v/pollhook)](https://www.npmjs.com/package/pollhook)
+[![ci](https://github.com/radomir-dev/pollhook/actions/workflows/ci.yml/badge.svg)](https://github.com/radomir-dev/pollhook/actions/workflows/ci.yml)
+[![license](https://img.shields.io/npm/l/pollhook)](LICENSE)
 
-pollhook runs as a daemon. It polls the GitHub REST API for the repositories,
-organisations and event types you subscribe to, turns observed state changes into
-GitHub-shaped deliveries, and POSTs them to a local endpoint. A handler written against GitHub's
-webhook contract keeps working; the delivery was reconstructed, not pushed.
+GitHub webhook deliveries without webhooks. pollhook polls the GitHub REST API with
+a read-only token and turns what it sees into GitHub-shaped events, so you can
+wait for CI, stream repository activity, or feed a webhook handler without admin
+rights, a public URL or a GitHub App.
 
 ## Table of contents
 
 <!-- toc:start -->
 
-1. [Why](#why)
-1. [How it works](#how-it-works)
-1. [Running](#running)
-1. [Checks](#checks)
-1. [Releases](#releases)
-1. [Service](#service)
-1. [CLI reference](#cli-reference)
+1. [Install](#install)
+1. [Quick start](#quick-start)
+1. [What you can do with it](#what-you-can-do-with-it)
+1. [Configuration](#configuration)
+1. [Run it as a service](#run-it-as-a-service)
+1. [Rate limits](#rate-limits)
 1. [Reading status](#reading-status)
-1. [Scheduling](#scheduling)
-1. [Fidelity](#fidelity)
-1. [Prior art](#prior-art)
-1. [Guarantees](#guarantees)
-1. [Status](#status)
-1. [Layout](#layout)
-1. [Name](#name)
+1. [CLI reference](#cli-reference)
+1. [Limits](#limits)
+1. [How it compares](#how-it-compares)
+1. [Contributing](#contributing)
+1. [License](#license)
 
 <!-- toc:end -->
 
-## Why
+## Install
 
-Agents waiting on CI loop `gh run watch`, `gh pr checks` and `gh pr view`. Every
-waiter runs its own loop, burns API calls and machine time, and only learns about
-an event if it was already watching when the event fired. Nothing local can answer
-"tell me when this run finishes, and exit with the right code".
+Node 24 or newer is required (the state store uses `node:sqlite`).
 
-The options that exist today all have a catch:
+    npm install -g pollhook
 
-1. `gh webhook forward` and smee.io deliver real events, but need a webhook on the
-   repository, admin rights to create it, and a process that is running while the
-   event fires. The webhook stays behind in repository settings (unverified).
-2. GitHub App delivery polling (`/app/hook/deliveries`) gives real payloads, but
-   needs an App installed on the repository and only covers a short retention
-   window. The App receives events whether or not anyone is listening.
-3. GitHub Event Streams (`gh event listen`) is a waitlisted preview and answers
-   `403 Event subscriptions are not enabled for this account` here.
+or run it without installing: `npx pollhook --help`.
 
-pollhook takes the fourth path: a read-only token, the REST API, and a local
-delivery contract. No admin rights, no public URL, no App, and a wait that returns
-immediately for something that already finished.
+## Quick start
 
-## How it works
+1. Authenticate. pollhook uses `POLLHOOK_TOKEN`, then your `gh auth login`, then
+   `GH_TOKEN` or `GITHUB_TOKEN`. A token that can read the repository is enough.
+2. Create `~/.config/pollhook/config.json`:
 
-1. One config file lists the repositories and organisations, the event names to
-   subscribe to, and the delivery targets.
-2. Every event has an adapter: a REST endpoint to read, a cursor field to order
-   by, and a mapping from the REST resource to the webhook payload.
-3. The scheduler polls with `If-None-Match`. A `304` costs nothing against the
-   rate limit, so a quiet repository is close to free: a ten-minute soak on one
-   repository made 485 requests and 135 bodies, about 800 billable per hour.
-4. An observed change becomes a delivery carrying `X-GitHub-Event`,
-   `X-GitHub-Delivery`, and `X-Hub-Signature-256` when a secret is configured.
-   Deliveries are at-least-once; a fingerprint store drops duplicates. A failing
-   POST target is retried five times with exponential backoff, while a 4xx answer
-   other than 408 or 429 is treated as permanent. The first
-   poll of each event records state without delivering, so a cold start never
-   replays history.
-5. Consumers pick their shape: an optional loopback POST target, a JSONL stream
-   (`pollhook emit`), or the wait commands, which block and exit `0` success,
-   `1` failure, `8` timeout, `2` bad arguments or daemon unreachable.
+        {
+          "repos": [
+            { "repo": "owner/name", "events": ["workflow_run", "pull_request", "check_run"] }
+          ]
+        }
 
-The REST resource is the source, not `/repos/{owner}/{repo}/events`. That endpoint
-is a lagging feed of repository activity, not a queryable state log, and it cannot
-report the current status of a run or a check.
+3. Start the daemon, in a terminal or as a service (see below):
 
-## Running
+        pollhook daemon
 
-1. `npm install && npm run build`, then `npm link` to put `pollhook` on PATH.
-   Node 24 is required; `.mise.toml` pins 24.22.3.
-2. Copy `pollhook.example.json` to `~/.config/pollhook/config.json` and set the
-   repository and events. An optional `orgs` array covers org-level events;
-   `team` and `membership` are implemented today. `intervals` sets a poll interval
-   per event, globally or per repository, and `strategies` picks `fixed` or
-   `while-active` per event. A repository's own value wins over the global one,
-   which wins over the target's `intervalSeconds`; the adapter floor always wins
-   last, so nothing polls faster than the API tolerates.
-3. Run `pollhook daemon`. The token comes from `POLLHOOK_TOKEN`, then your
-   `gh auth login`, then `GH_TOKEN`/`GITHUB_TOKEN`. The gh login wins over ambient
-   tokens because a `GITHUB_TOKEN` in the environment often belongs to something
-   else.
-4. The daemon reloads `config.json` on `SIGHUP` and when the file changes, so a
-   config edit keeps the socket and every open `emit` stream alive. A broken edit
-   is reported as `configError` in `status` and the previous config keeps running.
-5. Use `pollhook run <id>`, `pollhook checks <pr>`, `pollhook pr <n> --until
-   merged`, `pollhook pages <sha>` and `pollhook status`.
-6. `pollhook poke [--repo OWNER/NAME]` polls now instead of waiting out the
-   interval, which is how a run you just started shows up within a second.
-7. `pollhook emit --brief` prints one line per delivery: time, repo, event,
-   action, key, then the run or check name, the conclusion when it finished, and
-   the elapsed time while it runs. Full JSON stays the default.
+4. In another terminal, wait for things:
 
-The daemon serves consumers over a unix socket at
-`$XDG_RUNTIME_DIR/pollhook.sock`, so it opens no port. An optional `deliver.url`
-receives GitHub-shaped POSTs and must be a loopback address.
+        pollhook run 123456789                  # exits 0 on success, 1 on failure
+        pollhook checks 42                      # every check on a pull request
+        pollhook pr 42 --until merged
+        pollhook emit --brief                   # live stream of deliveries
 
-The published package ships `dist/` and a `pollhook` bin, so `npx pollhook` works
-once the package is on npm.
+The first poll of each event only records current state, so you never get a replay
+of history. A wait on something that already finished returns immediately.
 
-## Checks
+Exit codes for the wait commands: `0` success, `1` the thing failed, `8` timeout,
+`2` bad arguments or the daemon is not running.
 
-`npm run doctor` runs the whole battery in parallel and fails on the first bad
-result, which is what CI runs on every push and pull request:
+## What you can do with it
 
-1. `tsc --noEmit` for types.
-2. `oxlint` for correctness and bug patterns.
-3. `oxfmt --check` for formatting.
-4. `dependency-cruiser` for cycles and layer rules: the store never imports adapters,
-   adapters never import each other, core never imports the CLI, and `node:net` stays
-   in the daemon and CLI.
-5. `knip` for dead code and unused dependencies.
-6. `npm audit --audit-level=high` for advisories.
-7. The suite, run once under `--experimental-test-coverage` so the pass and the
-   numbers come from the same execution, failing under 85% lines, 70% branches or
-   80% functions.
-8. The generated README blocks (`docs:check`).
-9. `npm run build`, `publint --strict` and a `dist/cli.js --help` smoke test.
+1. **Wait in scripts and agents.** `pollhook run`, `checks`, `pr`, `pages` and
+   `wait --event ... --match key=value` block and exit with a meaningful code.
+   Any number of waiters share one poller.
+2. **Watch a stream.** `pollhook emit` prints one JSON delivery per line;
+   `--brief` prints one readable line per delivery. A config edit does not drop the
+   stream.
+3. **Feed a webhook handler.** Set `deliver.url` to a loopback address and pollhook
+   POSTs GitHub-shaped requests with `X-GitHub-Event`, `X-GitHub-Delivery` and,
+   with a `secret`, a real `X-Hub-Signature-256`.
 
-Mutation testing is not included: Stryker has no `node:test` runner; see issue 9.
+## Configuration
 
-## Releases
+`~/.config/pollhook/config.json` (override with `--config` or `POLLHOOK_CONFIG`).
+The daemon reloads it when the file changes or on `SIGHUP`; a broken edit is
+reported as `configError` in `pollhook status` and the old config keeps running.
 
-Conventional Commits drive everything. `pr-title` rejects a pull request whose
-title is not `type(scope): subject`. On `main`, `release-please` keeps one open
-release PR with the version bump and `CHANGELOG.md`; merging it tags the release,
-and `release.yml` — which only runs after `ci` succeeded on `main` — publishes to
-npm over OIDC, with provenance and no stored token.
+    {
+      "intervalSeconds": 60,
+      "intervals": { "workflow_run": 10, "pull_request": 15 },
+      "strategies": { "workflow_run": "while-active" },
+      "repos": [
+        {
+          "repo": "owner/name",
+          "events": ["workflow_run", "pull_request", "check_run", "status"],
+          "intervals": { "check_run": 60, "status": 60 }
+        }
+      ],
+      "orgs": [{ "org": "my-org", "events": ["team", "membership"], "intervalSeconds": 300 }],
+      "deliver": { "url": "http://127.0.0.1:7345/hook", "secret": "change-me" },
+      "stateDir": "~/.local/state/pollhook"
+    }
 
-## Service
+1. **`repos[].events`** lists what to poll. Leave it out and every supported event is
+   polled, which costs more requests; list only what you need. `pollhook events`
+   shows every event with its minimum interval, and [docs/events.md](docs/events.md)
+   documents what each one can and cannot report.
+2. **Intervals** resolve per event: the repository's `intervals`, then the global
+   `intervals`, then the target's `intervalSeconds` (default 60 for repositories,
+   300 for organisations). The adapter's own floor always wins, and no interval
+   can be under 5 seconds.
+3. **`strategies`** picks `fixed` (default) or `while-active`. With `while-active`
+   on `workflow_run`, polling relaxes to 30 seconds while every running workflow is
+   still under half of its typical duration.
+4. **`orgs`** covers organisation-level events (`team`, `membership`).
+5. **`deliver.url`** must be loopback. The control socket is a unix socket at
+   `$XDG_RUNTIME_DIR/pollhook.sock`, so pollhook opens no network port.
 
-1. `npm link` so `~/.local/bin/pollhook` exists. If your npm global prefix lives
-   elsewhere, symlink the bin into `~/.local/bin` or edit `ExecStart`.
-2. Copy `contrib/pollhook.service` to `~/.config/systemd/user/`.
-3. `systemctl --user daemon-reload && systemctl --user enable --now pollhook`.
-4. `journalctl --user -u pollhook -f` to watch it.
+## Run it as a service
 
-The unit keeps the home read-only except `~/.local/state`, and puts the mise shims
-on `PATH` so `node` and `gh auth token` resolve.
+With systemd, copy [contrib/pollhook.service](contrib/pollhook.service) to
+`~/.config/systemd/user/`, make sure `ExecStart` points at your `pollhook`
+(`which pollhook`), then:
+
+    systemctl --user daemon-reload
+    systemctl --user enable --now pollhook
+    journalctl --user -u pollhook -f
+
+The unit keeps your home read-only except `~/.local/state`.
+
+## Rate limits
+
+A `304 Not Modified` does not count against GitHub's limit, and pollhook sends
+`If-None-Match` on every poll, so a quiet repository is cheap: a ten-minute soak on
+one repository made 485 requests, 135 of them with bodies, about 800 billable per
+hour. When quota runs low the daemon stretches every interval (3x under 15%
+remaining, 10x under 5%) and honours `Retry-After`. `pollhook poke` polls
+immediately when you know something just happened.
+
+## Reading status
+
+`pollhook status` prints one line per target:
+
+    owner/repo  events=3  last_poll=...  next_poll=...  last_event=...
+    quota 4869/5000 remaining, resets ...
+    deliveries 60, waiters 0, pid 1234
+
+`error=` is a transient failure that clears after a clean round. `degraded=` lists
+adapters GitHub answered with 403 or 404 (a feature that is disabled, or a token
+without access); they retry hourly. `status --json` has the reasons.
 
 ## CLI reference
 
@@ -185,99 +183,45 @@ Exit codes: `0` success, `1` the waited-on run, check set or pull request failed
 
 <!-- cli:end -->
 
-## Reading status
+## Limits
 
-`pollhook status` prints one line per target:
-
-    owner/repo  events=33  last_poll=...  next_poll=...  last_event=...
-    quota 4869/5000 remaining, resets ...
-    deliveries 60, waiters 0, pid 1234
-
-1. `last_poll` is the last completed round; `next_poll` is the earliest adapter
-   due for that target.
-2. `last_event` is the last delivery for the target.
-3. `error=` is a transient failure and disappears after a clean round.
-4. `degraded=` lists adapters that answered 403 or 404. They retry after an hour
-   and drop off the list when a retry succeeds.
-5. `status --json` prints the same body with the per-adapter degraded reasons.
-
-## Scheduling
-
-Each adapter polls on its resolved interval, never faster than its own floor:
-the repository's `intervals` entry, then the global one, then the target's
-`intervalSeconds`. With `strategies: { "workflow_run": "while-active" }` the daemon
-keeps the last twenty durations of every workflow and polls `workflow_run` every
-30 seconds instead of the configured interval while every running workflow is
-still under half its typical duration, so a finished run is reported within one
-slow round and a quiet repository still gets the fast interval. The default
-strategy is `fixed`. Durations come from runs already fetched, so the estimate
-costs no requests. When quota is short the daemon multiplies every interval by 3
-under 15% remaining and by 10 under 5%, and a `Retry-After` on a 403 or 429 is
-honoured before the next attempt.
-
-## Fidelity
-
-Polling sees state; webhooks are a history of transitions. Four consequences, all
-of them permanent:
+Polling sees state, and a webhook is a history of transitions, so some things are
+permanently different:
 
 1. Transitions that leave no state behind are invisible: an object created and
-   deleted between two polls, a `repository_dispatch` call, a review submitted
-   and dismissed before the next poll.
-2. Intermediate states can be coalesced. A run may go from `queued` straight to
-   `completed` if it is short, and you will see one delivery instead of three.
-3. `sender` is the authenticated user or `ghost`, not necessarily the person who
-   acted. The REST API rarely records the actor.
-4. Some events exist only for GitHub Apps (`installation*`,
-   `github_app_authorization`) and some state is GraphQL-only (projects,
-   discussions).
+   deleted between two polls, or a review submitted and dismissed before the next
+   poll.
+2. Short-lived states can be coalesced. A run may go from `queued` to `completed`
+   as a single delivery.
+3. `sender` is the authenticated user, not necessarily whoever acted.
+4. GitHub App events (`installation*`, `marketplace_purchase`) and GraphQL-only
+   state (projects, discussions) are not supported.
 
-Per-event fidelity is documented in [docs/events.md](docs/events.md): which fields
-are guaranteed, which are inferred, and which transitions are undetectable.
+pollhook is read-only: it never sends `POST`, `PUT`, `PATCH` or `DELETE` to GitHub,
+and nothing listens on a network interface. Deliveries are at-least-once and
+de-duplicated by fingerprint.
 
-## Prior art
+## How it compares
 
-1. `gh webhook forward` / smee.io: real deliveries over a relay. Needs a webhook,
-   has no history, and has no wait primitive.
-2. `gr2m/github-app-webhook-relay-polling`: polls an App's deliveries endpoint.
-   Exact payloads, but needs an App and only sees the retention window.
-3. `daveseco7/polling-to-webhook`: generic poll-and-POST. No GitHub payload
-   semantics, no cursor, no dedupe.
-4. Probot `receive`: replays saved payloads. Not live.
-5. `github-event-poller`, Huginn and n8n recipes over `/users/{username}/events`:
-   convenient ETag polling, but the feed carries 16 activity types and none of them
-   is CI, checks, Pages or deployments, and GitHub's own docs warn that event
-   latency is "anywhere from 30s to 6h". It can accelerate activity events; it
-   cannot answer a wait.
+1. `gh webhook forward` and smee.io relay real events, but need a webhook and admin
+   rights, and the webhook stays behind in the repository settings.
+2. GitHub App delivery polling needs an App installed on the repository.
+3. `gh event listen` is a waitlisted preview.
+4. The Events API (`/repos/{owner}/{repo}/events`) has no CI, check or deployment
+   events, and GitHub documents its latency as "anywhere from 30s to 6h".
 
-The bet here is narrower than "emulate GitHub": a read-only token is the lowest
-possible bar, and a wait command with meaningful exit codes is the contract an
-agent actually needs. Event synthesis is the mechanism, not the product.
+## Contributing
 
-## Guarantees
+    git clone https://github.com/radomir-dev/pollhook && cd pollhook
+    npm ci
+    npm run doctor
 
-1. Read-only. pollhook never sends `POST`, `PUT`, `PATCH` or `DELETE` to GitHub.
-2. The control socket is a unix socket, and `deliver.url` must be loopback.
-   Nothing listens on a network interface.
-3. Deliveries are verifiable: with a secret configured, `X-Hub-Signature-256` is
-   a real HMAC of the body, so consumers validate exactly as they do for GitHub.
-4. A waiting command reads current state before it subscribes, so a run that
-   finished before the command started returns instantly.
-5. Payload compatibility is per field and documented, not byte-for-byte. Unknown
-   fields pass through when the REST object carries them.
+`doctor` runs types, lint, format, architecture rules, dead-code detection, an
+audit, the tests with coverage floors, the generated-docs check, and the build with
+a package check. CI runs the same command. Pull request titles must follow
+Conventional Commits; releases, the changelog and the npm publish are automated
+from them. Open work is in the [issue tracker](https://github.com/radomir-dev/pollhook/issues).
 
-## Status
+## License
 
-P0, P1, most of P2 and P3, and the deployment and protection events are
-implemented and covered by 141 tests. History lives in the commits and the
-generated `CHANGELOG.md`; open work and its acceptance criteria are in
-[the issue tracker](https://github.com/radomir-dev/pollhook/issues).
-
-## Layout
-
-1. `docs/events.md`: the event catalog with REST source, cursor, fidelity and phase.
-2. `pollhook.example.json`: a starting config.
-3. `contrib/pollhook.service`: the systemd user unit.
-
-## Name
-
-poll + hook. The npm name is free, and no active project uses it.
+[MIT](LICENSE)
