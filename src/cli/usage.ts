@@ -4,7 +4,7 @@ export const USAGE = `pollhook: GitHub webhook deliveries without webhooks
   pollhook status [--json]
   pollhook events
   pollhook deliveries [--limit N] [--repo OWNER/NAME]
-  pollhook emit
+  pollhook emit [--brief]
   pollhook run <run-id> [--repo OWNER/NAME] [--timeout 30m]
   pollhook checks <pr> [--repo OWNER/NAME] [--timeout 30m]
   pollhook pr <pr> --until merged|closed|reviewed|conflict [--repo OWNER/NAME] [--timeout 30m]

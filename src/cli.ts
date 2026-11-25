@@ -3,6 +3,7 @@ import { loadConfig } from "./config.ts";
 import { startDaemon } from "./daemon.ts";
 import { valueFlag } from "./cli/args.ts";
 import { dispatchCommand } from "./cli/commands.ts";
+import { brief } from "./cli/format.ts";
 import { stream } from "./cli/rpc.ts";
 import { USAGE } from "./cli/usage.ts";
 import { errorMessage } from "./util.ts";
@@ -21,7 +22,7 @@ async function main(argv: string[]): Promise<number> {
     return 0;
   }
   if (command === "emit") {
-    await stream(config, { op: "emit" });
+    await stream(config, { op: "emit" }, args.includes("--brief") ? brief : undefined);
     return 0;
   }
   return dispatchCommand(config, command, args);

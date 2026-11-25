@@ -37,7 +37,11 @@ export async function rpc(
   }
 }
 
-export async function stream(config: Config, message: Record<string, unknown>): Promise<void> {
+export async function stream(
+  config: Config,
+  message: Record<string, unknown>,
+  format: (body: any) => string = (body) => JSON.stringify(body),
+): Promise<void> {
   const socket = await connectSocket(socketPathFor(config));
   socket.setEncoding("utf8");
   let buffer = "";
@@ -49,7 +53,7 @@ export async function stream(config: Config, message: Record<string, unknown>): 
       buffer = buffer.slice(index + 1);
       if (line) {
         const response = JSON.parse(line) as RpcResponse;
-        if (!response.body?.subscribed) process.stdout.write(`${JSON.stringify(response.body)}\n`);
+        if (!response.body?.subscribed) process.stdout.write(`${format(response.body)}\n`);
       }
       index = buffer.indexOf("\n");
     }

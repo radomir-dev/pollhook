@@ -655,3 +655,14 @@ Verification: `tsc --noEmit` clean, 90 of 90 tests passing.
 Next:
 
 1. Ask about pausing the automation; no unattended code work is queued.
+
+## 2026-11-25: emit --brief
+
+`emit --brief` prints one line per delivery: local time, repo, event, action and
+key. The full payload still streams by default, so `jq` remains usable.
+
+Verification: `tsc --noEmit` clean, 92 of 92 tests passing.
+
+Next:
+
+1. Ask about pausing the automation; no unattended code work is queued.
