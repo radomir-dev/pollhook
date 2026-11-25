@@ -590,4 +590,4 @@ Verification: `tsc --noEmit` clean, 82 of 82 tests passing (docs only).
 Next:
 
 1. P4: revisit the deferred events only if a consumer needs them.
-2. Decide whether to publish 0.1.0 to npm.
+2. Ask the user before publishing 0.1.0 to npm.
