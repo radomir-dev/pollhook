@@ -170,3 +170,25 @@ Next:
    `commit_comment`, `workflow_dispatch`, `merge_group`.
 2. Verify whether `gh webhook forward` leaves a hook behind.
 3. Package for npm/npx: P6 in AGENDA.md.
+
+## 2026-11-25: repository, forks and commit comments (P2)
+
+1. `repository` hashes full name, visibility, description, default branch,
+   archived, disabled, topics and homepage, then derives renamed,
+   archived/unarchived, publicized/privatized and edited.
+2. `public` is a separate adapter with its own ETag key so the private to public
+   transition is the only thing it emits. Sharing a key with `repository` would
+   make the second adapter see a `304` and drop its event.
+3. `fork` keys on the fork id and its creation time, so updates to an existing
+   fork do not re-emit.
+4. `commit_comment` emits created and edited from the body hash and `updated_at`;
+   deletions are not detected because the feed is capped at 100.
+
+Verification: `tsc --noEmit` clean, 54 of 54 tests passing.
+
+Next:
+
+1. P2 remainder: `watch` and `star` (both partial), `workflow_dispatch`,
+   `merge_group`.
+2. Verify whether `gh webhook forward` leaves a hook behind.
+3. Package for npm/npx: P6 in AGENDA.md.

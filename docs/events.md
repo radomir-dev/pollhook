@@ -52,7 +52,7 @@ per active run, so it is opt-in per repository.
 | `sub_issues` | `/repos/{o}/{r}/issues/{number}/sub_issues` | `id` + `updated_at` | object | P3 |
 | `issue_dependencies` | `/repos/{o}/{r}/issues/{number}/dependencies/*` ~ | relationship `id` | partial | P4 |
 | `issue_relates_to` | `/repos/{o}/{r}/issues/{number}/timeline` ~ | timeline event `id` | partial | P4 |
-| `commit_comment` | `/repos/{o}/{r}/comments?sort=updated` | `id` + `updated_at` | object | P2 |
+| `commit_comment` | `/repos/{o}/{r}/comments?sort=updated` | `id` + `updated_at` | object | P2 done |
 | `discussion` | GraphQL `discussion` | `id` + `updatedAt` | object | P4 |
 | `discussion_comment` | GraphQL `discussionComment` | `id` + `updatedAt` | object | P4 |
 | `label` | `/repos/{o}/{r}/labels` | name + hash of color/description | derived | P2 done |
@@ -65,11 +65,11 @@ per active run, so it is opt-in per repository.
 | `push` | `/repos/{o}/{r}/compare/{before}...{after}` | branch tip SHA | derived | P2 done |
 | `create` | `/repos/{o}/{r}/branches`, `/tags` | name + SHA | derived | P2 done |
 | `delete` | `/repos/{o}/{r}/branches`, `/tags` (absence) | name | derived | P2 done |
-| `fork` | `/repos/{o}/{r}/forks?sort=newest` | `id` + `created_at` | object | P3 |
+| `fork` | `/repos/{o}/{r}/forks?sort=newest` | `id` + `created_at` | object | P2 done |
 | `star` | `/repos/{o}/{r}/stargazers` | `starred_at`, no sort | partial | P3 |
 | `watch` | `/repos/{o}/{r}/subscribers` | `login`, full list per poll | partial | P3 |
-| `public` | `/repos/{o}/{r}` → `visibility` | repo `id` + `visibility` | derived | P2 |
-| `repository` | `/repos/{o}/{r}` | `id` + `updated_at` + `full_name` | derived | P2 |
+| `public` | `/repos/{o}/{r}` → `visibility` | repo `id` + `visibility` | derived | P2 done |
+| `repository` | `/repos/{o}/{r}` | `id` + `updated_at` + `full_name` | derived | P2 done |
 | `release` | `/repos/{o}/{r}/releases` | `id` + `updated_at` | object | P2 done |
 | `deploy_key` | `/repos/{o}/{r}/keys` | `id` + `created_at` | object | P3 |
 | `gollum` | wiki git remote `{repo}.wiki.git` | commit SHA | derived | P4 |
