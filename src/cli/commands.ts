@@ -161,8 +161,11 @@ function repoFor(config: Config, args: string[]): string {
 function printStatus(body: any): void {
   for (const repo of body.repos) {
     const error = repo.lastError ? `  error=${repo.lastError}` : "";
+    const degraded = repo.degraded?.length
+      ? `  degraded=${repo.degraded.map((item: any) => item.event).join(",")}`
+      : "";
     process.stdout.write(
-      `${repo.repo}  events=${repo.events.length}  last_poll=${repo.lastPollAt ?? "-"}  next_poll=${repo.nextPollAt ?? "-"}  last_event=${repo.lastEventAt ?? "-"}${error}\n`,
+      `${repo.repo}  events=${repo.events.length}  last_poll=${repo.lastPollAt ?? "-"}  next_poll=${repo.nextPollAt ?? "-"}  last_event=${repo.lastEventAt ?? "-"}${error}${degraded}\n`,
     );
   }
   process.stdout.write(

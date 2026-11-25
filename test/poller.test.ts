@@ -18,13 +18,14 @@ const config: Config = {
   orgs: [],
 };
 
-test("a failing adapter keeps the round error even when another adapter swallows its own", async () => {
+test("a permanent failure is degraded even when another adapter swallows its own 404", async () => {
   const db = new StateStore(":memory:");
   const poller = new Poller(config, db, new FakeGitHub({}), () => {});
   await poller.pollOnce();
   const status = poller.listStatuses()[0]!;
-  assert.match(status.lastError ?? "", /^404 /);
-  assert.equal(status.lastPollAt, null);
+  assert.equal(status.lastError, null);
+  assert.equal(status.degraded.length, 1);
+  assert.equal(status.degraded[0]!.event, "workflow_run");
   db.close();
 });
 
@@ -124,5 +125,38 @@ test("status reports the next poll time after a round", async () => {
   const status = poller.listStatuses()[0]!;
   assert.ok(status.nextPollAt);
   assert.ok(Date.parse(status.nextPollAt) > Date.now());
+  db.close();
+});
+
+test("a permanent error is reported as degraded, not as a round error", async () => {
+  const db = new StateStore(":memory:");
+  const gh = new FakeGitHub({});
+  const poller = new Poller(workflowConfig, db, gh, () => {});
+  await poller.pollOnce();
+
+  const status = poller.listStatuses()[0]!;
+  assert.equal(status.lastError, null);
+  assert.equal(status.degraded.length, 1);
+  assert.equal(status.degraded[0]!.event, "workflow_run");
+  assert.match(status.degraded[0]!.reason, /^404 /);
+
+  await poller.pollOnce();
+  assert.equal(poller.listStatuses()[0]!.degraded.length, 1);
+  db.close();
+});
+
+test("a transient error stays in lastError", async () => {
+  const db = new StateStore(":memory:");
+  const gh = new FakeGitHub(
+    {},
+    {},
+    { "/repos/acme/app/actions/runs?per_page=50": "500 boom" },
+  );
+  const poller = new Poller(workflowConfig, db, gh, () => {});
+  await poller.pollOnce();
+
+  const status = poller.listStatuses()[0]!;
+  assert.equal(status.degraded.length, 0);
+  assert.equal(status.lastError, "500 boom");
   db.close();
 });

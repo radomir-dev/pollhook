@@ -2,7 +2,7 @@ import type { Config } from "./config.ts";
 import type { StateStore } from "./db.ts";
 import type { Adapter, AdapterScope, Emit, EventName, GithubClient } from "./types.ts";
 import { adaptersFor } from "./registry.ts";
-import { errorMessage, nowIso, unique } from "./util.ts";
+import { errorMessage, isStatus, nowIso, unique } from "./util.ts";
 
 export interface RepoStatus {
   repo: string;
@@ -12,6 +12,7 @@ export interface RepoStatus {
   lastEventAt: string | null;
   lastError: string | null;
   nextPollAt: string | null;
+  degraded: Array<{ event: string; reason: string }>;
 }
 
 const TICK_MS = 1000;
@@ -21,6 +22,7 @@ export class Poller {
   private readonly nextDue = new Map<string, number>();
   private readonly statuses = new Map<string, RepoStatus>();
   private readonly headCache = new Map<string, { at: number; sha: string }>();
+  private readonly degraded = new Map<string, Map<EventName, string>>();
   private timer: NodeJS.Timeout | null = null;
   private stopped = false;
   private readonly config: Config;
@@ -59,6 +61,7 @@ export class Poller {
     return [...this.statuses.values()].map((status) => ({
       ...status,
       nextPollAt: this.nextPollFor(status),
+      degraded: this.degradedFor(status.repo),
     }));
   }
 
@@ -116,12 +119,30 @@ export class Poller {
     }
     for (const adapter of adaptersFor(events, kind)) {
       try {
-        await this.pollAdapter(kind, name, refs, intervalMs, adapter);
+        const polled = await this.pollAdapter(kind, name, refs, intervalMs, adapter);
+        if (polled) this.clearDegraded(name, adapter.name);
       } catch (error) {
-        roundError = roundError ?? errorMessage(error);
+        if (isPermanent(error)) this.markDegraded(name, adapter.name, error);
+        else roundError = roundError ?? errorMessage(error);
       }
     }
     return roundError;
+  }
+
+  private markDegraded(name: string, event: EventName, error: unknown): void {
+    const events = this.degraded.get(name) ?? new Map<EventName, string>();
+    if (!events.has(event)) events.set(event, errorMessage(error));
+    this.degraded.set(name, events);
+  }
+
+  private clearDegraded(name: string, event: EventName): void {
+    this.degraded.get(name)?.delete(event);
+  }
+
+  private degradedFor(name: string): Array<{ event: string; reason: string }> {
+    return [...(this.degraded.get(name) ?? new Map<EventName, string>())].map(
+      ([event, reason]) => ({ event, reason }),
+    );
   }
 
   private async pollAdapter(
@@ -130,9 +151,9 @@ export class Poller {
     refs: string[],
     intervalMs: number,
     adapter: Adapter,
-  ): Promise<void> {
+  ): Promise<boolean> {
     const dueKey = `${kind}:${name}:${adapter.name}`;
-    if ((this.nextDue.get(dueKey) ?? 0) > Date.now()) return;
+    if ((this.nextDue.get(dueKey) ?? 0) > Date.now()) return false;
     this.nextDue.set(dueKey, Date.now() + Math.max(adapter.intervalFloorMs, intervalMs));
     const primedKey = `primed:${kind}:${name}:${adapter.name}`;
     const cold = this.db.getCursor(primedKey) === null;
@@ -148,6 +169,7 @@ export class Poller {
             this.emit(name, event, action, key, payload, state),
     });
     if (cold) this.db.setCursor(primedKey, null, "1");
+    return true;
   }
 
   private loop(): void {
@@ -202,5 +224,10 @@ function statusFor(kind: AdapterScope, name: string, events: EventName[]): RepoS
     lastEventAt: null,
     lastError: null,
     nextPollAt: null,
+    degraded: [],
   };
+}
+
+function isPermanent(error: unknown): boolean {
+  return isStatus(error, 403) || isStatus(error, 404);
 }
