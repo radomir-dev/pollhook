@@ -577,3 +577,17 @@ Next:
 
 1. P4: revisit the deferred events only if a consumer needs them.
 2. Review the README end to end once the event work settles.
+
+## 2026-11-25: README review
+
+Read the README end to end and fixed drift: it now says the daemon polls
+repositories and organisations, names `membership` alongside `team`, calls the
+POST target optional and loopback, lists 82 tests, and includes the systemd unit
+in the layout.
+
+Verification: `tsc --noEmit` clean, 82 of 82 tests passing (docs only).
+
+Next:
+
+1. P4: revisit the deferred events only if a consumer needs them.
+2. Decide whether to publish 0.1.0 to npm.

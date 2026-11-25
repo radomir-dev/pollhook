@@ -3,9 +3,9 @@
 GitHub webhook deliveries without webhooks: a local listener that rebuilds them
 from the REST API.
 
-pollhook runs as a daemon. It polls the GitHub REST API for the repositories and
-event types you subscribe to, turns observed state changes into GitHub-shaped
-deliveries, and POSTs them to a local endpoint. A handler written against GitHub's
+pollhook runs as a daemon. It polls the GitHub REST API for the repositories,
+organisations and event types you subscribe to, turns observed state changes into
+GitHub-shaped deliveries, and POSTs them to a local endpoint. A handler written against GitHub's
 webhook contract keeps working; the delivery was reconstructed, not pushed.
 
 ## Why
@@ -32,8 +32,8 @@ immediately for something that already finished.
 
 ## How it works
 
-1. One config file lists the repositories, the event names to subscribe to, and
-   the delivery targets.
+1. One config file lists the repositories and organisations, the event names to
+   subscribe to, and the delivery targets.
 2. Every event has an adapter: a REST endpoint to read, a cursor field to order
    by, and a mapping from the REST resource to the webhook payload.
 3. The scheduler polls with `If-None-Match`. A `304` costs nothing against the
@@ -43,7 +43,7 @@ immediately for something that already finished.
    Deliveries are at-least-once; a fingerprint store drops duplicates. The first
    poll of each event records state without delivering, so a cold start never
    replays history.
-5. Consumers pick their shape: a local HTTP endpoint, a JSONL stream
+5. Consumers pick their shape: an optional loopback POST target, a JSONL stream
    (`pollhook emit`), or the wait commands, which block and exit `0` success,
    `1` failure, `8` timeout, `2` bad arguments or daemon unreachable.
 
@@ -57,7 +57,7 @@ report the current status of a run or a check.
    Node 24 is required; `.mise.toml` pins 24.22.3.
 2. Copy `pollhook.example.json` to `~/.config/pollhook/config.json` and set the
    repository and events. An optional `orgs` array covers org-level events;
-   `team` is implemented today.
+   `team` and `membership` are implemented today.
 3. Run `pollhook daemon`. The token comes from `POLLHOOK_TOKEN`, then your
    `gh auth login`, then `GH_TOKEN`/`GITHUB_TOKEN`. The gh login wins over ambient
    tokens because a `GITHUB_TOKEN` in the environment often belongs to something
@@ -152,7 +152,7 @@ agent actually needs. Event synthesis is the mechanism, not the product.
 ## Status
 
 P0, P1, most of P2, most of P3 and the first P4 events are implemented and
-covered by 80 tests. What shipped and what comes next is in
+covered by 82 tests. What shipped and what comes next is in
 [PROGRESS.md](PROGRESS.md); phases and acceptance criteria are in
 [AGENDA.md](AGENDA.md).
 
@@ -162,6 +162,7 @@ covered by 80 tests. What shipped and what comes next is in
 2. `PROGRESS.md`: what is done, what was measured, what is next.
 3. `docs/events.md`: the event catalog with REST source, cursor, fidelity and phase.
 4. `pollhook.example.json`: a starting config.
+5. `contrib/pollhook.service`: the systemd user unit.
 
 ## Name
 
