@@ -107,7 +107,7 @@ and `changes.branch_protection.from/to`.
 | Event | REST source | Cursor | Fidelity | Phase |
 | --- | --- | --- | --- | --- |
 | `member` | `/repos/{o}/{r}/collaborators` | `login` + permission hash | derived | P4 done |
-| `membership` | `/orgs/{org}/memberships/{user}` ~ | `state` + `role` | derived | P4 |
+| `membership` | `/orgs/{org}/teams/{slug}/members` | `slug:login` | derived | P4 done |
 | `team` | `/orgs/{org}/teams` | `id` + `updated_at` | object | P4 done |
 | `team_add` | `/repos/{o}/{r}/teams` | team `id` + repo | derived | P4 |
 | `organization` | `/orgs/{org}` | `id` + `updated_at` | derived | P4 |

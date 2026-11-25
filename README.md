@@ -136,7 +136,7 @@ agent actually needs. Event synthesis is the mechanism, not the product.
 ## Status
 
 P0, P1, most of P2, most of P3 and the first P4 events are implemented and
-covered by 76 tests. What shipped and what comes next is in
+covered by 79 tests. What shipped and what comes next is in
 [PROGRESS.md](PROGRESS.md); phases and acceptance criteria are in
 [AGENDA.md](AGENDA.md).
 

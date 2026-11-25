@@ -455,3 +455,21 @@ Next:
 
 1. P4 remainder: `membership`, `organization`, projects and packages.
 2. P5: report the next poll time in `status`.
+
+## 2026-11-25: team membership (P4)
+
+`membership` reads the org's teams, then the members of the first ten teams. Each
+pair is keyed `slug:login`; an addition emits `added` and a pair that disappears
+emits `removed`. A `304` on a team's member list reuses the stored rows for that
+team, so revalidation is never mistaken for a removal, and rows for teams outside
+the ten-team window are ignored rather than treated as deleted.
+
+The payload is `{action, scope: "team", member, team, organization, sender}`; the
+full organization object is not fetched, only `{login}`.
+
+Verification: `tsc --noEmit` clean, 79 of 79 tests passing.
+
+Next:
+
+1. P4 remainder: `organization`, projects and packages.
+2. P5: report the next poll time in `status`.
