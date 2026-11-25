@@ -110,3 +110,20 @@ Next:
 1. P2 continued: `create` and `delete` from branch and tag diffs.
 2. Verify whether `gh webhook forward` leaves a hook behind.
 3. Package for npm/npx: P6 in AGENDA.md.
+
+## 2026-11-25: create and delete (P2)
+
+`create` and `delete` share a refs snapshot namespace keyed by `branch:<name>` and
+`tag:<name>`. `create` emits when a ref appears, or reappears after deletion; a
+moved tag or a force-pushed branch updates the snapshot without a create. `delete`
+emits once when a stored ref disappears, then marks it deleted. Both read the first
+100 branches and tags and fall back to the stored refs on a `304`, so an unchanged
+list costs no body.
+
+Verification: `tsc --noEmit` clean, 42 of 42 tests passing.
+
+Next:
+
+1. P2 activity events: `issues`, `issue_comment`, `release`, `label`, `milestone`.
+2. Verify whether `gh webhook forward` leaves a hook behind.
+3. Package for npm/npx: P6 in AGENDA.md.
