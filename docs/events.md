@@ -24,7 +24,7 @@ name or commit SHA.
 | --- | --- | --- | --- | --- |
 | `workflow_run` | `/repos/{o}/{r}/actions/runs` | `id` + `run_attempt` + `updated_at` | object | P1 |
 | `workflow_job` | `/repos/{o}/{r}/actions/runs/{run_id}/jobs` | `id` + `status` + `completed_at` | object | P1 |
-| `workflow_dispatch` | runs where `event=workflow_dispatch` | run `id` | derived | P2 |
+| `workflow_dispatch` | runs where `event=workflow_dispatch` | run `id` | derived | P2 done |
 | `check_suite` | `/repos/{o}/{r}/commits/{ref}/check-suites` | `id` + `updated_at` | object | P1 |
 | `check_run` | `/repos/{o}/{r}/commits/{ref}/check-runs` | `id` + `status` + `conclusion` | object | P1 |
 | `status` | `/repos/{o}/{r}/commits/{ref}/statuses` | `id` + `updated_at` | object | P1 |
@@ -33,7 +33,7 @@ name or commit SHA.
 | `deployment_status` | `/repos/{o}/{r}/deployments/{id}/statuses` | `id` + `updated_at` | object | P3 |
 | `deployment_review` | `/repos/{o}/{r}/actions/runs/{run_id}/pending_deployments` | environment `id` + approval state | partial | P3 |
 | `deployment_protection_rule` | `/repos/{o}/{r}/environments/{env}/deployment_protection_rules` ~ | rule `id` + `updated_at` | partial | P3 |
-| `merge_group` | runs where `event=merge_group` | run `id` + `head_sha` | partial | P2 |
+| `merge_group` | runs where `event=merge_group` | run `id` + `head_sha` | partial | P2 done |
 
 `check_suite` and `check_run` need the head SHAs you care about, so they are polled
 per watched ref: branch tips plus open PR heads. `workflow_job` costs one request

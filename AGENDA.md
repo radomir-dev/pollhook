@@ -9,8 +9,8 @@ toward the 76 events in GitHub's catalog without changing the delivery format.
 
 Status: P0, P1 and most of P2 (`push`, `create`, `delete`, `issues`,
 `issue_comment`, `release`, `label`, `milestone`, `repository`, `public`, `fork`,
-`commit_comment`) are implemented; see [PROGRESS.md](PROGRESS.md). The phases below
-remain the plan for everything else.
+`commit_comment`, `workflow_dispatch`, `merge_group`) are implemented; see
+[PROGRESS.md](PROGRESS.md). The phases below remain the plan for everything else.
 
 ## Principles
 
@@ -68,7 +68,9 @@ Events: `push`, `create`, `delete`, `issues`, `issue_comment`,
 `public`, `repository`, `fork`, `watch`, `star`, `workflow_dispatch`,
 `merge_group`. Done: `push` from `/compare`, `create` and `delete` from ref diffs,
 `issues`, `issue_comment`, `release`, `label`, `milestone`, `repository`,
-`public`, `fork`, `commit_comment`.
+`public`, `fork`, `commit_comment`, `workflow_dispatch`, `merge_group`.
+`watch` and `star` stay deferred: no cursor, whole-list scans, false positives on
+large repositories.
 
 Acceptance: a `push` payload assembled from `/compare` matches GitHub's fields for
 `before`, `after`, `commits` and `forced`; opened, closed and reopened across three

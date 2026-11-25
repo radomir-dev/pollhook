@@ -192,3 +192,27 @@ Next:
    `merge_group`.
 2. Verify whether `gh webhook forward` leaves a hook behind.
 3. Package for npm/npx: P6 in AGENDA.md.
+
+## 2026-11-25: dispatches and merge groups (P2)
+
+`workflow_dispatch` and `merge_group` both read `/actions/runs?event=...`, filter
+on `event`, and emit on the first sight of a run id, so a status change or a
+re-run does not emit again.
+
+Payloads are reduced on purpose: `workflow_dispatch` carries `workflow_run` rather
+than GitHub's dispatch envelope, and `merge_group` carries `head_sha` and
+`head_ref` with null `base_sha` and `base_ref` because merge queue state is
+GraphQL-only. Both remain `derived` in docs/events.md.
+
+`watch` and `star` stay deferred: subscribers has no cursor and stargazers has no
+sort, so both need whole-list scans and produce false positives on large
+repositories. They remain `partial` in docs/events.md.
+
+Verification: `tsc --noEmit` clean, 57 of 57 tests passing.
+
+Next:
+
+1. P3 security alerts: `dependabot_alert`, `code_scanning_alert`,
+   `secret_scanning_alert`.
+2. Verify whether `gh webhook forward` leaves a hook behind.
+3. Package for npm/npx: P6 in AGENDA.md.
