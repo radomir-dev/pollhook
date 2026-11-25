@@ -366,3 +366,31 @@ Next:
    `src/db.ts` 224. Split them and bring functions under 30 lines.
 2. P3 leftovers: branch protection, secret scanning locations and scans,
    deployment review, deployment protection rules.
+
+## 2026-11-25: size-rule refactor
+
+Every file is under 200 lines and every function under 30, per the updated
+AGENTS.md:
+
+1. `cli.ts` became four modules: `cli/args.ts` for flag parsing, `cli/rpc.ts` for
+   the socket client, `cli/commands.ts` with one handler per subcommand, and
+   `cli/usage.ts` for the help text. The entry file is 38 lines.
+2. `daemon.ts` keeps composition only; `daemon/handlers.ts` owns the socket
+   protocol, `daemon/waiter.ts` owns one wait with start, finish and cancel, and
+   `daemon/context.ts` holds the shared type.
+3. `db.ts` is a one-line re-export. `db/snapshots.ts`, `db/deliveries.ts` and
+   `db/cursors.ts` own their tables; `db/store.ts` composes them and handles
+   pruning.
+4. `Poller.pollOnce` split into `pollRepo` and `pollAdapter`.
+
+Largest file is 174 lines and no function exceeds 30. The refactor is
+behaviour-preserving, so the suite is unchanged.
+
+Verification: `tsc --noEmit` clean, 67 of 67 tests passing, function-length scan
+reports no violations.
+
+Next:
+
+1. P3 leftovers: branch protection, secret scanning locations and scans,
+   deployment review, deployment protection rules.
+2. P4: organisation, projects and app events.

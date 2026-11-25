@@ -1,6 +1,6 @@
 import type { Config, RepoConfig } from "./config.ts";
 import type { StateStore } from "./db.ts";
-import type { Emit, GithubClient } from "./types.ts";
+import type { Adapter, Emit, GithubClient } from "./types.ts";
 import { adaptersFor } from "./registry.ts";
 import { errorMessage, nowIso, unique } from "./util.ts";
 
@@ -63,36 +63,8 @@ export class Poller {
   async pollOnce(): Promise<void> {
     if (this.stopped) return;
     for (const repo of this.config.repos) {
+      const roundError = await this.pollRepo(repo);
       const status = this.statuses.get(repo.repo);
-      let roundError: string | null = null;
-      let refs: string[] = [];
-      try {
-        refs = await this.refsFor(repo);
-      } catch (error) {
-        roundError = errorMessage(error);
-      }
-      for (const adapter of adaptersFor(repo.events)) {
-        const dueKey = `${repo.repo}:${adapter.name}`;
-        if ((this.nextDue.get(dueKey) ?? 0) > Date.now()) continue;
-        this.nextDue.set(dueKey, Date.now() + Math.max(adapter.intervalFloorMs, repo.intervalMs));
-        const primedKey = `primed:${repo.repo}:${adapter.name}`;
-        const cold = this.db.getCursor(primedKey) === null;
-        try {
-          await adapter.poll({
-            repo: repo.repo,
-            refs,
-            db: this.db,
-            gh: this.gh,
-            emit: cold
-              ? () => {}
-              : (event, action, key, payload, state) =>
-                  this.emit(repo.repo, event, action, key, payload, state),
-          });
-          if (cold) this.db.setCursor(primedKey, null, "1");
-        } catch (error) {
-          roundError = roundError ?? errorMessage(error);
-        }
-      }
       if (!status) continue;
       if (roundError) {
         status.lastError = roundError;
@@ -101,6 +73,43 @@ export class Poller {
         status.lastError = null;
       }
     }
+  }
+
+  private async pollRepo(repo: RepoConfig): Promise<string | null> {
+    let roundError: string | null = null;
+    let refs: string[] = [];
+    try {
+      refs = await this.refsFor(repo);
+    } catch (error) {
+      roundError = errorMessage(error);
+    }
+    for (const adapter of adaptersFor(repo.events)) {
+      try {
+        await this.pollAdapter(repo, refs, adapter);
+      } catch (error) {
+        roundError = roundError ?? errorMessage(error);
+      }
+    }
+    return roundError;
+  }
+
+  private async pollAdapter(repo: RepoConfig, refs: string[], adapter: Adapter): Promise<void> {
+    const dueKey = `${repo.repo}:${adapter.name}`;
+    if ((this.nextDue.get(dueKey) ?? 0) > Date.now()) return;
+    this.nextDue.set(dueKey, Date.now() + Math.max(adapter.intervalFloorMs, repo.intervalMs));
+    const primedKey = `primed:${repo.repo}:${adapter.name}`;
+    const cold = this.db.getCursor(primedKey) === null;
+    await adapter.poll({
+      repo: repo.repo,
+      refs,
+      db: this.db,
+      gh: this.gh,
+      emit: cold
+        ? () => {}
+        : (event, action, key, payload, state) =>
+            this.emit(repo.repo, event, action, key, payload, state),
+    });
+    if (cold) this.db.setCursor(primedKey, null, "1");
   }
 
   private loop(): void {
