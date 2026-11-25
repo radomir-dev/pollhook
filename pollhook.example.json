@@ -3,6 +3,7 @@
     {
       "repo": "omnigame-studio/dev-server",
       "events": [
+        "push",
         "workflow_run",
         "check_suite",
         "check_run",

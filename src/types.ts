@@ -1,4 +1,5 @@
 export type EventName =
+  | "push"
   | "workflow_run"
   | "check_suite"
   | "check_run"
