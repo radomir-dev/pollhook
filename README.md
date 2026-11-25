@@ -83,6 +83,22 @@ once the package is on npm.
 The unit keeps the home read-only except `~/.local/state`, and puts the mise shims
 on `PATH` so `node` and `gh auth token` resolve.
 
+## Reading status
+
+`pollhook status` prints one line per target:
+
+    owner/repo  events=33  last_poll=...  next_poll=...  last_event=...
+    quota 4869/5000 remaining, resets ...
+    deliveries 60, waiters 0, pid 1234
+
+1. `last_poll` is the last completed round; `next_poll` is the earliest adapter
+   due for that target.
+2. `last_event` is the last delivery for the target.
+3. `error=` is a transient failure and disappears after a clean round.
+4. `degraded=` lists adapters that answered 403 or 404. They retry after an hour
+   and drop off the list when a retry succeeds.
+5. `status --json` prints the same body with the per-adapter degraded reasons.
+
 ## Fidelity
 
 Polling sees state; webhooks are a history of transitions. Four consequences, all

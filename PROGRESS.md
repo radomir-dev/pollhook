@@ -565,3 +565,15 @@ Next:
 
 1. P4: revisit the deferred events only if a consumer needs them.
 2. P5: a short README note on reading `status`, including `degraded`.
+
+## 2026-11-25: reading status
+
+The README now explains the `status` output: last and next poll, last event,
+transient `error`, and `degraded` adapters with their retry behaviour.
+
+Verification: `tsc --noEmit` clean, 82 of 82 tests passing (docs only).
+
+Next:
+
+1. P4: revisit the deferred events only if a consumer needs them.
+2. Review the README end to end once the event work settles.
