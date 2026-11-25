@@ -1,0 +1,22 @@
+{
+  "name": "pollhook",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "GitHub webhook deliveries without webhooks: a local listener fed by REST API polling",
+  "bin": {
+    "pollhook": "./src/cli.ts"
+  },
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "start": "node src/cli.ts daemon",
+    "test": "node --test test/",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.10",
+    "typescript": "^7.0.2"
+  }
+}
