@@ -34,6 +34,7 @@ export type EventName =
   | "check_run"
   | "pull_request"
   | "pull_request_review"
+  | "pull_request_review_comment"
   | "page_build"
   | "workflow_job"
   | "status";

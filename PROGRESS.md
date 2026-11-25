@@ -715,3 +715,15 @@ Verification: `tsc --noEmit` clean, 112 of 112 tests passing.
 Next:
 
 1. `pull_request_review_comment`.
+
+## 2026-11-25: pull_request_review_comment adapter
+
+Reads `/pulls/comments?sort=updated`, keys by comment id with a body hash and
+`updated_at`, and emits `created` then `edited`. Deletions are not detectable: the
+list only carries comments that still exist, and it is capped at the newest 100.
+
+Verification: `tsc --noEmit` clean, 114 of 114 tests passing.
+
+Next:
+
+1. Quota governor from `X-RateLimit-*`.

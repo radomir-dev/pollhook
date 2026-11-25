@@ -70,7 +70,8 @@ Acceptance, carried over from the original brief:
 ## P2: repository activity
 
 Events: `push`, `create`, `delete`, `issues`, `issue_comment`,
-`pull_request_review_comment`, `commit_comment`, `release`, `label`, `milestone`,
+`pull_request_review_comment` (done: created and edited; a deleted comment leaves
+no trace in the list), `commit_comment`, `release`, `label`, `milestone`,
 `public`, `repository`, `fork`, `watch`, `star`, `workflow_dispatch`,
 `merge_group`. Done: `push` from `/compare`, `create` and `delete` from ref diffs,
 `issues`, `issue_comment`, `release`, `label`, `milestone`, `repository`,

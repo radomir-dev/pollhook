@@ -4,6 +4,7 @@ import { checkSuite } from "./adapters/check-suite.ts";
 import { pageBuild } from "./adapters/page-build.ts";
 import { pullRequest } from "./adapters/pull-request.ts";
 import { pullRequestReview } from "./adapters/pull-request-review.ts";
+import { pullRequestReviewComment } from "./adapters/pull-request-review-comment.ts";
 import { push } from "./adapters/push.ts";
 import { createRef, deleteRef } from "./adapters/refs.ts";
 import { codeScanningAlert } from "./adapters/code-scanning-alert.ts";
@@ -68,6 +69,7 @@ export const ADAPTERS: Record<EventName, Adapter> = {
   check_run: checkRun,
   pull_request: pullRequest,
   pull_request_review: pullRequestReview,
+  pull_request_review_comment: pullRequestReviewComment,
   page_build: pageBuild,
   status: commitStatus,
 };
