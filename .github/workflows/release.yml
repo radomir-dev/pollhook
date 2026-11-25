@@ -1,0 +1,33 @@
+name: release
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+  pull-requests: write
+  id-token: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    environment: npm
+    steps:
+      - uses: googleapis/release-please-action@v4
+        id: release
+        with:
+          config-file: release-please-config.json
+          manifest-file: .release-please-manifest.json
+      - uses: actions/checkout@v4
+        if: steps.release.outputs.release_created == 'true'
+      - uses: actions/setup-node@v4
+        if: steps.release.outputs.release_created == 'true'
+        with:
+          node-version: 24
+          registry-url: https://registry.npmjs.org
+      - name: Publish to npm
+        if: steps.release.outputs.release_created == 'true'
+        run: |
+          npm ci
+          npm publish --provenance --access public
