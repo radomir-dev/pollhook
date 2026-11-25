@@ -60,21 +60,16 @@ export class Poller {
     return [...this.statuses.values()];
   }
 
-  private schedule(delay: number): void {
-    this.timer = setTimeout(() => {
-      void this.tick();
-    }, delay);
-  }
-
-  private async tick(): Promise<void> {
+  async pollOnce(): Promise<void> {
     if (this.stopped) return;
     for (const repo of this.config.repos) {
       const status = this.statuses.get(repo.repo);
+      let roundError: string | null = null;
       let refs: string[] = [];
       try {
         refs = await this.refsFor(repo);
       } catch (error) {
-        if (status) status.lastError = errorMessage(error);
+        roundError = errorMessage(error);
       }
       for (const adapter of adaptersFor(repo.events)) {
         const dueKey = `${repo.repo}:${adapter.name}`;
@@ -89,16 +84,28 @@ export class Poller {
             emit: (event, action, key, payload, state) =>
               this.emit(repo.repo, event, action, key, payload, state),
           });
-          if (status) {
-            status.lastPollAt = nowIso();
-            status.lastError = null;
-          }
         } catch (error) {
-          if (status) status.lastError = errorMessage(error);
+          roundError = roundError ?? errorMessage(error);
         }
       }
+      if (!status) continue;
+      if (roundError) {
+        status.lastError = roundError;
+      } else {
+        status.lastPollAt = nowIso();
+        status.lastError = null;
+      }
     }
-    this.schedule(TICK_MS);
+  }
+
+  private loop(): void {
+    void this.pollOnce().finally(() => {
+      if (!this.stopped) this.schedule(TICK_MS);
+    });
+  }
+
+  private schedule(delay: number): void {
+    this.timer = setTimeout(() => this.loop(), delay);
   }
 
   private async refsFor(repo: RepoConfig): Promise<string[]> {

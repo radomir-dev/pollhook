@@ -22,14 +22,24 @@ export class GitHubError extends Error {
   }
 }
 
-export function resolveToken(): string {
-  const fromEnv = process.env.GH_TOKEN || process.env.GITHUB_TOKEN;
+export function resolveToken(
+  env: NodeJS.ProcessEnv = process.env,
+  ghToken: () => string = readGhToken,
+): string {
+  if (env.POLLHOOK_TOKEN) return env.POLLHOOK_TOKEN;
+  const fromGh = ghToken();
+  if (fromGh) return fromGh;
+  const fromEnv = env.GH_TOKEN || env.GITHUB_TOKEN;
   if (fromEnv) return fromEnv;
+  throw new Error("no GitHub token: set POLLHOOK_TOKEN, run `gh auth login`, or set GH_TOKEN");
+}
+
+function readGhToken(): string {
   try {
-    const token = execFileSync("gh", ["auth", "token"], { encoding: "utf8" }).trim();
-    if (token) return token;
-  } catch {}
-  throw new Error("no GitHub token: set GH_TOKEN, GITHUB_TOKEN, or run `gh auth login`");
+    return execFileSync("gh", ["auth", "token"], { encoding: "utf8" }).trim();
+  } catch {
+    return "";
+  }
 }
 
 export class GitHub implements GithubClient {
@@ -39,6 +49,7 @@ export class GitHub implements GithubClient {
   private readonly db: StateStore;
   private readonly baseUrl: string;
   quota: Quota = { limit: 0, remaining: 5000, resetAt: null };
+  readonly stats = { requests: 0, notModified: 0 };
 
   constructor(token: string, db: StateStore, baseUrl = DEFAULT_BASE) {
     this.token = token;
@@ -63,7 +74,11 @@ export class GitHub implements GithubClient {
         signal: AbortSignal.timeout(20_000),
       });
       this.readQuota(response);
-      if (response.status === 304) return { notModified: true, data: undefined };
+      this.stats.requests += 1;
+      if (response.status === 304) {
+        this.stats.notModified += 1;
+        return { notModified: true, data: undefined };
+      }
       if ((response.status === 403 || response.status === 429) && this.quota.remaining < MIN_REMAINING && attempt < 1) {
         await this.waitForReset();
         continue;

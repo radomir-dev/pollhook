@@ -68,6 +68,7 @@ export async function startDaemon(config: Config, options: DaemonOptions = {}): 
     pid: process.pid,
     socket: socketPath,
     quota: gh instanceof GitHub ? gh.quota : null,
+    http: gh instanceof GitHub ? gh.stats : null,
     repos: poller?.listStatuses() ?? [],
     waiters: waiterCount,
     deliveries: db.countDeliveries(),
