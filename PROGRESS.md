@@ -638,3 +638,20 @@ Verification: `tsc --noEmit` clean, 89 of 89 tests passing.
 Next:
 
 1. Ask about pausing the automation; no unattended code work is queued.
+
+## 2026-11-25: fixed `emit` never subscribing
+
+`pollhook emit` connected to the daemon and then sent nothing, so the daemon
+never registered it as a listener and the stream stayed empty while deliveries
+piled up in the database. `stream()` in `src/cli/rpc.ts` ignored its message
+argument. It now writes the request before waiting for deliveries.
+
+`test/emit.test.ts` runs the real CLI against a stub socket and asserts the
+subscription request arrives and only deliveries reach stdout. The raw socket
+path was already covered; the CLI side was not.
+
+Verification: `tsc --noEmit` clean, 90 of 90 tests passing.
+
+Next:
+
+1. Ask about pausing the automation; no unattended code work is queued.

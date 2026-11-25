@@ -54,6 +54,7 @@ export async function stream(config: Config, message: Record<string, unknown>): 
       index = buffer.indexOf("\n");
     }
   });
+  socket.write(`${JSON.stringify(message)}\n`);
   await new Promise<void>((resolve) => socket.on("close", () => resolve()));
 }
 
