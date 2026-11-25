@@ -87,14 +87,15 @@ The daemon reloads it when the file changes or on `SIGHUP`; a broken edit is
 reported as `configError` in `pollhook status` and the old config keeps running.
 
     {
-      "intervalSeconds": 60,
+      "$schema": "https://unpkg.com/pollhook/pollhook.schema.json",
       "intervals": { "workflow_run": 10, "pull_request": 15 },
       "strategies": { "workflow_run": "while-active" },
       "repos": [
         {
           "repo": "owner/name",
           "events": ["workflow_run", "pull_request", "check_run", "status"],
-          "intervals": { "check_run": 60, "status": 60 }
+          "intervalSeconds": 60,
+          "intervals": { "check_run": 120, "status": 120 }
         }
       ],
       "orgs": [{ "org": "my-org", "events": ["team", "membership"], "intervalSeconds": 300 }],
@@ -116,6 +117,9 @@ reported as `configError` in `pollhook status` and the old config keeps running.
 4. **`orgs`** covers organisation-level events (`team`, `membership`).
 5. **`deliver.url`** must be loopback. The control socket is a unix socket at
    `$XDG_RUNTIME_DIR/pollhook.sock`, so pollhook opens no network port.
+6. **`$schema`** points editors at [pollhook.schema.json](pollhook.schema.json), which
+   autocompletes event names and flags typos while you type. `pollhook init` adds it
+   for you, and `pollhook config check` warns about keys pollhook ignores.
 
 ## Run it as a service
 

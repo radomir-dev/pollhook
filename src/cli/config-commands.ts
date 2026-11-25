@@ -9,6 +9,7 @@ import {
   starterConfig,
 } from "../config/edit.ts";
 import { positionals, required, valueFlag, values } from "./args.ts";
+import { findUnknownKeys } from "../config/schema.ts";
 import { configReport } from "./config-report.ts";
 
 const PLACEHOLDER = "owner/name";
@@ -50,6 +51,9 @@ function initCommand(args: string[]): number {
 function checkCommand(_rest: string[], args: string[]): number {
   const override = valueFlag(args, "--config");
   const config = loadConfig(override);
+  for (const key of findUnknownKeys(readRaw(configPath(override)))) {
+    process.stderr.write(`warning: "${key}" is not a known key and is ignored\n`);
+  }
   process.stdout.write(`${configPath(override)} is valid\n${configReport(config).join("\n")}\n`);
   return 0;
 }

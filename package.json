@@ -6,7 +6,8 @@
     "pollhook": "./dist/cli.js"
   },
   "files": [
-    "dist"
+    "dist",
+    "pollhook.schema.json"
   ],
   "type": "module",
   "scripts": {

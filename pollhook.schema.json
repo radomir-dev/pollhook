@@ -1,0 +1,1013 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "pollhook config",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "repos": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "repo"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "repo": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$"
+          },
+          "events": {
+            "type": "array",
+            "minItems": 1,
+            "uniqueItems": true,
+            "items": {
+              "enum": [
+                "push",
+                "create",
+                "delete",
+                "issues",
+                "issue_comment",
+                "release",
+                "label",
+                "milestone",
+                "repository",
+                "public",
+                "fork",
+                "commit_comment",
+                "workflow_dispatch",
+                "merge_group",
+                "dependabot_alert",
+                "code_scanning_alert",
+                "secret_scanning_alert",
+                "deployment",
+                "deployment_status",
+                "deployment_protection_rule",
+                "deployment_review",
+                "deploy_key",
+                "repository_ruleset",
+                "repository_advisory",
+                "repository_vulnerability_alert",
+                "security_and_analysis",
+                "branch_protection_configuration",
+                "member",
+                "workflow_run",
+                "workflow_job",
+                "check_suite",
+                "check_run",
+                "pull_request",
+                "pull_request_review",
+                "pull_request_review_comment",
+                "page_build",
+                "status"
+              ]
+            }
+          },
+          "intervalSeconds": {
+            "type": "number",
+            "minimum": 5,
+            "description": "Default seconds between polls, 60 if unset"
+          },
+          "checkRefLimit": {
+            "type": "number",
+            "exclusiveMinimum": 0,
+            "description": "Refs polled for checks"
+          },
+          "intervals": {
+            "type": "object",
+            "description": "Poll interval per event; the adapter's own floor still applies.",
+            "properties": {
+              "push": {
+                "type": "number",
+                "minimum": 5,
+                "description": "Seconds between push polls"
+              },
+              "create": {
+                "type": "number",
+                "minimum": 5,
+                "description": "Seconds between create polls"
+              },
+              "delete": {
+                "type": "number",
+                "minimum": 5,
+                "description": "Seconds between delete polls"
+              },
+              "issues": {
+                "type": "number",
+                "minimum": 5,
+                "description": "Seconds between issues polls"
+              },
+              "issue_comment": {
+                "type": "number",
+                "minimum": 5,
+                "description": "Seconds between issue_comment polls"
+              },
+              "release": {
+                "type": "number",
+                "minimum": 5,
+                "description": "Seconds between release polls"
+              },
+              "label": {
+                "type": "number",
+                "minimum": 5,
+                "description": "Seconds between label polls"
+              },
+              "milestone": {
+                "type": "number",
+                "minimum": 5,
+                "description": "Seconds between milestone polls"
+              },
+              "repository": {
+                "type": "number",
+                "minimum": 5,
+                "description": "Seconds between repository polls"
+              },
+              "public": {
+                "type": "number",
+                "minimum": 5,
+                "description": "Seconds between public polls"
+              },
+              "fork": {
+                "type": "number",
+                "minimum": 5,
+                "description": "Seconds between fork polls"
+              },
+              "commit_comment": {
+                "type": "number",
+                "minimum": 5,
+                "description": "Seconds between commit_comment polls"
+              },
+              "workflow_dispatch": {
+                "type": "number",
+                "minimum": 5,
+                "description": "Seconds between workflow_dispatch polls"
+              },
+              "merge_group": {
+                "type": "number",
+                "minimum": 5,
+                "description": "Seconds between merge_group polls"
+              },
+              "dependabot_alert": {
+                "type": "number",
+                "minimum": 5,
+                "description": "Seconds between dependabot_alert polls"
+              },
+              "code_scanning_alert": {
+                "type": "number",
+                "minimum": 5,
+                "description": "Seconds between code_scanning_alert polls"
+              },
+              "secret_scanning_alert": {
+                "type": "number",
+                "minimum": 5,
+                "description": "Seconds between secret_scanning_alert polls"
+              },
+              "deployment": {
+                "type": "number",
+                "minimum": 5,
+                "description": "Seconds between deployment polls"
+              },
+              "deployment_status": {
+                "type": "number",
+                "minimum": 5,
+                "description": "Seconds between deployment_status polls"
+              },
+              "deployment_protection_rule": {
+                "type": "number",
+                "minimum": 5,
+                "description": "Seconds between deployment_protection_rule polls"
+              },
+              "deployment_review": {
+                "type": "number",
+                "minimum": 5,
+                "description": "Seconds between deployment_review polls"
+              },
+              "deploy_key": {
+                "type": "number",
+                "minimum": 5,
+                "description": "Seconds between deploy_key polls"
+              },
+              "repository_ruleset": {
+                "type": "number",
+                "minimum": 5,
+                "description": "Seconds between repository_ruleset polls"
+              },
+              "repository_advisory": {
+                "type": "number",
+                "minimum": 5,
+                "description": "Seconds between repository_advisory polls"
+              },
+              "repository_vulnerability_alert": {
+                "type": "number",
+                "minimum": 5,
+                "description": "Seconds between repository_vulnerability_alert polls"
+              },
+              "security_and_analysis": {
+                "type": "number",
+                "minimum": 5,
+                "description": "Seconds between security_and_analysis polls"
+              },
+              "branch_protection_configuration": {
+                "type": "number",
+                "minimum": 5,
+                "description": "Seconds between branch_protection_configuration polls"
+              },
+              "member": {
+                "type": "number",
+                "minimum": 5,
+                "description": "Seconds between member polls"
+              },
+              "workflow_run": {
+                "type": "number",
+                "minimum": 5,
+                "description": "Seconds between workflow_run polls"
+              },
+              "workflow_job": {
+                "type": "number",
+                "minimum": 5,
+                "description": "Seconds between workflow_job polls"
+              },
+              "check_suite": {
+                "type": "number",
+                "minimum": 5,
+                "description": "Seconds between check_suite polls"
+              },
+              "check_run": {
+                "type": "number",
+                "minimum": 5,
+                "description": "Seconds between check_run polls"
+              },
+              "pull_request": {
+                "type": "number",
+                "minimum": 5,
+                "description": "Seconds between pull_request polls"
+              },
+              "pull_request_review": {
+                "type": "number",
+                "minimum": 5,
+                "description": "Seconds between pull_request_review polls"
+              },
+              "pull_request_review_comment": {
+                "type": "number",
+                "minimum": 5,
+                "description": "Seconds between pull_request_review_comment polls"
+              },
+              "page_build": {
+                "type": "number",
+                "minimum": 5,
+                "description": "Seconds between page_build polls"
+              },
+              "status": {
+                "type": "number",
+                "minimum": 5,
+                "description": "Seconds between status polls"
+              }
+            },
+            "additionalProperties": false
+          },
+          "strategies": {
+            "type": "object",
+            "description": "fixed (default) or while-active, which relaxes polling while runs are early.",
+            "properties": {
+              "push": {
+                "enum": [
+                  "fixed",
+                  "while-active"
+                ]
+              },
+              "create": {
+                "enum": [
+                  "fixed",
+                  "while-active"
+                ]
+              },
+              "delete": {
+                "enum": [
+                  "fixed",
+                  "while-active"
+                ]
+              },
+              "issues": {
+                "enum": [
+                  "fixed",
+                  "while-active"
+                ]
+              },
+              "issue_comment": {
+                "enum": [
+                  "fixed",
+                  "while-active"
+                ]
+              },
+              "release": {
+                "enum": [
+                  "fixed",
+                  "while-active"
+                ]
+              },
+              "label": {
+                "enum": [
+                  "fixed",
+                  "while-active"
+                ]
+              },
+              "milestone": {
+                "enum": [
+                  "fixed",
+                  "while-active"
+                ]
+              },
+              "repository": {
+                "enum": [
+                  "fixed",
+                  "while-active"
+                ]
+              },
+              "public": {
+                "enum": [
+                  "fixed",
+                  "while-active"
+                ]
+              },
+              "fork": {
+                "enum": [
+                  "fixed",
+                  "while-active"
+                ]
+              },
+              "commit_comment": {
+                "enum": [
+                  "fixed",
+                  "while-active"
+                ]
+              },
+              "workflow_dispatch": {
+                "enum": [
+                  "fixed",
+                  "while-active"
+                ]
+              },
+              "merge_group": {
+                "enum": [
+                  "fixed",
+                  "while-active"
+                ]
+              },
+              "dependabot_alert": {
+                "enum": [
+                  "fixed",
+                  "while-active"
+                ]
+              },
+              "code_scanning_alert": {
+                "enum": [
+                  "fixed",
+                  "while-active"
+                ]
+              },
+              "secret_scanning_alert": {
+                "enum": [
+                  "fixed",
+                  "while-active"
+                ]
+              },
+              "deployment": {
+                "enum": [
+                  "fixed",
+                  "while-active"
+                ]
+              },
+              "deployment_status": {
+                "enum": [
+                  "fixed",
+                  "while-active"
+                ]
+              },
+              "deployment_protection_rule": {
+                "enum": [
+                  "fixed",
+                  "while-active"
+                ]
+              },
+              "deployment_review": {
+                "enum": [
+                  "fixed",
+                  "while-active"
+                ]
+              },
+              "deploy_key": {
+                "enum": [
+                  "fixed",
+                  "while-active"
+                ]
+              },
+              "repository_ruleset": {
+                "enum": [
+                  "fixed",
+                  "while-active"
+                ]
+              },
+              "repository_advisory": {
+                "enum": [
+                  "fixed",
+                  "while-active"
+                ]
+              },
+              "repository_vulnerability_alert": {
+                "enum": [
+                  "fixed",
+                  "while-active"
+                ]
+              },
+              "security_and_analysis": {
+                "enum": [
+                  "fixed",
+                  "while-active"
+                ]
+              },
+              "branch_protection_configuration": {
+                "enum": [
+                  "fixed",
+                  "while-active"
+                ]
+              },
+              "member": {
+                "enum": [
+                  "fixed",
+                  "while-active"
+                ]
+              },
+              "workflow_run": {
+                "enum": [
+                  "fixed",
+                  "while-active"
+                ]
+              },
+              "workflow_job": {
+                "enum": [
+                  "fixed",
+                  "while-active"
+                ]
+              },
+              "check_suite": {
+                "enum": [
+                  "fixed",
+                  "while-active"
+                ]
+              },
+              "check_run": {
+                "enum": [
+                  "fixed",
+                  "while-active"
+                ]
+              },
+              "pull_request": {
+                "enum": [
+                  "fixed",
+                  "while-active"
+                ]
+              },
+              "pull_request_review": {
+                "enum": [
+                  "fixed",
+                  "while-active"
+                ]
+              },
+              "pull_request_review_comment": {
+                "enum": [
+                  "fixed",
+                  "while-active"
+                ]
+              },
+              "page_build": {
+                "enum": [
+                  "fixed",
+                  "while-active"
+                ]
+              },
+              "status": {
+                "enum": [
+                  "fixed",
+                  "while-active"
+                ]
+              }
+            },
+            "additionalProperties": false
+          }
+        }
+      }
+    },
+    "orgs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "org"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "org": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9_.-]+$"
+          },
+          "events": {
+            "type": "array",
+            "minItems": 1,
+            "uniqueItems": true,
+            "items": {
+              "enum": [
+                "team",
+                "membership"
+              ]
+            }
+          },
+          "intervalSeconds": {
+            "type": "number",
+            "minimum": 5,
+            "description": "Default seconds between polls, 300 if unset"
+          },
+          "intervals": {
+            "type": "object",
+            "description": "Poll interval per event; the adapter's own floor still applies.",
+            "properties": {
+              "team": {
+                "type": "number",
+                "minimum": 5,
+                "description": "Seconds between team polls"
+              },
+              "membership": {
+                "type": "number",
+                "minimum": 5,
+                "description": "Seconds between membership polls"
+              }
+            },
+            "additionalProperties": false
+          },
+          "strategies": {
+            "type": "object",
+            "description": "fixed (default) or while-active, which relaxes polling while runs are early.",
+            "properties": {
+              "team": {
+                "enum": [
+                  "fixed",
+                  "while-active"
+                ]
+              },
+              "membership": {
+                "enum": [
+                  "fixed",
+                  "while-active"
+                ]
+              }
+            },
+            "additionalProperties": false
+          }
+        }
+      }
+    },
+    "intervals": {
+      "type": "object",
+      "description": "Poll interval per event; the adapter's own floor still applies.",
+      "properties": {
+        "push": {
+          "type": "number",
+          "minimum": 5,
+          "description": "Seconds between push polls"
+        },
+        "create": {
+          "type": "number",
+          "minimum": 5,
+          "description": "Seconds between create polls"
+        },
+        "delete": {
+          "type": "number",
+          "minimum": 5,
+          "description": "Seconds between delete polls"
+        },
+        "issues": {
+          "type": "number",
+          "minimum": 5,
+          "description": "Seconds between issues polls"
+        },
+        "issue_comment": {
+          "type": "number",
+          "minimum": 5,
+          "description": "Seconds between issue_comment polls"
+        },
+        "release": {
+          "type": "number",
+          "minimum": 5,
+          "description": "Seconds between release polls"
+        },
+        "label": {
+          "type": "number",
+          "minimum": 5,
+          "description": "Seconds between label polls"
+        },
+        "milestone": {
+          "type": "number",
+          "minimum": 5,
+          "description": "Seconds between milestone polls"
+        },
+        "repository": {
+          "type": "number",
+          "minimum": 5,
+          "description": "Seconds between repository polls"
+        },
+        "public": {
+          "type": "number",
+          "minimum": 5,
+          "description": "Seconds between public polls"
+        },
+        "fork": {
+          "type": "number",
+          "minimum": 5,
+          "description": "Seconds between fork polls"
+        },
+        "commit_comment": {
+          "type": "number",
+          "minimum": 5,
+          "description": "Seconds between commit_comment polls"
+        },
+        "workflow_dispatch": {
+          "type": "number",
+          "minimum": 5,
+          "description": "Seconds between workflow_dispatch polls"
+        },
+        "merge_group": {
+          "type": "number",
+          "minimum": 5,
+          "description": "Seconds between merge_group polls"
+        },
+        "dependabot_alert": {
+          "type": "number",
+          "minimum": 5,
+          "description": "Seconds between dependabot_alert polls"
+        },
+        "code_scanning_alert": {
+          "type": "number",
+          "minimum": 5,
+          "description": "Seconds between code_scanning_alert polls"
+        },
+        "secret_scanning_alert": {
+          "type": "number",
+          "minimum": 5,
+          "description": "Seconds between secret_scanning_alert polls"
+        },
+        "deployment": {
+          "type": "number",
+          "minimum": 5,
+          "description": "Seconds between deployment polls"
+        },
+        "deployment_status": {
+          "type": "number",
+          "minimum": 5,
+          "description": "Seconds between deployment_status polls"
+        },
+        "deployment_protection_rule": {
+          "type": "number",
+          "minimum": 5,
+          "description": "Seconds between deployment_protection_rule polls"
+        },
+        "deployment_review": {
+          "type": "number",
+          "minimum": 5,
+          "description": "Seconds between deployment_review polls"
+        },
+        "deploy_key": {
+          "type": "number",
+          "minimum": 5,
+          "description": "Seconds between deploy_key polls"
+        },
+        "repository_ruleset": {
+          "type": "number",
+          "minimum": 5,
+          "description": "Seconds between repository_ruleset polls"
+        },
+        "repository_advisory": {
+          "type": "number",
+          "minimum": 5,
+          "description": "Seconds between repository_advisory polls"
+        },
+        "repository_vulnerability_alert": {
+          "type": "number",
+          "minimum": 5,
+          "description": "Seconds between repository_vulnerability_alert polls"
+        },
+        "security_and_analysis": {
+          "type": "number",
+          "minimum": 5,
+          "description": "Seconds between security_and_analysis polls"
+        },
+        "branch_protection_configuration": {
+          "type": "number",
+          "minimum": 5,
+          "description": "Seconds between branch_protection_configuration polls"
+        },
+        "member": {
+          "type": "number",
+          "minimum": 5,
+          "description": "Seconds between member polls"
+        },
+        "workflow_run": {
+          "type": "number",
+          "minimum": 5,
+          "description": "Seconds between workflow_run polls"
+        },
+        "workflow_job": {
+          "type": "number",
+          "minimum": 5,
+          "description": "Seconds between workflow_job polls"
+        },
+        "check_suite": {
+          "type": "number",
+          "minimum": 5,
+          "description": "Seconds between check_suite polls"
+        },
+        "check_run": {
+          "type": "number",
+          "minimum": 5,
+          "description": "Seconds between check_run polls"
+        },
+        "pull_request": {
+          "type": "number",
+          "minimum": 5,
+          "description": "Seconds between pull_request polls"
+        },
+        "pull_request_review": {
+          "type": "number",
+          "minimum": 5,
+          "description": "Seconds between pull_request_review polls"
+        },
+        "pull_request_review_comment": {
+          "type": "number",
+          "minimum": 5,
+          "description": "Seconds between pull_request_review_comment polls"
+        },
+        "page_build": {
+          "type": "number",
+          "minimum": 5,
+          "description": "Seconds between page_build polls"
+        },
+        "status": {
+          "type": "number",
+          "minimum": 5,
+          "description": "Seconds between status polls"
+        }
+      },
+      "additionalProperties": false
+    },
+    "strategies": {
+      "type": "object",
+      "description": "fixed (default) or while-active, which relaxes polling while runs are early.",
+      "properties": {
+        "push": {
+          "enum": [
+            "fixed",
+            "while-active"
+          ]
+        },
+        "create": {
+          "enum": [
+            "fixed",
+            "while-active"
+          ]
+        },
+        "delete": {
+          "enum": [
+            "fixed",
+            "while-active"
+          ]
+        },
+        "issues": {
+          "enum": [
+            "fixed",
+            "while-active"
+          ]
+        },
+        "issue_comment": {
+          "enum": [
+            "fixed",
+            "while-active"
+          ]
+        },
+        "release": {
+          "enum": [
+            "fixed",
+            "while-active"
+          ]
+        },
+        "label": {
+          "enum": [
+            "fixed",
+            "while-active"
+          ]
+        },
+        "milestone": {
+          "enum": [
+            "fixed",
+            "while-active"
+          ]
+        },
+        "repository": {
+          "enum": [
+            "fixed",
+            "while-active"
+          ]
+        },
+        "public": {
+          "enum": [
+            "fixed",
+            "while-active"
+          ]
+        },
+        "fork": {
+          "enum": [
+            "fixed",
+            "while-active"
+          ]
+        },
+        "commit_comment": {
+          "enum": [
+            "fixed",
+            "while-active"
+          ]
+        },
+        "workflow_dispatch": {
+          "enum": [
+            "fixed",
+            "while-active"
+          ]
+        },
+        "merge_group": {
+          "enum": [
+            "fixed",
+            "while-active"
+          ]
+        },
+        "dependabot_alert": {
+          "enum": [
+            "fixed",
+            "while-active"
+          ]
+        },
+        "code_scanning_alert": {
+          "enum": [
+            "fixed",
+            "while-active"
+          ]
+        },
+        "secret_scanning_alert": {
+          "enum": [
+            "fixed",
+            "while-active"
+          ]
+        },
+        "deployment": {
+          "enum": [
+            "fixed",
+            "while-active"
+          ]
+        },
+        "deployment_status": {
+          "enum": [
+            "fixed",
+            "while-active"
+          ]
+        },
+        "deployment_protection_rule": {
+          "enum": [
+            "fixed",
+            "while-active"
+          ]
+        },
+        "deployment_review": {
+          "enum": [
+            "fixed",
+            "while-active"
+          ]
+        },
+        "deploy_key": {
+          "enum": [
+            "fixed",
+            "while-active"
+          ]
+        },
+        "repository_ruleset": {
+          "enum": [
+            "fixed",
+            "while-active"
+          ]
+        },
+        "repository_advisory": {
+          "enum": [
+            "fixed",
+            "while-active"
+          ]
+        },
+        "repository_vulnerability_alert": {
+          "enum": [
+            "fixed",
+            "while-active"
+          ]
+        },
+        "security_and_analysis": {
+          "enum": [
+            "fixed",
+            "while-active"
+          ]
+        },
+        "branch_protection_configuration": {
+          "enum": [
+            "fixed",
+            "while-active"
+          ]
+        },
+        "member": {
+          "enum": [
+            "fixed",
+            "while-active"
+          ]
+        },
+        "workflow_run": {
+          "enum": [
+            "fixed",
+            "while-active"
+          ]
+        },
+        "workflow_job": {
+          "enum": [
+            "fixed",
+            "while-active"
+          ]
+        },
+        "check_suite": {
+          "enum": [
+            "fixed",
+            "while-active"
+          ]
+        },
+        "check_run": {
+          "enum": [
+            "fixed",
+            "while-active"
+          ]
+        },
+        "pull_request": {
+          "enum": [
+            "fixed",
+            "while-active"
+          ]
+        },
+        "pull_request_review": {
+          "enum": [
+            "fixed",
+            "while-active"
+          ]
+        },
+        "pull_request_review_comment": {
+          "enum": [
+            "fixed",
+            "while-active"
+          ]
+        },
+        "page_build": {
+          "enum": [
+            "fixed",
+            "while-active"
+          ]
+        },
+        "status": {
+          "enum": [
+            "fixed",
+            "while-active"
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "deliver": {
+      "type": "object",
+      "required": [
+        "url"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "url": {
+          "type": "string",
+          "pattern": "^https?://(127\\.0\\.0\\.1|localhost|\\[::1\\])(:\\d+)?(/.*)?$"
+        },
+        "secret": {
+          "type": "string"
+        }
+      }
+    },
+    "stateDir": {
+      "type": "string",
+      "description": "Default ~/.local/state/pollhook"
+    }
+  }
+}

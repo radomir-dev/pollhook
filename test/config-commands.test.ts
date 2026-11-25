@@ -111,6 +111,23 @@ test("check lists organisation targets with their own events", () => {
   );
 });
 
+test("check warns about keys it ignores but still passes", () => {
+  const path = fresh();
+  run("init", ["--config", path, "--repo", "acme/app"]);
+  const raw = JSON.parse(readFileSync(path, "utf8"));
+  writeFileSync(path, JSON.stringify({ ...raw, intervalSeconds: 60 }));
+  const writeErr = process.stderr.write.bind(process.stderr);
+  let err = "";
+  process.stderr.write = ((chunk: string) => ((err += chunk), true)) as typeof process.stderr.write;
+  try {
+    assert.equal(run("config", ["check", "--config", path]).code, 0);
+  } finally {
+    process.stderr.write = writeErr;
+  }
+
+  assert.match(err, /"intervalSeconds" is not a known key and is ignored/);
+});
+
 test("check fails on an invalid config", () => {
   const path = fresh();
   run("init", ["--config", path, "--repo", "acme/app"]);

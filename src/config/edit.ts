@@ -1,13 +1,14 @@
 import { mkdirSync, readFileSync, renameSync, writeFileSync } from "node:fs";
 import { dirname } from "node:path";
 import { parseConfig } from "../config.ts";
+import { SCHEMA_URL } from "./schema.ts";
 
 type Raw = Record<string, any>;
 
 export const DEFAULT_EVENTS = ["workflow_run", "pull_request"];
 
 export function starterConfig(repos: string[], events: string[]): Raw {
-  return { repos: repos.map((repo) => ({ repo, events })) };
+  return { $schema: SCHEMA_URL, repos: repos.map((repo) => ({ repo, events })) };
 }
 
 export function readRaw(path: string): Raw {
