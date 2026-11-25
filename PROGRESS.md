@@ -414,3 +414,23 @@ Next:
 
 1. P4: organisation, projects and app events.
 2. P5: report the next poll time in `status`.
+
+## 2026-11-25: repository collaborators (P4)
+
+`member` reads `/repos/{o}/{r}/collaborators`, hashes each user's permission map,
+emits `added` on first sight, `edited` when permissions change, and `removed` when
+a login disappears. The list is capped at 100; a repository with more
+collaborators would produce false removals, so the cap is documented instead of
+being silently trusted.
+
+The org-level `membership`, `team` and `organization` events need an org target in
+the config, which today holds repositories only. That is the next structural step
+before those adapters.
+
+Verification: `tsc --noEmit` clean, 71 of 71 tests passing.
+
+Next:
+
+1. P4: add an optional `orgs` config section, then `membership`, `team` and
+   `organization`.
+2. P5: report the next poll time in `status`.
