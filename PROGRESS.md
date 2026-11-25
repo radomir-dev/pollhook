@@ -620,3 +620,21 @@ Next:
 
 1. Ask about pausing the automation; no unattended code work is queued.
 2. A CLI end-to-end test once there is a reason to keep the loop running.
+
+## 2026-11-25: CLI end-to-end test
+
+The CLI is now exercised against an in-process daemon backed by the fake GitHub:
+`status --json`, `run` on a finished run (exit 0), `run` with a one-second timeout
+(exit 8), and `status` with no daemon (exit 2). It spawns `src/cli.ts` rather than
+importing it, so argument parsing, config loading, the socket client and the exit
+codes are all covered.
+
+The first attempt used `spawnSync` and deadlocked: it blocked the event loop the
+in-process daemon runs on, so the daemon could not answer. The test uses async
+spawn.
+
+Verification: `tsc --noEmit` clean, 89 of 89 tests passing.
+
+Next:
+
+1. Ask about pausing the automation; no unattended code work is queued.
