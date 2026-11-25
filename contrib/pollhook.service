@@ -1,0 +1,22 @@
+[Unit]
+Description=pollhook: GitHub webhook deliveries reconstructed from REST polling
+Documentation=https://github.com/radomir-dev/pollhook
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+# The Node 24 shim from mise has to be on PATH, and `gh auth token` needs the gh binary.
+Environment=PATH=%h/.local/bin:%h/.local/share/mise/shims:/usr/local/bin:/usr/bin:/bin
+ExecStart=%h/.local/bin/pollhook daemon
+Restart=on-failure
+RestartSec=5s
+NoNewPrivileges=yes
+PrivateTmp=yes
+ProtectSystem=full
+ProtectHome=read-only
+# State lives under ~/.local/state; everything else in the home stays read-only.
+ReadWritePaths=%h/.local/state
+
+[Install]
+WantedBy=default.target
