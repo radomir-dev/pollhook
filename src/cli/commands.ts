@@ -162,7 +162,7 @@ function printStatus(body: any): void {
   for (const repo of body.repos) {
     const error = repo.lastError ? `  error=${repo.lastError}` : "";
     process.stdout.write(
-      `${repo.repo}  events=${repo.events.length}  last_poll=${repo.lastPollAt ?? "-"}  last_event=${repo.lastEventAt ?? "-"}${error}\n`,
+      `${repo.repo}  events=${repo.events.length}  last_poll=${repo.lastPollAt ?? "-"}  next_poll=${repo.nextPollAt ?? "-"}  last_event=${repo.lastEventAt ?? "-"}${error}\n`,
     );
   }
   process.stdout.write(

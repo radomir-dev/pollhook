@@ -112,3 +112,17 @@ test("priming is per event, not per object: a new object after a restart still d
   assert.equal(emitted, 1);
   db.close();
 });
+
+test("status reports the next poll time after a round", async () => {
+  const db = new StateStore(":memory:");
+  const gh = new FakeGitHub({
+    "/repos/acme/app/actions/runs?per_page=50": { workflow_runs: [] },
+  });
+  const poller = new Poller(workflowConfig, db, gh, () => {});
+  await poller.pollOnce();
+
+  const status = poller.listStatuses()[0]!;
+  assert.ok(status.nextPollAt);
+  assert.ok(Date.parse(status.nextPollAt) > Date.now());
+  db.close();
+});

@@ -11,6 +11,7 @@ export interface RepoStatus {
   lastPollAt: string | null;
   lastEventAt: string | null;
   lastError: string | null;
+  nextPollAt: string | null;
 }
 
 const TICK_MS = 1000;
@@ -55,7 +56,18 @@ export class Poller {
   }
 
   listStatuses(): RepoStatus[] {
-    return [...this.statuses.values()];
+    return [...this.statuses.values()].map((status) => ({
+      ...status,
+      nextPollAt: this.nextPollFor(status),
+    }));
+  }
+
+  private nextPollFor(status: RepoStatus): string | null {
+    const due = adaptersFor(status.events as EventName[], status.kind)
+      .map((adapter) => this.nextDue.get(`${status.kind}:${status.repo}:${adapter.name}`))
+      .filter((value): value is number => typeof value === "number");
+    if (due.length === 0) return null;
+    return new Date(Math.min(...due)).toISOString();
   }
 
   async pollOnce(): Promise<void> {
@@ -189,5 +201,6 @@ function statusFor(kind: AdapterScope, name: string, events: EventName[]): RepoS
     lastPollAt: null,
     lastEventAt: null,
     lastError: null,
+    nextPollAt: null,
   };
 }
