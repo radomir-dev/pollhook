@@ -7,9 +7,16 @@ import type { AdapterEmit, Delivery, GetResult, GithubClient, RepoInfo } from ".
 
 export class FakeGitHub implements GithubClient {
   responses: Record<string, unknown>;
+  probes: Record<string, boolean>;
 
-  constructor(responses: Record<string, unknown>) {
+  constructor(responses: Record<string, unknown>, probes: Record<string, boolean> = {}) {
     this.responses = responses;
+    this.probes = probes;
+  }
+
+  async probe(path: string): Promise<boolean> {
+    if (!(path in this.probes)) throw new Error(`404 ${path}`);
+    return this.probes[path]!;
   }
 
   async get<T>(path: string): Promise<GetResult<T>> {

@@ -20,6 +20,9 @@ export type EventName =
   | "deployment_status"
   | "deploy_key"
   | "repository_ruleset"
+  | "repository_advisory"
+  | "repository_vulnerability_alert"
+  | "security_and_analysis"
   | "workflow_run"
   | "check_suite"
   | "check_run"
@@ -46,6 +49,7 @@ export interface GetResult<T> {
 
 export interface GithubClient {
   get<T>(path: string, opts?: { etagKey?: string }): Promise<GetResult<T>>;
+  probe(path: string): Promise<boolean>;
   repoInfo(repo: string): Promise<RepoInfo>;
   sender(): Promise<Record<string, unknown>>;
 }

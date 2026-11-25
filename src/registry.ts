@@ -18,8 +18,11 @@ import { issues } from "./adapters/issues.ts";
 import { label } from "./adapters/label.ts";
 import { milestone } from "./adapters/milestone.ts";
 import { publicEvent, repository } from "./adapters/repository.ts";
+import { repositoryAdvisory } from "./adapters/repository-advisory.ts";
 import { repositoryRuleset } from "./adapters/repository-ruleset.ts";
+import { securityAndAnalysis } from "./adapters/security-and-analysis.ts";
 import { secretScanningAlert } from "./adapters/secret-scanning-alert.ts";
+import { vulnerabilityAlert } from "./adapters/vulnerability-alert.ts";
 import { release } from "./adapters/release.ts";
 import { commitStatus } from "./adapters/status.ts";
 import { workflowRun } from "./adapters/workflow-run.ts";
@@ -47,6 +50,9 @@ export const ADAPTERS: Record<EventName, Adapter> = {
   deployment_status: deploymentStatus,
   deploy_key: deployKey,
   repository_ruleset: repositoryRuleset,
+  repository_advisory: repositoryAdvisory,
+  repository_vulnerability_alert: vulnerabilityAlert,
+  security_and_analysis: securityAndAnalysis,
   workflow_run: workflowRun,
   check_suite: checkSuite,
   check_run: checkRun,

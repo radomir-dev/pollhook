@@ -97,6 +97,24 @@ export class GitHub implements GithubClient {
     }
   }
 
+  async probe(path: string): Promise<boolean> {
+    await this.gate();
+    const response = await fetch(this.baseUrl + path, {
+      headers: {
+        accept: "application/vnd.github+json",
+        authorization: `Bearer ${this.token}`,
+        "user-agent": "pollhook/0.1.0",
+        "x-github-api-version": API_VERSION,
+      },
+      signal: AbortSignal.timeout(20_000),
+    });
+    this.readQuota(response);
+    this.stats.requests += 1;
+    if (response.status === 404) return false;
+    if (!response.ok) throw new GitHubError(response.status, path, await response.text());
+    return true;
+  }
+
   async repoInfo(repo: string): Promise<RepoInfo> {
     return this.memoized(`/repos/${repo}`, 10 * 60_000, async () => {
       const result = await this.get<RepoInfo>(`/repos/${repo}`);
