@@ -54,8 +54,10 @@ report the current status of a run or a check.
 1. `npm install` (Node 24; `.mise.toml` pins 24.22.3).
 2. Copy `pollhook.example.json` to `~/.config/pollhook/config.json` and set the
    repository and events.
-3. Run `pollhook daemon`. The token comes from `GH_TOKEN`, `GITHUB_TOKEN` or
-   `gh auth token`, in that order.
+3. Run `pollhook daemon`. The token comes from `POLLHOOK_TOKEN`, then your
+   `gh auth login`, then `GH_TOKEN`/`GITHUB_TOKEN`. The gh login wins over ambient
+   tokens because a `GITHUB_TOKEN` in the environment often belongs to something
+   else.
 4. Use `pollhook run <id>`, `pollhook checks <pr>`, `pollhook pr <n> --until
    merged`, `pollhook pages <sha>` and `pollhook status`.
 

@@ -128,6 +128,12 @@ leaves no hooks behind.
    `pages`; a `ghwait` shim can follow if scripts depend on the name.
 6. Store 500 recent objects per repository; older ones are dropped, waits for them
    fail with `2` rather than hanging.
+7. Token order is `POLLHOOK_TOKEN`, then the `gh` login, then `GH_TOKEN` and
+   `GITHUB_TOKEN`. Ambient tokens lose to the login on purpose: they often belong
+   to another account.
+8. Default interval is 30 seconds. Measured cost is 15 requests per round on a
+   two-PR repository, most of them `304`s, so the interval is set by API latency
+   rather than by quota.
 
 ## Open questions
 
