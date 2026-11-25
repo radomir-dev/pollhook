@@ -59,7 +59,8 @@ immediately for something that already finished.
 2. Every event has an adapter: a REST endpoint to read, a cursor field to order
    by, and a mapping from the REST resource to the webhook payload.
 3. The scheduler polls with `If-None-Match`. A `304` costs nothing against the
-   rate limit, so a quiet repository is close to free.
+   rate limit, so a quiet repository is close to free: a ten-minute soak on one
+   repository made 485 requests and 135 bodies, about 800 billable per hour.
 4. An observed change becomes a delivery carrying `X-GitHub-Event`,
    `X-GitHub-Delivery`, and `X-Hub-Signature-256` when a secret is configured.
    Deliveries are at-least-once; a fingerprint store drops duplicates. A failing
@@ -267,16 +268,15 @@ agent actually needs. Event synthesis is the mechanism, not the product.
 ## Status
 
 P0, P1, most of P2 and P3, and the deployment and protection events are
-implemented and covered by 141 tests. What shipped and what comes next is in
-[PROGRESS.md](PROGRESS.md); phases and acceptance criteria are in
+implemented and covered by 141 tests. History lives in the commits and the
+generated `CHANGELOG.md`; open work and its acceptance criteria are in
 [the issue tracker](https://github.com/radomir-dev/pollhook/issues).
 
 ## Layout
 
-1. `PROGRESS.md`: what each change did, what was measured and how it was verified.
-2. `docs/events.md`: the event catalog with REST source, cursor, fidelity and phase.
-3. `pollhook.example.json`: a starting config.
-4. `contrib/pollhook.service`: the systemd user unit.
+1. `docs/events.md`: the event catalog with REST source, cursor, fidelity and phase.
+2. `pollhook.example.json`: a starting config.
+3. `contrib/pollhook.service`: the systemd user unit.
 
 ## Name
 
