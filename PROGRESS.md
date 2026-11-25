@@ -606,3 +606,17 @@ Verification: `tsc --noEmit` clean, 82 of 82 tests passing (docs only).
 Next:
 
 1. Ask about pausing the automation: there is no unattended code work left.
+
+## 2026-11-25: CLI argument tests
+
+Added coverage for the CLI argument helpers: duration units, positional
+extraction that respects value-taking flags, repeated `--match`, and required
+values. The daemon and wait paths were tested; the surface agents actually type
+was not.
+
+Verification: `tsc --noEmit` clean, 87 of 87 tests passing.
+
+Next:
+
+1. Ask about pausing the automation; no unattended code work is queued.
+2. A CLI end-to-end test once there is a reason to keep the loop running.
