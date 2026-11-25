@@ -317,3 +317,26 @@ Next:
 1. P5: systemd user unit, `pollhook cleanup`, and a soak test.
 2. P3 leftovers: branch protection, secret scanning locations and scans,
    deployment review, deployment protection rules.
+
+## 2026-11-25: systemd unit (P5)
+
+Added `contrib/pollhook.service`. The unit runs `pollhook daemon`, restarts on
+failure, puts the mise shims and `~/.local/bin` on `PATH`, and hardens the service
+with `NoNewPrivileges`, `PrivateTmp`, `ProtectSystem=full` and
+`ProtectHome=read-only` except `~/.local/state`. The token is not stored: the
+daemon reads the gh login.
+
+`systemd-analyze verify contrib/pollhook.service` parses the unit; its only message
+is that `~/.local/bin/pollhook` does not exist yet, which `npm link` fixes.
+
+`pollhook cleanup` remains a no-op on purpose: pollhook creates no GitHub webhooks,
+so there is nothing to remove until a forwarder mode exists.
+
+Verification: `tsc --noEmit` clean, 67 of 67 tests passing.
+
+Next:
+
+1. P5 soak: run the daemon for ten minutes against `omnigame-studio/dev-server`
+   and record `http.requests`, `http.notModified` and the quota delta.
+2. P3 leftovers: branch protection, secret scanning locations and scans,
+   deployment review, deployment protection rules.

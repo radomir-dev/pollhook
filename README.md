@@ -71,6 +71,17 @@ receives GitHub-shaped POSTs and must be a loopback address.
 The published package ships `dist/` and a `pollhook` bin, so `npx pollhook` works
 once the package is on npm.
 
+## Service
+
+1. `npm link` so `~/.local/bin/pollhook` exists. If your npm global prefix lives
+   elsewhere, symlink the bin into `~/.local/bin` or edit `ExecStart`.
+2. Copy `contrib/pollhook.service` to `~/.config/systemd/user/`.
+3. `systemctl --user daemon-reload && systemctl --user enable --now pollhook`.
+4. `journalctl --user -u pollhook -f` to watch it.
+
+The unit keeps the home read-only except `~/.local/state`, and puts the mise shims
+on `PATH` so `node` and `gh auth token` resolve.
+
 ## Fidelity
 
 Polling sees state; webhooks are a history of transitions. Four consequences, all

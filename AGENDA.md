@@ -110,14 +110,16 @@ App-only events are reported as unsupported instead of being silently dropped.
 
 ## P5: operations
 
-1. `systemd --user` unit; secrets from the keyring via `secret-tool`, never from
-   the config file or shell rc.
+1. Done: `contrib/pollhook.service`, a `systemd --user` unit with the home
+   read-only except `~/.local/state`. The token still comes from the gh login;
+   nothing is stored in the unit or the config.
 2. `gh webhook forward` children per repository, restarted with backoff, reported
-   as degraded in `status`, with faster polling while down.
-3. `pollhook cleanup` removes leftover forwarder hooks, after listing them and
-   asking.
-4. `status` reports source per repository, age of the last event, quota remaining,
-   and next poll.
+   as degraded in `status`, with faster polling while down. Not started: the poll
+   path is complete without it.
+3. `pollhook cleanup` stays a no-op while pollhook creates no hooks. It becomes
+   real if a forwarder mode lands.
+4. `status` reports last poll, last event, quota and request counters. Next poll is
+   not reported yet.
 
 Acceptance: a 24-hour soak on a quiet repository holds the request budget and
 leaves no hooks behind.
