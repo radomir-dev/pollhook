@@ -1,0 +1,46 @@
+# Changelog
+
+## [0.2.0](https://github.com/radomir-dev/pollhook/compare/pollhook-v0.1.0...pollhook-v0.2.0) (2026-11-25)
+
+
+### Features
+
+* add org targets and the team event ([b23509b](https://github.com/radomir-dev/pollhook/commit/b23509b59620519472c6afffc4e2d925f62eb282))
+* back off degraded adapters for an hour ([3aa7cbb](https://github.com/radomir-dev/pollhook/commit/3aa7cbb57a5496a2880ac38555fdb53fc1ede0ae))
+* **cli:** emit --brief prints one line per delivery ([3e8a97b](https://github.com/radomir-dev/pollhook/commit/3e8a97bced2fac2d908672e7822fcce1d968626c))
+* **cli:** generate the CLI reference from a command spec ([5a167e5](https://github.com/radomir-dev/pollhook/commit/5a167e5325c061043fcce1930e0294c776ace837))
+* **cli:** poke forces an immediate poll round ([893f5d0](https://github.com/radomir-dev/pollhook/commit/893f5d0cbac6bca2f5e5a5f372d4962a9dec2376))
+* **config:** per-event intervals and polling strategies ([d0a2cc7](https://github.com/radomir-dev/pollhook/commit/d0a2cc769c06390f380db1b4ee6a3c037cb18d35))
+* **daemon:** reload config without dropping consumers ([cb5e33d](https://github.com/radomir-dev/pollhook/commit/cb5e33db69d5624a1990ce1cc5eea05d06edd0de))
+* emit advisory and repository security deliveries ([9904907](https://github.com/radomir-dev/pollhook/commit/9904907b193819a032c3b5ebd76f52b602ba1a08))
+* emit branch protection configuration changes ([1376bf7](https://github.com/radomir-dev/pollhook/commit/1376bf7706c1ee7dfec5d0496a24bbe87d36c830))
+* emit collaborator membership changes ([278acad](https://github.com/radomir-dev/pollhook/commit/278acad7d39eb4decf2a3af412ef3ea2eeb1d25f))
+* emit create and delete from ref diffs ([8bf2c55](https://github.com/radomir-dev/pollhook/commit/8bf2c550fb29156fba90c31e014d0aebab5ed912))
+* emit dependabot, code scanning and secret scanning alerts ([28e0a6e](https://github.com/radomir-dev/pollhook/commit/28e0a6e19dcf55ca3f314deb14b4d73f9a30a793))
+* emit deployment, deploy key and ruleset deliveries ([0afefbd](https://github.com/radomir-dev/pollhook/commit/0afefbd299e87e164058f682d12cd8740fd83543))
+* emit issue and issue comment deliveries ([a6f0e9d](https://github.com/radomir-dev/pollhook/commit/a6f0e9d217e754bd6c5793e8905df963d830576e))
+* emit release, label and milestone deliveries ([53d36d6](https://github.com/radomir-dev/pollhook/commit/53d36d6037ed35ccf91c224b29f332c4b3c8b6b4))
+* emit repository, fork and commit comment deliveries ([f890b71](https://github.com/radomir-dev/pollhook/commit/f890b71108c281927508143647f4bae2bdb3bdc8))
+* emit team membership changes ([3c16bfa](https://github.com/radomir-dev/pollhook/commit/3c16bfac4b4b55e7b88343941b775498eea0734a))
+* emit workflow dispatch and merge group deliveries ([1489b2f](https://github.com/radomir-dev/pollhook/commit/1489b2f239ec89f9dd3ac461b120478c27d0ff3d))
+* key run durations by run id so the first poll backfills them ([9805d37](https://github.com/radomir-dev/pollhook/commit/9805d37cc41a13c672800b097523fd4767287ac2))
+* poll deployment protection rules per environment ([d42e264](https://github.com/radomir-dev/pollhook/commit/d42e2642be8c4c08891f8a5c192b7e657bf4bdbd))
+* poll GitHub for CI, pull request and Pages events ([3f91563](https://github.com/radomir-dev/pollhook/commit/3f91563dee35b26d22dc7312d5c5853067073831))
+* poll GitHub for CI, pull request and Pages events ([11292cc](https://github.com/radomir-dev/pollhook/commit/11292ccdde1be6a6227866e5247fe32d09896d3d))
+* poll pending deployments for review requests ([86950df](https://github.com/radomir-dev/pollhook/commit/86950dfdf1bd320d450c46c04cb058c327190a58))
+* poll pull request review comments ([d8bb31f](https://github.com/radomir-dev/pollhook/commit/d8bb31f00964eb52716e48e09e63778170c35873))
+* poll workflow jobs for active runs ([5d1c61f](https://github.com/radomir-dev/pollhook/commit/5d1c61f552aa89fc4ee8c83d44dbbc8e7e864145))
+* prime silently on the first poll of each event ([855bd14](https://github.com/radomir-dev/pollhook/commit/855bd1404bfe74717bd8abac2663020049ea1757))
+* reconstruct push deliveries from compare ([e51b0ee](https://github.com/radomir-dev/pollhook/commit/e51b0ee0e518bee5acd95e8cc75ddefc59d8541c))
+* report permanent adapter failures as degraded ([5ddefc1](https://github.com/radomir-dev/pollhook/commit/5ddefc10b0859ebb133f88e5ee38056db2ecf57c))
+* report the next poll time in status ([c884e01](https://github.com/radomir-dev/pollhook/commit/c884e01c21a6f18af2f515392b80b05ecb80c1c6))
+* retry deliveries with exponential backoff ([f488506](https://github.com/radomir-dev/pollhook/commit/f488506b067d58fc245242890c05568185a55798))
+* slow polling under rate-limit pressure and honour retry-after ([180a105](https://github.com/radomir-dev/pollhook/commit/180a10534e795d81942cbfa2e4d8df81555fa051))
+* track workflow durations and slow polling while runs are early ([dd64c72](https://github.com/radomir-dev/pollhook/commit/dd64c7228644bf70baaae1800c3f46995bf0f340))
+
+
+### Bug Fixes
+
+* close sockets, bind adapter emits and order snapshot ties ([5ba2136](https://github.com/radomir-dev/pollhook/commit/5ba21365792816fa9e650d834003631924d6d18e))
+* prefer the gh login and keep poll round errors ([ca04058](https://github.com/radomir-dev/pollhook/commit/ca0405849a88d898bf5d96713f26a4c42efffbef))
+* send the emit subscription so deliveries stream ([475cb38](https://github.com/radomir-dev/pollhook/commit/475cb38a953626975decbe933985a3000971c64b))
