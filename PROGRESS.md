@@ -268,3 +268,27 @@ Next:
    `deployment_protection_rule`, `security_and_analysis`.
 2. Verify whether `gh webhook forward` leaves a hook behind.
 3. Package for npm/npx: P6 in AGENDA.md.
+
+## 2026-11-25: advisories and repository security (P3)
+
+1. Added `GithubClient.probe` for endpoints that answer 204 or 404 instead of
+   JSON. `repository_vulnerability_alert` uses it and reports enable or disable
+   from the flip.
+2. `repository_advisory` maps first sight to `published`, state `closed` to
+   `closed`, and everything else to `updated`.
+3. `security_and_analysis` diffs the repository field and carries `from` and `to`
+   under `changes`.
+
+Remaining P3 work is deliberately behind operations and packaging: branch
+protection needs one request per branch, secret scanning locations and scans are
+nested or GraphQL-bound, and deployment review needs pending-deployment reads.
+
+Verification: `tsc --noEmit` clean, 67 of 67 tests passing.
+
+Next:
+
+1. P6: package for npm/npx. The bin is TypeScript, so decide between requiring
+   Node 24 and compiling at publish time.
+2. P5: systemd user unit, `pollhook cleanup`, and a soak test.
+3. P3 leftovers: branch protection, secret scanning locations and scans,
+   deployment review, deployment protection rules.

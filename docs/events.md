@@ -80,7 +80,7 @@ per active run, so it is opt-in per repository.
 | `repository_ruleset` | `/repos/{o}/{r}/rulesets` | `id` + `updated_at` | object | P3 done |
 | `branch_protection_rule` | `/repos/{o}/{r}/branches/{branch}/protection` | hash of the protection object | derived | P3 |
 | `branch_protection_configuration` | same as `branch_protection_rule` | hash of the protection object | derived | P3 |
-| `security_and_analysis` | `/repos/{o}/{r}` → `security_and_analysis` | hash of the object | derived | P3 |
+| `security_and_analysis` | `/repos/{o}/{r}` → `security_and_analysis` | hash of the object | derived | P3 done |
 | `meta` | `/meta` | field hash | derived | P4 |
 | `security_advisory` | `/advisories` (global database) | `ghsa_id` + `updated_at` | partial | P4 |
 
@@ -93,8 +93,8 @@ per active run, so it is opt-in per repository.
 | `secret_scanning_alert` | `/repos/{o}/{r}/secret-scanning/alerts` | `number` + `updated_at` | object | P3 done |
 | `secret_scanning_alert_location` | locations nested in the alert | alert `number` + location set | object | P3 |
 | `secret_scanning_scan` | `/repos/{o}/{r}/secret-scanning/scan-history` ~ | scan `id` + `updated_at` | partial | P3 |
-| `repository_advisory` | `/repos/{o}/{r}/security-advisories` | `ghsa_id` + `updated_at` | object | P3 |
-| `repository_vulnerability_alert` | `/repos/{o}/{r}/vulnerability-alerts` (on/off) | repo `id` + enabled | partial | P3 |
+| `repository_advisory` | `/repos/{o}/{r}/security-advisories` | `ghsa_id` + `updated_at` | object | P3 done |
+| `repository_vulnerability_alert` | `/repos/{o}/{r}/vulnerability-alerts` (on/off) | repo `id` + enabled | partial | P3 done |
 
 ## Organisation, projects and apps
 

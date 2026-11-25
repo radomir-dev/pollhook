@@ -9,8 +9,10 @@ toward the 76 events in GitHub's catalog without changing the delivery format.
 
 Status: P0, P1, most of P2 (`push`, `create`, `delete`, `issues`,
 `issue_comment`, `release`, `label`, `milestone`, `repository`, `public`, `fork`,
-`commit_comment`, `workflow_dispatch`, `merge_group`), the three alert events and
-the deployment, deploy key and ruleset events of P3 are implemented; see
+`commit_comment`, `workflow_dispatch`, `merge_group`), most of P3 (`dependabot`,
+`code_scanning`, `secret_scanning`, `deployment`, `deployment_status`,
+`deploy_key`, `repository_ruleset`, `repository_advisory`,
+`repository_vulnerability_alert`, `security_and_analysis`) are implemented; see
 [PROGRESS.md](PROGRESS.md). The phases below remain the plan for everything else.
 
 ## Principles
