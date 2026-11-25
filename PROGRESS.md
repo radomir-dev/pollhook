@@ -292,3 +292,28 @@ Next:
 2. P5: systemd user unit, `pollhook cleanup`, and a soak test.
 3. P3 leftovers: branch protection, secret scanning locations and scans,
    deployment review, deployment protection rules.
+
+## 2026-11-25: npm packaging (P6)
+
+Compiled output is what ships. `tsconfig.build.json` emits `src` to `dist` with
+`rewriteRelativeImportExtensions`, so every `.ts` import becomes `.js` in the
+output and the `#!` line survives. `bin` points at `dist/cli.js`, `files` ships
+only `dist`, `prepublishOnly` builds, and `engines.node` is `>=24` because the
+state store needs `node:sqlite`. Shipping TypeScript instead would fail inside
+`node_modules`, where Node does not strip types.
+
+Verified:
+
+1. `npm run build` writes `dist/cli.js` with the shebang and `.js` imports.
+2. `node dist/cli.js --help` exits 0; `status` without a config exits 2 with a
+   readable error.
+3. `npm pack`, install the tarball into a temporary prefix, then
+   `node_modules/.bin/pollhook --help` exits 0.
+
+`tsc --noEmit` clean, 67 of 67 tests unchanged.
+
+Next:
+
+1. P5: systemd user unit, `pollhook cleanup`, and a soak test.
+2. P3 leftovers: branch protection, secret scanning locations and scans,
+   deployment review, deployment protection rules.

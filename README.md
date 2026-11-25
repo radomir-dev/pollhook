@@ -53,7 +53,8 @@ report the current status of a run or a check.
 
 ## Running
 
-1. `npm install` (Node 24; `.mise.toml` pins 24.22.3).
+1. `npm install && npm run build`, then `npm link` to put `pollhook` on PATH.
+   Node 24 is required; `.mise.toml` pins 24.22.3.
 2. Copy `pollhook.example.json` to `~/.config/pollhook/config.json` and set the
    repository and events.
 3. Run `pollhook daemon`. The token comes from `POLLHOOK_TOKEN`, then your
@@ -66,6 +67,9 @@ report the current status of a run or a check.
 The daemon serves consumers over a unix socket at
 `$XDG_RUNTIME_DIR/pollhook.sock`, so it opens no port. An optional `deliver.url`
 receives GitHub-shaped POSTs and must be a loopback address.
+
+The published package ships `dist/` and a `pollhook` bin, so `npx pollhook` works
+once the package is on npm.
 
 ## Fidelity
 

@@ -124,9 +124,11 @@ leaves no hooks behind.
 
 ## P6: packaging
 
-Publish to npm so `npx pollhook` works without cloning. The bin is TypeScript today;
-either require Node 24 (type stripping) or compile to JavaScript at publish time.
-Decide before the first release, and keep the runtime requirement in `engines`.
+Done. `tsc -p tsconfig.build.json` compiles `src` to `dist` and rewrites `.ts`
+imports to `.js`. `bin` points at `dist/cli.js`, `files` ships only `dist`, and
+`prepublishOnly` builds. Node 24 is required because the state store uses
+`node:sqlite`. TypeScript is not published: Node does not strip types inside
+`node_modules`.
 
 ## Decisions
 
