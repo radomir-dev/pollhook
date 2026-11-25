@@ -96,7 +96,7 @@ Events: `dependabot_alert`, `code_scanning_alert`, `secret_scanning_alert`,
 `repository_ruleset`, `deploy_key`, `repository_import`, `sub_issues`,
 `deployment`, `deployment_status`, `deployment_review`,
 `deployment_protection_rule` (done: one request per environment, `created`, `edited`
-and `deleted`).
+and `deleted`), `deployment_review` (done: `requested` only).
 
 Acceptance: dismissing a Dependabot alert emits `dismissed` with
 `dismissed_reason`; a ruleset edit diffs to `edited`; a missing token scope fails

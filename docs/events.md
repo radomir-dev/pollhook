@@ -31,7 +31,7 @@ name or commit SHA.
 | `page_build` | `/repos/{o}/{r}/pages/builds` | `id` + `updated_at` | object | P1 done |
 | `deployment` | `/repos/{o}/{r}/deployments` | `id` + `updated_at` | object | P3 done |
 | `deployment_status` | `/repos/{o}/{r}/deployments/{id}/statuses` | `id` + `updated_at` | object | P3 done |
-| `deployment_review` | `/repos/{o}/{r}/actions/runs/{run_id}/pending_deployments` | environment `id` + approval state | partial | deferred |
+| `deployment_review` | `/repos/{o}/{r}/actions/runs/{run_id}/pending_deployments` | run `id` + environment `id` | partial | P3 done: `requested` only, since an approval or rejection only removes the entry |
 | `deployment_protection_rule` | `/repos/{o}/{r}/environments/{env}/deployment_protection_rules` | `environment` + rule `id` + app/enabled hash | object | P3 done |
 | `merge_group` | runs where `event=merge_group` | run `id` + `head_sha` | partial | P2 done |
 
@@ -79,7 +79,7 @@ already recorded: subscribe to `workflow_run` as well, or it has nothing to read
 | `repository_dispatch` | none, triggered by an API call | — | none | — |
 | `repository_import` | `/repos/{o}/{r}/import` | `status` + `updated_at` | derived | P3 |
 | `repository_ruleset` | `/repos/{o}/{r}/rulesets` | `id` + `updated_at` | object | P3 done |
-| `branch_protection_rule` | `/repos/{o}/{r}/branches/{branch}/protection` | hash of the protection object | derived | deferred |
+| `branch_protection_rule` | `/repos/{o}/{r}/branches/{branch}/protection` | hash of the protection object | derived | not implemented: same endpoint as `branch_protection_configuration`, and the deprecated event cannot be told apart from it |
 | `branch_protection_configuration` | same as `branch_protection_rule` | hash of the protection object | derived | P3 done |
 | `security_and_analysis` | `/repos/{o}/{r}` → `security_and_analysis` | hash of the object | derived | P3 done |
 | `meta` | `/meta` | field hash | derived | P4 |
@@ -92,8 +92,8 @@ already recorded: subscribe to `workflow_run` as well, or it has nothing to read
 | `dependabot_alert` | `/repos/{o}/{r}/dependabot/alerts` | `number` + `updated_at` | object | P3 done |
 | `code_scanning_alert` | `/repos/{o}/{r}/code-scanning/alerts` | `number` + `updated_at` | object | P3 done |
 | `secret_scanning_alert` | `/repos/{o}/{r}/secret-scanning/alerts` | `number` + `updated_at` | object | P3 done |
-| `secret_scanning_alert_location` | locations nested in the alert | alert `number` + location set | object | deferred |
-| `secret_scanning_scan` | `/repos/{o}/{r}/secret-scanning/scan-history` ~ | scan `id` + `updated_at` | partial | deferred |
+| `secret_scanning_alert_location` | `/secret-scanning/alerts/{n}/locations` per alert | alert `number` + location set | object | not implemented: one request per alert |
+| `secret_scanning_scan` | no public REST endpoint | `id` + `updated_at` | none | not implemented: the endpoint does not exist |
 | `repository_advisory` | `/repos/{o}/{r}/security-advisories` | `ghsa_id` + `updated_at` | object | P3 done |
 | `repository_vulnerability_alert` | `/repos/{o}/{r}/vulnerability-alerts` (on/off) | repo `id` + enabled | partial | P3 done |
 

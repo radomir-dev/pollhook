@@ -21,6 +21,7 @@ export type EventName =
   | "deployment"
   | "deployment_status"
   | "deployment_protection_rule"
+  | "deployment_review"
   | "deploy_key"
   | "repository_ruleset"
   | "repository_advisory"

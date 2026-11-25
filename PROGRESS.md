@@ -783,3 +783,22 @@ Verification: `tsc --noEmit` clean, 129 of 129 tests passing.
 Next:
 
 1. Remaining deferred events are aggregation or GraphQL; check `deployment_review`.
+
+## 2026-11-25: deployment_review adapter
+
+For the five newest unfinished runs, the adapter reads
+`/actions/runs/{id}/pending_deployments` and emits `requested` once per run and
+environment. An approval or rejection only removes the entry, so no `approved`
+or `rejected` action is invented.
+
+The remaining catalog rows are now blocked for stated reasons:
+`branch_protection_rule` shares its endpoint with the implemented
+`branch_protection_configuration`; `secret_scanning_alert_location` needs one
+request per alert; `secret_scanning_scan` has no public endpoint; the rest of P4 is
+GraphQL or App-only.
+
+Verification: `tsc --noEmit` clean, 132 of 132 tests passing.
+
+Next:
+
+1. Agenda is exhausted for REST-faithful events; P4 GraphQL work needs a decision.
