@@ -94,6 +94,42 @@ once the package is on npm.
 The unit keeps the home read-only except `~/.local/state`, and puts the mise shims
 on `PATH` so `node` and `gh auth token` resolve.
 
+## CLI reference
+
+<!-- cli:start -->
+
+| Command | What it does |
+| --- | --- |
+| `pollhook daemon [--config PATH]` | Polls GitHub and serves consumers over a unix socket. |
+| `pollhook status [--json]` | Shows last and next poll per target, quota, degraded adapters and waiters. |
+| `pollhook events` | Lists every implemented event with its polling floor. |
+| `pollhook deliveries [--limit N] [--repo OWNER/NAME]` | Prints recent deliveries from the state store. |
+| `pollhook emit [--brief]` | Streams deliveries as JSON lines until stopped. |
+| `pollhook run <run-id> [--repo OWNER/NAME] [--timeout 30m]` | Waits for a workflow run and exits with its conclusion. |
+| `pollhook checks <pr> [--repo OWNER/NAME] [--timeout 30m]` | Waits for every check on a pull request's head commit. |
+| `pollhook pr <pr> --until merged\|closed\|reviewed\|conflict [--repo OWNER/NAME] [--timeout 30m]` | Waits for a pull request to reach a state. |
+| `pollhook pages <sha> [--repo OWNER/NAME] [--timeout 30m]` | Waits for the Pages build of a commit. |
+| `pollhook wait --event EVENT [--match key=value]... [--repo OWNER/NAME] [--timeout 30m]` | Waits for any delivery matching an event and optional field matches. |
+| `pollhook poke [--repo OWNER/NAME]` | Polls now instead of waiting out the interval. |
+| `pollhook cleanup` | Reports that pollhook creates no webhooks. |
+
+Flags:
+
+- `pollhook daemon`: `--config PATH` config file, default ~/.config/pollhook/config.json
+- `pollhook status`: `--json` prints the raw status body
+- `pollhook deliveries`: `--limit N` how many to print, default 20; `--repo OWNER/NAME` targets one repository
+- `pollhook emit`: `--brief` one human line per delivery instead of the payload
+- `pollhook run`: `--repo OWNER/NAME` targets one repository; `--timeout 30m` how long to wait
+- `pollhook checks`: `--repo OWNER/NAME` targets one repository; `--timeout 30m` how long to wait
+- `pollhook pr`: `--until STATE` merged, closed, reviewed or conflict; `--repo OWNER/NAME` targets one repository; `--timeout 30m` how long to wait
+- `pollhook pages`: `--repo OWNER/NAME` targets one repository; `--timeout 30m` how long to wait
+- `pollhook wait`: `--event EVENT` event name, see `pollhook events`; `--match key=value` repeatable top-level field match; `--repo OWNER/NAME` targets one repository; `--timeout 30m` how long to wait
+- `pollhook poke`: `--repo OWNER/NAME` targets one repository
+
+Exit codes: `0` success, `1` the waited-on run, check set or pull request failed, `8` timeout, `2` bad input or daemon unreachable.
+
+<!-- cli:end -->
+
 ## Reading status
 
 `pollhook status` prints one line per target:
