@@ -394,3 +394,23 @@ Next:
 1. P3 leftovers: branch protection, secret scanning locations and scans,
    deployment review, deployment protection rules.
 2. P4: organisation, projects and app events.
+
+## 2026-11-25: branch protection configuration (P3)
+
+`branch_protection_configuration` reads the first 20 branches and each branch's
+protection, skipping 404 for unprotected branches and 403 when the token cannot
+administer them. It hashes the protection object and emits `edited` with the
+branch and `changes.branch_protection.from/to`. The payload is reduced: GitHub's
+own event carries `changes` keyed by the field that changed, not the whole object.
+
+The rest of P3 stays deferred, and docs/events.md now says so: the
+`branch_protection_rule` payload is ruleset-shaped, secret scanning locations and
+scans need per-alert reads, and deployment review needs per-run reads. Shipping
+them would mean inventing fields.
+
+Verification: `tsc --noEmit` clean, 69 of 69 tests passing.
+
+Next:
+
+1. P4: organisation, projects and app events.
+2. P5: report the next poll time in `status`.

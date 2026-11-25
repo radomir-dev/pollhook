@@ -1,3 +1,4 @@
+import { branchProtection } from "./adapters/branch-protection.ts";
 import { checkRun } from "./adapters/check-run.ts";
 import { checkSuite } from "./adapters/check-suite.ts";
 import { pageBuild } from "./adapters/page-build.ts";
@@ -53,6 +54,7 @@ export const ADAPTERS: Record<EventName, Adapter> = {
   repository_advisory: repositoryAdvisory,
   repository_vulnerability_alert: vulnerabilityAlert,
   security_and_analysis: securityAndAnalysis,
+  branch_protection_configuration: branchProtection,
   workflow_run: workflowRun,
   check_suite: checkSuite,
   check_run: checkRun,

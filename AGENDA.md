@@ -12,8 +12,8 @@ Status: P0, P1, most of P2 (`push`, `create`, `delete`, `issues`,
 `commit_comment`, `workflow_dispatch`, `merge_group`), most of P3 (`dependabot`,
 `code_scanning`, `secret_scanning`, `deployment`, `deployment_status`,
 `deploy_key`, `repository_ruleset`, `repository_advisory`,
-`repository_vulnerability_alert`, `security_and_analysis`) are implemented; see
-[PROGRESS.md](PROGRESS.md). The phases below remain the plan for everything else.
+`repository_vulnerability_alert`, `security_and_analysis`,
+`branch_protection_configuration`) are implemented; see [PROGRESS.md](PROGRESS.md). The phases below remain the plan for everything else.
 
 ## Principles
 

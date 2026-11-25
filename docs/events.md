@@ -31,8 +31,8 @@ name or commit SHA.
 | `page_build` | `/repos/{o}/{r}/pages/builds` | `id` + `updated_at` | object | P1 |
 | `deployment` | `/repos/{o}/{r}/deployments` | `id` + `updated_at` | object | P3 done |
 | `deployment_status` | `/repos/{o}/{r}/deployments/{id}/statuses` | `id` + `updated_at` | object | P3 done |
-| `deployment_review` | `/repos/{o}/{r}/actions/runs/{run_id}/pending_deployments` | environment `id` + approval state | partial | P3 |
-| `deployment_protection_rule` | `/repos/{o}/{r}/environments/{env}/deployment_protection_rules` ~ | rule `id` + `updated_at` | partial | P3 |
+| `deployment_review` | `/repos/{o}/{r}/actions/runs/{run_id}/pending_deployments` | environment `id` + approval state | partial | deferred |
+| `deployment_protection_rule` | `/repos/{o}/{r}/environments/{env}/deployment_protection_rules` ~ | rule `id` + `updated_at` | partial | deferred |
 | `merge_group` | runs where `event=merge_group` | run `id` + `head_sha` | partial | P2 done |
 
 `check_suite` and `check_run` need the head SHAs you care about, so they are polled
@@ -78,8 +78,8 @@ per active run, so it is opt-in per repository.
 | `repository_dispatch` | none, triggered by an API call | — | none | — |
 | `repository_import` | `/repos/{o}/{r}/import` | `status` + `updated_at` | derived | P3 |
 | `repository_ruleset` | `/repos/{o}/{r}/rulesets` | `id` + `updated_at` | object | P3 done |
-| `branch_protection_rule` | `/repos/{o}/{r}/branches/{branch}/protection` | hash of the protection object | derived | P3 |
-| `branch_protection_configuration` | same as `branch_protection_rule` | hash of the protection object | derived | P3 |
+| `branch_protection_rule` | `/repos/{o}/{r}/branches/{branch}/protection` | hash of the protection object | derived | deferred |
+| `branch_protection_configuration` | same as `branch_protection_rule` | hash of the protection object | derived | P3 done |
 | `security_and_analysis` | `/repos/{o}/{r}` → `security_and_analysis` | hash of the object | derived | P3 done |
 | `meta` | `/meta` | field hash | derived | P4 |
 | `security_advisory` | `/advisories` (global database) | `ghsa_id` + `updated_at` | partial | P4 |
@@ -91,10 +91,16 @@ per active run, so it is opt-in per repository.
 | `dependabot_alert` | `/repos/{o}/{r}/dependabot/alerts` | `number` + `updated_at` | object | P3 done |
 | `code_scanning_alert` | `/repos/{o}/{r}/code-scanning/alerts` | `number` + `updated_at` | object | P3 done |
 | `secret_scanning_alert` | `/repos/{o}/{r}/secret-scanning/alerts` | `number` + `updated_at` | object | P3 done |
-| `secret_scanning_alert_location` | locations nested in the alert | alert `number` + location set | object | P3 |
-| `secret_scanning_scan` | `/repos/{o}/{r}/secret-scanning/scan-history` ~ | scan `id` + `updated_at` | partial | P3 |
+| `secret_scanning_alert_location` | locations nested in the alert | alert `number` + location set | object | deferred |
+| `secret_scanning_scan` | `/repos/{o}/{r}/secret-scanning/scan-history` ~ | scan `id` + `updated_at` | partial | deferred |
 | `repository_advisory` | `/repos/{o}/{r}/security-advisories` | `ghsa_id` + `updated_at` | object | P3 done |
 | `repository_vulnerability_alert` | `/repos/{o}/{r}/vulnerability-alerts` (on/off) | repo `id` + enabled | partial | P3 done |
+
+Deferred P3 events are not broken links: the REST endpoints return a different
+shape than the webhook payload (`branch_protection_rule` is ruleset-shaped) or
+need per-run reads (`deployment_review`), so shipping them would mean inventing
+fields. `branch_protection_configuration` ships with a reduced payload: `branch`
+and `changes.branch_protection.from/to`.
 
 ## Organisation, projects and apps
 
