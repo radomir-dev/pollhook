@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.3.1](https://github.com/radomir-dev/pollhook/compare/v0.3.0...v0.3.1) (2026-11-25)
+
+
+### Bug Fixes
+
+* hide the SQLite experimental warning on current Node 22 ([9b79478](https://github.com/radomir-dev/pollhook/commit/9b79478aaf16eab348bef7e5754341e13f310742))
+* support Node 22.13 and hide the SQLite experimental warning ([f53d813](https://github.com/radomir-dev/pollhook/commit/f53d813d58d9c59f277747109dd709161fd72e0d))
+
 ## [0.3.0](https://github.com/radomir-dev/pollhook/compare/v0.2.0...v0.3.0) (2026-11-25)
 
 
