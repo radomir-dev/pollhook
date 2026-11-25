@@ -1,6 +1,6 @@
 import { readFileSync } from "node:fs";
-import { IMPLEMENTED_EVENTS } from "./registry.ts";
-import type { EventName } from "./types.ts";
+import { implementedEvents } from "./registry.ts";
+import type { AdapterScope, EventName } from "./types.ts";
 import { errorMessage, expandHome } from "./util.ts";
 
 export interface RepoConfig {
@@ -10,6 +10,12 @@ export interface RepoConfig {
   checkRefLimit: number;
 }
 
+export interface OrgConfig {
+  org: string;
+  events: EventName[];
+  intervalMs: number;
+}
+
 export interface DeliverConfig {
   url: string;
   secret?: string;
@@ -17,6 +23,7 @@ export interface DeliverConfig {
 
 export interface Config {
   repos: RepoConfig[];
+  orgs: OrgConfig[];
   stateDir: string;
   deliver?: DeliverConfig;
 }
@@ -25,6 +32,7 @@ const DEFAULT_CONFIG = "~/.config/pollhook/config.json";
 const DEFAULT_STATE = "~/.local/state/pollhook";
 const LOOPBACK = new Set(["127.0.0.1", "localhost", "::1", "[::1]"]);
 const REPO_PATTERN = /^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/;
+const ORG_PATTERN = /^[A-Za-z0-9_.-]+$/;
 
 export function configPath(override?: string): string {
   return expandHome(override ?? process.env.POLLHOOK_CONFIG ?? DEFAULT_CONFIG);
@@ -39,13 +47,20 @@ export function loadConfig(override?: string): Config {
     throw new Error(`cannot read config ${path}: ${errorMessage(error)}`);
   }
   if (!isRecord(raw)) throw new Error(`config ${path} must be a JSON object`);
-  if (!Array.isArray(raw.repos) || raw.repos.length === 0) {
-    throw new Error(`config ${path}: repos must be a non-empty array`);
+
+  const reposRaw = raw.repos ?? [];
+  const orgsRaw = raw.orgs ?? [];
+  if (!Array.isArray(reposRaw)) throw new Error(`config ${path}: repos must be an array`);
+  if (!Array.isArray(orgsRaw)) throw new Error(`config ${path}: orgs must be an array`);
+  const repos = reposRaw.map((entry, index) => parseRepo(entry, index, path));
+  const orgs = orgsRaw.map((entry, index) => parseOrg(entry, index, path));
+  if (repos.length === 0 && orgs.length === 0) {
+    throw new Error(`config ${path}: at least one of repos or orgs is required`);
   }
-  const repos = raw.repos.map((entry, index) => parseRepo(entry, index, path));
+
   const stateDir = expandHome(typeof raw.stateDir === "string" ? raw.stateDir : DEFAULT_STATE);
   const deliver = raw.deliver === undefined ? undefined : parseDeliver(raw.deliver, path);
-  return { repos, stateDir, ...(deliver ? { deliver } : {}) };
+  return { repos, orgs, stateDir, ...(deliver ? { deliver } : {}) };
 }
 
 function parseRepo(value: unknown, index: number, path: string): RepoConfig {
@@ -54,28 +69,55 @@ function parseRepo(value: unknown, index: number, path: string): RepoConfig {
   if (typeof repo !== "string" || !REPO_PATTERN.test(repo)) {
     throw new Error(`config ${path}: repos[${index}].repo must look like owner/name`);
   }
-  let events: EventName[] = [...IMPLEMENTED_EVENTS];
-  if (value.events !== undefined) {
-    if (!Array.isArray(value.events) || value.events.length === 0) {
-      throw new Error(`config ${path}: repos[${index}].events must be a non-empty array`);
-    }
-    for (const event of value.events) {
-      if (!IMPLEMENTED_EVENTS.includes(event as EventName)) {
-        throw new Error(
-          `config ${path}: unknown event "${event}" in repos[${index}]; supported: ${IMPLEMENTED_EVENTS.join(", ")}`,
-        );
-      }
-    }
-    events = value.events as EventName[];
-  }
-  const intervalSeconds = positiveNumber(value.intervalSeconds, 60);
-  if (intervalSeconds < 5) throw new Error(`config ${path}: repos[${index}].intervalSeconds must be at least 5`);
+  const intervalSeconds = intervalFor(value.intervalSeconds, 60, path, `repos[${index}]`);
   return {
     repo,
-    events,
+    events: parseEvents(value.events, index, path, "repos", "repo"),
     intervalMs: intervalSeconds * 1000,
     checkRefLimit: positiveNumber(value.checkRefLimit, 5),
   };
+}
+
+function parseOrg(value: unknown, index: number, path: string): OrgConfig {
+  if (!isRecord(value)) throw new Error(`config ${path}: orgs[${index}] must be an object`);
+  const org = value.org;
+  if (typeof org !== "string" || !ORG_PATTERN.test(org)) {
+    throw new Error(`config ${path}: orgs[${index}].org must be an organization name`);
+  }
+  const intervalSeconds = intervalFor(value.intervalSeconds, 300, path, `orgs[${index}]`);
+  return {
+    org,
+    events: parseEvents(value.events, index, path, "orgs", "org"),
+    intervalMs: intervalSeconds * 1000,
+  };
+}
+
+function parseEvents(
+  value: unknown,
+  index: number,
+  path: string,
+  group: string,
+  scope: AdapterScope,
+): EventName[] {
+  const allowed = implementedEvents(scope);
+  if (value === undefined) return [...allowed];
+  if (!Array.isArray(value) || value.length === 0) {
+    throw new Error(`config ${path}: ${group}[${index}].events must be a non-empty array`);
+  }
+  for (const event of value) {
+    if (!allowed.includes(event as EventName)) {
+      throw new Error(
+        `config ${path}: event "${event}" is not available for ${scope} targets; supported: ${allowed.join(", ") || "none"}`,
+      );
+    }
+  }
+  return value as EventName[];
+}
+
+function intervalFor(value: unknown, fallback: number, path: string, label: string): number {
+  const seconds = positiveNumber(value, fallback);
+  if (seconds < 5) throw new Error(`config ${path}: ${label}.intervalSeconds must be at least 5`);
+  return seconds;
 }
 
 function parseDeliver(value: unknown, path: string): DeliverConfig {

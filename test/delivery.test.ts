@@ -65,7 +65,7 @@ test("config refuses to deliver anywhere but loopback", () => {
 
 test("config rejects events it cannot poll", () => {
   const path = configFile({ repos: [{ repo: "acme/app", events: ["installation"] }] });
-  assert.throws(() => loadConfig(path), /unknown event/);
+  assert.throws(() => loadConfig(path), /not available for repo/);
 });
 
 test("config requires owner/name repositories", () => {

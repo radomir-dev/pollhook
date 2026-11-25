@@ -18,6 +18,7 @@ import { issueComment } from "./adapters/issue-comment.ts";
 import { issues } from "./adapters/issues.ts";
 import { label } from "./adapters/label.ts";
 import { member } from "./adapters/member.ts";
+import { team } from "./adapters/team.ts";
 import { milestone } from "./adapters/milestone.ts";
 import { publicEvent, repository } from "./adapters/repository.ts";
 import { repositoryAdvisory } from "./adapters/repository-advisory.ts";
@@ -28,7 +29,7 @@ import { vulnerabilityAlert } from "./adapters/vulnerability-alert.ts";
 import { release } from "./adapters/release.ts";
 import { commitStatus } from "./adapters/status.ts";
 import { workflowRun } from "./adapters/workflow-run.ts";
-import type { Adapter, EventName } from "./types.ts";
+import type { Adapter, AdapterScope, EventName } from "./types.ts";
 
 export const ADAPTERS: Record<EventName, Adapter> = {
   push,
@@ -57,6 +58,7 @@ export const ADAPTERS: Record<EventName, Adapter> = {
   security_and_analysis: securityAndAnalysis,
   branch_protection_configuration: branchProtection,
   member,
+  team,
   workflow_run: workflowRun,
   check_suite: checkSuite,
   check_run: checkRun,
@@ -68,6 +70,12 @@ export const ADAPTERS: Record<EventName, Adapter> = {
 
 export const IMPLEMENTED_EVENTS = Object.keys(ADAPTERS) as EventName[];
 
-export function adaptersFor(events: EventName[]): Adapter[] {
-  return events.map((event) => ADAPTERS[event]);
+export function adaptersFor(events: EventName[], scope: AdapterScope = "repo"): Adapter[] {
+  return events
+    .map((event) => ADAPTERS[event])
+    .filter((adapter) => (adapter.scope ?? "repo") === scope);
+}
+
+export function implementedEvents(scope: AdapterScope): EventName[] {
+  return IMPLEMENTED_EVENTS.filter((event) => (ADAPTERS[event].scope ?? "repo") === scope);
 }

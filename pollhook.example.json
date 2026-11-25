@@ -41,5 +41,12 @@
       "checkRefLimit": 5
     }
   ],
+  "orgs": [
+    {
+      "org": "radomir-dev",
+      "events": ["team"],
+      "intervalSeconds": 300
+    }
+  ],
   "stateDir": "~/.local/state/pollhook"
 }

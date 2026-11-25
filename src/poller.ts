@@ -1,11 +1,12 @@
-import type { Config, RepoConfig } from "./config.ts";
+import type { Config } from "./config.ts";
 import type { StateStore } from "./db.ts";
-import type { Adapter, Emit, GithubClient } from "./types.ts";
+import type { Adapter, AdapterScope, Emit, EventName, GithubClient } from "./types.ts";
 import { adaptersFor } from "./registry.ts";
 import { errorMessage, nowIso, unique } from "./util.ts";
 
 export interface RepoStatus {
   repo: string;
+  kind: AdapterScope;
   events: string[];
   lastPollAt: string | null;
   lastEventAt: string | null;
@@ -32,13 +33,10 @@ export class Poller {
     this.gh = gh;
     this.emit = emit;
     for (const repo of config.repos) {
-      this.statuses.set(repo.repo, {
-        repo: repo.repo,
-        events: [...repo.events],
-        lastPollAt: null,
-        lastEventAt: null,
-        lastError: null,
-      });
+      this.statuses.set(repo.repo, statusFor("repo", repo.repo, repo.events));
+    }
+    for (const org of config.orgs) {
+      this.statuses.set(org.org, statusFor("org", org.org, org.events));
     }
   }
 
@@ -51,8 +49,8 @@ export class Poller {
     if (this.timer) clearTimeout(this.timer);
   }
 
-  markEvent(repo: string): void {
-    const status = this.statuses.get(repo);
+  markEvent(target: string): void {
+    const status = this.statuses.get(target);
     if (status) status.lastEventAt = nowIso();
   }
 
@@ -63,29 +61,50 @@ export class Poller {
   async pollOnce(): Promise<void> {
     if (this.stopped) return;
     for (const repo of this.config.repos) {
-      const roundError = await this.pollRepo(repo);
-      const status = this.statuses.get(repo.repo);
-      if (!status) continue;
-      if (roundError) {
-        status.lastError = roundError;
-      } else {
-        status.lastPollAt = nowIso();
-        status.lastError = null;
-      }
+      await this.pollTarget("repo", repo.repo, repo.events, repo.intervalMs, repo.checkRefLimit);
+    }
+    for (const org of this.config.orgs) {
+      await this.pollTarget("org", org.org, org.events, org.intervalMs, 0);
     }
   }
 
-  private async pollRepo(repo: RepoConfig): Promise<string | null> {
+  private async pollTarget(
+    kind: AdapterScope,
+    name: string,
+    events: EventName[],
+    intervalMs: number,
+    checkRefLimit: number,
+  ): Promise<void> {
+    const roundError = await this.pollAdapters(kind, name, events, intervalMs, checkRefLimit);
+    const status = this.statuses.get(name);
+    if (!status) return;
+    if (roundError) {
+      status.lastError = roundError;
+    } else {
+      status.lastPollAt = nowIso();
+      status.lastError = null;
+    }
+  }
+
+  private async pollAdapters(
+    kind: AdapterScope,
+    name: string,
+    events: EventName[],
+    intervalMs: number,
+    checkRefLimit: number,
+  ): Promise<string | null> {
     let roundError: string | null = null;
     let refs: string[] = [];
-    try {
-      refs = await this.refsFor(repo);
-    } catch (error) {
-      roundError = errorMessage(error);
-    }
-    for (const adapter of adaptersFor(repo.events)) {
+    if (kind === "repo") {
       try {
-        await this.pollAdapter(repo, refs, adapter);
+        refs = await this.refsFor(name, events, checkRefLimit);
+      } catch (error) {
+        roundError = errorMessage(error);
+      }
+    }
+    for (const adapter of adaptersFor(events, kind)) {
+      try {
+        await this.pollAdapter(kind, name, refs, intervalMs, adapter);
       } catch (error) {
         roundError = roundError ?? errorMessage(error);
       }
@@ -93,21 +112,28 @@ export class Poller {
     return roundError;
   }
 
-  private async pollAdapter(repo: RepoConfig, refs: string[], adapter: Adapter): Promise<void> {
-    const dueKey = `${repo.repo}:${adapter.name}`;
+  private async pollAdapter(
+    kind: AdapterScope,
+    name: string,
+    refs: string[],
+    intervalMs: number,
+    adapter: Adapter,
+  ): Promise<void> {
+    const dueKey = `${kind}:${name}:${adapter.name}`;
     if ((this.nextDue.get(dueKey) ?? 0) > Date.now()) return;
-    this.nextDue.set(dueKey, Date.now() + Math.max(adapter.intervalFloorMs, repo.intervalMs));
-    const primedKey = `primed:${repo.repo}:${adapter.name}`;
+    this.nextDue.set(dueKey, Date.now() + Math.max(adapter.intervalFloorMs, intervalMs));
+    const primedKey = `primed:${kind}:${name}:${adapter.name}`;
     const cold = this.db.getCursor(primedKey) === null;
     await adapter.poll({
-      repo: repo.repo,
+      repo: name,
+      org: kind === "org" ? name : null,
       refs,
       db: this.db,
       gh: this.gh,
       emit: cold
         ? () => {}
         : (event, action, key, payload, state) =>
-            this.emit(repo.repo, event, action, key, payload, state),
+            this.emit(name, event, action, key, payload, state),
     });
     if (cold) this.db.setCursor(primedKey, null, "1");
   }
@@ -122,17 +148,17 @@ export class Poller {
     this.timer = setTimeout(() => this.loop(), delay);
   }
 
-  private async refsFor(repo: RepoConfig): Promise<string[]> {
-    const wantsRefs = repo.events.some(
+  private async refsFor(name: string, events: EventName[], limit: number): Promise<string[]> {
+    const wantsRefs = events.some(
       (event) => event === "check_run" || event === "check_suite" || event === "status",
     );
     if (!wantsRefs) return [];
     const refs = this.db
-      .listSnapshots(repo.repo, "pull_request")
+      .listSnapshots(name, "pull_request")
       .filter((row) => row.data?.state === "open" && typeof row.data?.head?.sha === "string")
-      .slice(0, repo.checkRefLimit)
+      .slice(0, limit)
       .map((row) => row.data.head.sha as string);
-    const head = await this.defaultBranchHead(repo.repo);
+    const head = await this.defaultBranchHead(name);
     if (head) refs.push(head);
     return unique(refs);
   }
@@ -153,4 +179,15 @@ export class Poller {
       return null;
     }
   }
+}
+
+function statusFor(kind: AdapterScope, name: string, events: EventName[]): RepoStatus {
+  return {
+    repo: name,
+    kind,
+    events: [...events],
+    lastPollAt: null,
+    lastEventAt: null,
+    lastError: null,
+  };
 }

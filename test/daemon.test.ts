@@ -11,6 +11,7 @@ function configFor(stateDir: string): Config {
   return {
     repos: [{ repo: "acme/app", events: ["workflow_run"], intervalMs: 60_000, checkRefLimit: 5 }],
     stateDir,
+    orgs: [],
   };
 }
 

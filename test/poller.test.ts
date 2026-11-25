@@ -15,6 +15,7 @@ const config: Config = {
     },
   ],
   stateDir: "/tmp",
+  orgs: [],
 };
 
 test("a failing adapter keeps the round error even when another adapter swallows its own", async () => {
@@ -56,6 +57,7 @@ test("a clean round clears the error", async () => {
 const workflowConfig: Config = {
   repos: [{ repo: "acme/app", events: ["workflow_run"], intervalMs: 1, checkRefLimit: 5 }],
   stateDir: "/tmp",
+  orgs: [],
 };
 
 function runFixture(id: number, status: string, conclusion: string | null) {

@@ -1,3 +1,5 @@
+export type AdapterScope = "repo" | "org";
+
 export type EventName =
   | "push"
   | "create"
@@ -25,6 +27,7 @@ export type EventName =
   | "security_and_analysis"
   | "branch_protection_configuration"
   | "member"
+  | "team"
   | "workflow_run"
   | "check_suite"
   | "check_run"
@@ -104,6 +107,7 @@ export type AdapterEmit = (
 
 export interface AdapterContext {
   repo: string;
+  org?: string | null;
   refs: string[];
   db: SnapshotStore;
   gh: GithubClient;
@@ -112,6 +116,7 @@ export interface AdapterContext {
 
 export interface Adapter {
   name: EventName;
+  scope?: AdapterScope;
   intervalFloorMs: number;
   poll(ctx: AdapterContext): Promise<void>;
 }
