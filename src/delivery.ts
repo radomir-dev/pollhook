@@ -27,9 +27,15 @@ export function deliveryHeaders(delivery: Delivery, secret?: string): Record<str
   };
 }
 
+const MAX_ATTEMPTS = 5;
+const BASE_DELAY_MS = 500;
+
+class Rejected extends Error {}
+
 export async function postDelivery(delivery: Delivery, target: DeliverConfig): Promise<void> {
   const body = JSON.stringify(delivery.payload);
-  for (const attempt of [0, 1]) {
+  let lastError: unknown = new Error("delivery was never attempted");
+  for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt += 1) {
     try {
       const response = await fetch(target.url, {
         method: "POST",
@@ -38,11 +44,17 @@ export async function postDelivery(delivery: Delivery, target: DeliverConfig): P
         signal: AbortSignal.timeout(5000),
       });
       if (response.ok) return;
-      if (response.status < 500) throw new Error(`delivery rejected with ${response.status}`);
-      if (attempt === 1) throw new Error(`delivery failed with ${response.status}`);
+      if (!isRetryable(response.status)) throw new Rejected(`delivery rejected with ${response.status}`);
+      lastError = new Error(`delivery failed with ${response.status}`);
     } catch (error) {
-      if (attempt === 1) throw error;
-      await sleep(500);
+      if (error instanceof Rejected) throw new Error(error.message);
+      lastError = error;
     }
+    if (attempt < MAX_ATTEMPTS) await sleep(BASE_DELAY_MS * 2 ** (attempt - 1));
   }
+  throw lastError;
+}
+
+function isRetryable(status: number): boolean {
+  return status >= 500 || status === 408 || status === 429;
 }

@@ -40,7 +40,9 @@ immediately for something that already finished.
    rate limit, so a quiet repository is close to free.
 4. An observed change becomes a delivery carrying `X-GitHub-Event`,
    `X-GitHub-Delivery`, and `X-Hub-Signature-256` when a secret is configured.
-   Deliveries are at-least-once; a fingerprint store drops duplicates. The first
+   Deliveries are at-least-once; a fingerprint store drops duplicates. A failing
+   POST target is retried five times with exponential backoff, while a 4xx answer
+   other than 408 or 429 is treated as permanent. The first
    poll of each event records state without delivering, so a cold start never
    replays history.
 5. Consumers pick their shape: an optional loopback POST target, a JSONL stream

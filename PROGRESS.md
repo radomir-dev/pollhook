@@ -757,3 +757,16 @@ Verification: `tsc --noEmit` clean, 123 of 123 tests passing.
 Next:
 
 1. Delivery retry with exponential backoff.
+
+## 2026-11-25: delivery retry with exponential backoff
+
+A failing POST target is now tried five times at 0.5, 1, 2 and 4 seconds instead of
+once with a half-second pause. 4xx answers other than 408 and 429 are permanent and
+are not retried. The bounded wait keeps a dead target from stalling the delivery
+loop for long.
+
+Verification: `tsc --noEmit` clean, 126 of 126 tests passing.
+
+Next:
+
+1. AGENDA P4: events still marked deferred that REST can serve.

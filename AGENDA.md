@@ -39,6 +39,8 @@ config accepts org targets; see [PROGRESS.md](PROGRESS.md). The phases below rem
 3. Scheduler: per-event and per-target intervals with `fixed` or `while-active`
    strategies (done), ETag cache (done), one in-flight round (done), quota
    governor from `X-RateLimit-*` and `Retry-After` (done). Jitter is not started.
+4. Delivery POST retries five times with exponential backoff; 4xx other than 408
+   and 429 are permanent. (done)
 4. Delivery engine: loopback HTTP POST, GitHub headers, optional HMAC signature,
    retry with backoff, at-least-once plus fingerprint dedupe.
 5. JSONL sink: `pollhook emit` prints deliveries to stdout, one JSON object per line.
