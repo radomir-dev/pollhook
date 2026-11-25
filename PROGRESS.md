@@ -533,3 +533,21 @@ Next:
 1. P5: report a permanently unavailable feature once, as degraded, instead of on
    every round.
 2. P4: revisit the deferred events only if a consumer needs them.
+
+## 2026-11-25: permanent failures as degraded
+
+The poller separates 403 and 404 from transient failures. A permanent failure
+marks that adapter degraded for the target, keeps the first reason, and leaves
+`lastError` alone; a transient failure still lands in `lastError`. A successful
+poll of the adapter clears the degradation.
+
+`status` carries `degraded: [{event, reason}]` and the CLI adds `degraded=...` to
+its line. Skipped adapters, which are not due yet, no longer count as successes;
+that bug cleared the degradation on the very next tick.
+
+Verification: `tsc --noEmit` clean, 82 of 82 tests passing.
+
+Next:
+
+1. P5: back off a degraded adapter for an hour instead of polling it every floor.
+2. P4: revisit the deferred events only if a consumer needs them.
