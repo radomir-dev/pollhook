@@ -3,7 +3,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { connect } from "node:net";
 import type { StateStore } from "../src/db.ts";
-import type { Delivery, Emit, GetResult, GithubClient, RepoInfo } from "../src/types.ts";
+import type { AdapterEmit, Delivery, GetResult, GithubClient, RepoInfo } from "../src/types.ts";
 
 export class FakeGitHub implements GithubClient {
   responses: Record<string, unknown>;
@@ -41,9 +41,12 @@ export class FakeGitHub implements GithubClient {
   }
 }
 
-export function emitInto(db: StateStore): { emit: Emit; deliveries: Delivery[] } {
+export function emitFor(
+  db: StateStore,
+  repo: string,
+): { emit: AdapterEmit; deliveries: Delivery[] } {
   const deliveries: Delivery[] = [];
-  const emit: Emit = (repo, event, action, key, payload, state) => {
+  const emit: AdapterEmit = (event, action, key, payload, state) => {
     const delivery = db.recordDelivery(repo, event, action, key, state, payload);
     if (delivery) deliveries.push(delivery);
   };

@@ -39,6 +39,7 @@ export async function startDaemon(config: Config, options: DaemonOptions = {}): 
   db.prune(PRUNE_MS);
   const gh = options.gh ?? new GitHub(resolveToken(), db);
   const listeners = new Set<(delivery: Delivery) => void>();
+  const sockets = new Set<Socket>();
   let waiterCount = 0;
   let poller: Poller | null = null;
 
@@ -155,6 +156,8 @@ export async function startDaemon(config: Config, options: DaemonOptions = {}): 
   };
 
   const server = createServer((socket) => {
+    sockets.add(socket);
+    socket.on("close", () => sockets.delete(socket));
     let buffer = "";
     const cleanup: Array<() => void> = [];
     socket.setEncoding("utf8");
@@ -199,9 +202,9 @@ export async function startDaemon(config: Config, options: DaemonOptions = {}): 
     if (closing) return;
     closing = true;
     poller?.stop();
+    for (const socket of sockets) socket.destroy();
     await new Promise<void>((resolve) => {
       server.close(() => resolve());
-      server.closeAllConnections();
     });
     db.close();
     rmSync(socketPath, { force: true });

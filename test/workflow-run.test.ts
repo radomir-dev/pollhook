@@ -3,7 +3,7 @@ import { join } from "node:path";
 import test from "node:test";
 import { workflowRun } from "../src/adapters/workflow-run.ts";
 import { StateStore } from "../src/db.ts";
-import { emitInto, FakeGitHub, tempStateDir } from "./helpers.ts";
+import { emitFor, FakeGitHub, tempStateDir } from "./helpers.ts";
 
 const RUNS_PATH = "/repos/acme/app/actions/runs?per_page=50";
 
@@ -26,7 +26,7 @@ function githubWith(runs: unknown[]) {
 
 test("a run emits once per state transition", async () => {
   const db = new StateStore(":memory:");
-  const state = emitInto(db);
+  const state = emitFor(db, "acme/app");
   const gh = githubWith([run("in_progress")]);
 
   await workflowRun.poll({ repo: "acme/app", refs: [], db, gh, emit: state.emit });
@@ -40,13 +40,13 @@ test("a run emits once per state transition", async () => {
   await workflowRun.poll({ repo: "acme/app", refs: [], db, gh, emit: state.emit });
   assert.equal(state.deliveries.length, 2);
   assert.equal(state.deliveries[1]!.action, "completed");
-  assert.equal(state.deliveries[1]!.payload.workflow_run.conclusion, "success");
+  assert.equal((state.deliveries[1]!.payload.workflow_run as { conclusion: string }).conclusion, "success");
   db.close();
 });
 
 test("a 304 emits nothing and keeps the snapshot", async () => {
   const db = new StateStore(":memory:");
-  const state = emitInto(db);
+  const state = emitFor(db, "acme/app");
   const gh = githubWith([run("completed", "success")]);
   await workflowRun.poll({ repo: "acme/app", refs: [], db, gh, emit: state.emit });
   gh.respond(RUNS_PATH, null);
@@ -60,13 +60,13 @@ test("a restart does not redeliver an observed state", async () => {
   const gh = githubWith([run("completed", "success")]);
 
   const first = new StateStore(path);
-  const before = emitInto(first);
+  const before = emitFor(first, "acme/app");
   await workflowRun.poll({ repo: "acme/app", refs: [], db: first, gh, emit: before.emit });
   first.close();
   assert.equal(before.deliveries.length, 1);
 
   const second = new StateStore(path);
-  const after = emitInto(second);
+  const after = emitFor(second, "acme/app");
   await workflowRun.poll({ repo: "acme/app", refs: [], db: second, gh, emit: after.emit });
   second.close();
   assert.equal(after.deliveries.length, 0);
@@ -74,7 +74,7 @@ test("a restart does not redeliver an observed state", async () => {
 
 test("a run finished before the first poll still emits completed", async () => {
   const db = new StateStore(":memory:");
-  const state = emitInto(db);
+  const state = emitFor(db, "acme/app");
   const gh = githubWith([run("completed", "failure")]);
   await workflowRun.poll({ repo: "acme/app", refs: [], db, gh, emit: state.emit });
   assert.equal(state.deliveries.length, 1);

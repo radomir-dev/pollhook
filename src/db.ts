@@ -69,7 +69,7 @@ export class StateStore implements SnapshotStore {
   listSnapshots(repo: string, event: EventName): SnapshotRow[] {
     const rows = this.db
       .prepare(
-        "select repo, event, key, state, data, updated_at from snapshots where repo = ? and event = ? order by updated_at desc",
+        "select repo, event, key, state, data, updated_at from snapshots where repo = ? and event = ? order by updated_at desc, rowid desc",
       )
       .all(repo, event) as {
       repo: string;
