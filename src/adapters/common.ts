@@ -34,3 +34,28 @@ export const FAILED_CONCLUSIONS = new Set([
   "action_required",
   "stale",
 ]);
+
+export async function observeAlerts(
+  ctx: AdapterContext,
+  event: EventName,
+  alerts: any[],
+  toAction: (previous: any, current: any) => string,
+  stateFor: (alert: any) => string,
+): Promise<void> {
+  if (alerts.length === 0) return;
+  const meta = await repoAndSender(ctx);
+  for (const alert of alerts) {
+    const state = stateFor(alert);
+    const { changed, prev } = observe(ctx, event, String(alert.number), state, alert);
+    if (!changed) continue;
+    const action = toAction(prev?.data, alert);
+    ctx.emit(
+      event,
+      action,
+      String(alert.number),
+      { action, alert, repository: meta.repository, sender: meta.sender },
+      `${state}:${action}`,
+    );
+  }
+}
+

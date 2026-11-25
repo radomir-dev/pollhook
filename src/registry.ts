@@ -5,7 +5,9 @@ import { pullRequest } from "./adapters/pull-request.ts";
 import { pullRequestReview } from "./adapters/pull-request-review.ts";
 import { push } from "./adapters/push.ts";
 import { createRef, deleteRef } from "./adapters/refs.ts";
+import { codeScanningAlert } from "./adapters/code-scanning-alert.ts";
 import { commitComment } from "./adapters/commit-comment.ts";
+import { dependabotAlert } from "./adapters/dependabot-alert.ts";
 import { mergeGroup, workflowDispatch } from "./adapters/dispatch.ts";
 import { fork } from "./adapters/fork.ts";
 import { issueComment } from "./adapters/issue-comment.ts";
@@ -13,6 +15,7 @@ import { issues } from "./adapters/issues.ts";
 import { label } from "./adapters/label.ts";
 import { milestone } from "./adapters/milestone.ts";
 import { publicEvent, repository } from "./adapters/repository.ts";
+import { secretScanningAlert } from "./adapters/secret-scanning-alert.ts";
 import { release } from "./adapters/release.ts";
 import { commitStatus } from "./adapters/status.ts";
 import { workflowRun } from "./adapters/workflow-run.ts";
@@ -33,6 +36,9 @@ export const ADAPTERS: Record<EventName, Adapter> = {
   commit_comment: commitComment,
   workflow_dispatch: workflowDispatch,
   merge_group: mergeGroup,
+  dependabot_alert: dependabotAlert,
+  code_scanning_alert: codeScanningAlert,
+  secret_scanning_alert: secretScanningAlert,
   workflow_run: workflowRun,
   check_suite: checkSuite,
   check_run: checkRun,
