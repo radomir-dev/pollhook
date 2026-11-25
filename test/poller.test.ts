@@ -139,6 +139,10 @@ test("a permanent error is reported as degraded, not as a round error", async ()
   assert.equal(status.degraded.length, 1);
   assert.equal(status.degraded[0]!.event, "workflow_run");
   assert.match(status.degraded[0]!.reason, /^404 /);
+  assert.ok(
+    Date.parse(status.nextPollAt!) > Date.now() + 50 * 60_000,
+    "a degraded adapter backs off for an hour",
+  );
 
   await poller.pollOnce();
   assert.equal(poller.listStatuses()[0]!.degraded.length, 1);
@@ -158,5 +162,9 @@ test("a transient error stays in lastError", async () => {
   const status = poller.listStatuses()[0]!;
   assert.equal(status.degraded.length, 0);
   assert.equal(status.lastError, "500 boom");
+  assert.ok(
+    Date.parse(status.nextPollAt!) < Date.now() + 5 * 60_000,
+    "a transient error keeps the normal cadence",
+  );
   db.close();
 });

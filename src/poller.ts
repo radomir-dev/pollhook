@@ -16,6 +16,7 @@ export interface RepoStatus {
 }
 
 const TICK_MS = 1000;
+const DEGRADED_MS = 60 * 60 * 1000;
 const HEAD_TTL_MS = 30_000;
 
 export class Poller {
@@ -122,8 +123,12 @@ export class Poller {
         const polled = await this.pollAdapter(kind, name, refs, intervalMs, adapter);
         if (polled) this.clearDegraded(name, adapter.name);
       } catch (error) {
-        if (isPermanent(error)) this.markDegraded(name, adapter.name, error);
-        else roundError = roundError ?? errorMessage(error);
+        if (isPermanent(error)) {
+          this.markDegraded(name, adapter.name, error);
+          this.nextDue.set(`${kind}:${name}:${adapter.name}`, Date.now() + DEGRADED_MS);
+        } else {
+          roundError = roundError ?? errorMessage(error);
+        }
       }
     }
     return roundError;
