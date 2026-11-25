@@ -5,10 +5,13 @@ import { pullRequest } from "./adapters/pull-request.ts";
 import { pullRequestReview } from "./adapters/pull-request-review.ts";
 import { push } from "./adapters/push.ts";
 import { createRef, deleteRef } from "./adapters/refs.ts";
+import { commitComment } from "./adapters/commit-comment.ts";
+import { fork } from "./adapters/fork.ts";
 import { issueComment } from "./adapters/issue-comment.ts";
 import { issues } from "./adapters/issues.ts";
 import { label } from "./adapters/label.ts";
 import { milestone } from "./adapters/milestone.ts";
+import { publicEvent, repository } from "./adapters/repository.ts";
 import { release } from "./adapters/release.ts";
 import { commitStatus } from "./adapters/status.ts";
 import { workflowRun } from "./adapters/workflow-run.ts";
@@ -23,6 +26,10 @@ export const ADAPTERS: Record<EventName, Adapter> = {
   release,
   label,
   milestone,
+  repository,
+  public: publicEvent,
+  fork,
+  commit_comment: commitComment,
   workflow_run: workflowRun,
   check_suite: checkSuite,
   check_run: checkRun,
