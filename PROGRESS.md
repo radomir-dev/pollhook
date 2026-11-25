@@ -802,3 +802,13 @@ Verification: `tsc --noEmit` clean, 132 of 132 tests passing.
 Next:
 
 1. Agenda is exhausted for REST-faithful events; P4 GraphQL work needs a decision.
+
+## 2026-11-25: REST agenda exhausted
+
+Every catalog event that REST can serve faithfully without inventing fields is
+implemented: 40 adapters. What remains is GraphQL (projects, discussions,
+review threads), App-only events, per-alert secret-scanning locations, and the
+deprecated `branch_protection_rule` that shares its endpoint with an implemented
+event. None of them can be built honestly from the REST API today, so the
+implementation agenda stops here. Next work is operational: a 24-hour soak and
+the `emit` reconnect with replay.
