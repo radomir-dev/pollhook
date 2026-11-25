@@ -75,7 +75,8 @@ Exit codes for the wait commands: `0` success, `1` the thing failed, `8` timeout
    Any number of waiters share one poller.
 2. **Watch a stream.** `pollhook emit` prints one JSON delivery per line;
    `--brief` prints one readable line per delivery. A config edit does not drop the
-   stream.
+   stream, and if the daemon restarts or crashes `emit` reconnects with backoff and
+   replays what it missed from the local store, printing each delivery once.
 3. **Feed a webhook handler.** Set `deliver.url` to a loopback address and pollhook
    POSTs GitHub-shaped requests with `X-GitHub-Event`, `X-GitHub-Delivery` and,
    with a `secret`, a real `X-Hub-Signature-256`.
@@ -169,7 +170,7 @@ without access); they retry hourly. `status --json` has the reasons.
 | `pollhook status [--json]` | Shows last and next poll per target, quota, degraded adapters and waiters. |
 | `pollhook events` | Lists every implemented event with its polling floor. |
 | `pollhook deliveries [--limit N] [--repo OWNER/NAME]` | Prints recent deliveries from the state store. |
-| `pollhook emit [--brief]` | Streams deliveries as JSON lines until stopped. |
+| `pollhook emit [--brief]` | Streams deliveries as JSON lines until stopped, reconnecting and replaying after a daemon restart. |
 | `pollhook run <run-id> [--repo OWNER/NAME] [--timeout 30m]` | Waits for a workflow run and exits with its conclusion. |
 | `pollhook checks <pr> [--repo OWNER/NAME] [--timeout 30m]` | Waits for every check on a pull request's head commit. |
 | `pollhook pr <pr> --until merged\|closed\|reviewed\|conflict [--repo OWNER/NAME] [--timeout 30m]` | Waits for a pull request to reach a state. |

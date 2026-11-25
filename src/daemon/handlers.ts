@@ -76,7 +76,7 @@ function handleRequest(
       else writeLine(socket, { ok: false, error: `unknown repository ${String(message.repo)}` });
       return;
     case "emit":
-      subscribe(socket, ctx, cleanup);
+      subscribe(socket, ctx, cleanup, message.since);
       return;
     case "wait":
       onWait(socket, message, ctx, cleanup);
@@ -93,11 +93,24 @@ function eventList() {
   }));
 }
 
-function subscribe(socket: Socket, ctx: DaemonContext, cleanup: Array<() => void>): void {
+function subscribe(
+  socket: Socket,
+  ctx: DaemonContext,
+  cleanup: Array<() => void>,
+  since: unknown,
+): void {
+  if (since !== undefined && (typeof since !== "string" || Number.isNaN(Date.parse(since)))) {
+    writeLine(socket, { ok: false, error: "since must be an ISO timestamp" });
+    return;
+  }
   const listener = (delivery: Delivery) => writeLine(socket, { ok: true, body: delivery });
   ctx.listeners.add(listener);
   cleanup.push(() => ctx.listeners.delete(listener));
   writeLine(socket, { ok: true, body: { subscribed: true, pid: process.pid } });
+  if (typeof since === "string") {
+    for (const delivery of ctx.db.deliveriesSince(since))
+      writeLine(socket, { ok: true, body: delivery });
+  }
 }
 
 function onWait(

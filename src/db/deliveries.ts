@@ -74,6 +74,15 @@ export class DeliveryRepository {
     return rows.map(toDelivery);
   }
 
+  since(createdAt: string): Delivery[] {
+    const rows = this.db
+      .prepare(
+        "select id, repo, event, action, key, payload, created_at, delivered_at from deliveries where created_at >= ? order by created_at, rowid",
+      )
+      .all(createdAt) as unknown as DeliveryRow[];
+    return rows.map(toDelivery);
+  }
+
   latest(repo: string, event: EventName): Delivery | null {
     const row = this.db
       .prepare(

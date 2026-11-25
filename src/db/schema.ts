@@ -36,6 +36,7 @@ create table if not exists run_durations (
 );
 create index if not exists run_durations_lookup on run_durations (repo, workflow_id);
 create index if not exists deliveries_repo_event on deliveries (repo, event);
+create index if not exists deliveries_created_at on deliveries (created_at);
 `;
 
 export const KEEP_PER_GROUP = 500;

@@ -65,6 +65,10 @@ export class StateStore implements SnapshotStore {
     return this.deliveries.list(limit, repo);
   }
 
+  deliveriesSince(createdAt: string): Delivery[] {
+    return this.deliveries.since(createdAt);
+  }
+
   latestDelivery(repo: string, event: EventName): Delivery | null {
     return this.deliveries.latest(repo, event);
   }

@@ -83,7 +83,8 @@ export const COMMANDS: CommandSpec[] = [
   {
     name: "emit",
     args: "[--brief]",
-    summary: "Streams deliveries as JSON lines until stopped.",
+    summary:
+      "Streams deliveries as JSON lines until stopped, reconnecting and replaying after a daemon restart.",
     flags: [{ flag: "--brief", description: "one human line per delivery instead of the payload" }],
   },
   {

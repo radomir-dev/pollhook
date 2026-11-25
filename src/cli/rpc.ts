@@ -1,6 +1,7 @@
 import { connect, type Socket } from "node:net";
 import type { Config } from "../config.ts";
 import { socketPathFor } from "../daemon.ts";
+import { nowIso, sleep } from "../util.ts";
 
 export interface RpcResponse {
   ok: boolean;
@@ -34,29 +35,74 @@ export async function rpc(config: Config, message: Record<string, unknown>): Pro
   }
 }
 
+const BACKOFF_START_MS = 500;
+const BACKOFF_MAX_MS = 5000;
+const SEEN_LIMIT = 5000;
+
+interface StreamState {
+  since: string | undefined;
+  seen: Set<string>;
+}
+
 export async function stream(
   config: Config,
   message: Record<string, unknown>,
   format: (body: any) => string = (body) => JSON.stringify(body),
 ): Promise<void> {
-  const socket = await connectSocket(socketPathFor(config));
+  const path = socketPathFor(config);
+  const state: StreamState = { since: undefined, seen: new Set() };
+  let socket = await connectSocket(path);
+  for (;;) {
+    await pump(socket, message, state, format);
+    process.stderr.write("pollhook: connection lost, reconnecting\n");
+    socket = await reconnect(path);
+    process.stderr.write(`pollhook: reconnected, replaying from ${state.since}\n`);
+  }
+}
+
+async function reconnect(path: string): Promise<Socket> {
+  for (let delay = BACKOFF_START_MS; ; delay = Math.min(delay * 2, BACKOFF_MAX_MS)) {
+    await sleep(delay);
+    try {
+      return await connectSocket(path);
+    } catch {}
+  }
+}
+
+async function pump(
+  socket: Socket,
+  message: Record<string, unknown>,
+  state: StreamState,
+  format: (body: any) => string,
+): Promise<void> {
   socket.setEncoding("utf8");
   let buffer = "";
+  socket.on("error", () => {});
   socket.on("data", (chunk: string) => {
     buffer += chunk;
-    let index = buffer.indexOf("\n");
-    while (index >= 0) {
+    for (let index = buffer.indexOf("\n"); index >= 0; index = buffer.indexOf("\n")) {
       const line = buffer.slice(0, index);
       buffer = buffer.slice(index + 1);
-      if (line) {
-        const response = JSON.parse(line) as RpcResponse;
-        if (!response.body?.subscribed) process.stdout.write(`${format(response.body)}\n`);
-      }
-      index = buffer.indexOf("\n");
+      if (line) handleLine(line, state, format);
     }
   });
-  socket.write(`${JSON.stringify(message)}\n`);
+  socket.write(`${JSON.stringify(state.since ? { ...message, since: state.since } : message)}\n`);
   await new Promise<void>((resolve) => socket.on("close", () => resolve()));
+}
+
+function handleLine(line: string, state: StreamState, format: (body: any) => string): void {
+  const body = (JSON.parse(line) as RpcResponse).body;
+  if (body?.subscribed) {
+    state.since ??= nowIso();
+    return;
+  }
+  if (typeof body?.id === "string") {
+    if (state.seen.has(body.id)) return;
+    state.seen.add(body.id);
+    if (state.seen.size > SEEN_LIMIT) state.seen.delete(state.seen.values().next().value!);
+    if (typeof body.createdAt === "string") state.since = body.createdAt;
+  }
+  process.stdout.write(`${format(body)}\n`);
 }
 
 function connectSocket(path: string): Promise<Socket> {
