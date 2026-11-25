@@ -21,7 +21,7 @@ export interface Quota {
   resetAt: string | null;
 }
 
-export class GitHubError extends Error {
+class GitHubError extends Error {
   readonly status: number;
 
   constructor(status: number, path: string, body: string) {

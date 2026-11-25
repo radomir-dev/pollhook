@@ -3,7 +3,7 @@ import type { DatabaseSync } from "node:sqlite";
 import type { Delivery, EventName } from "../types.ts";
 import { nowIso, sha256 } from "../util.ts";
 
-export interface DeliveryRow {
+interface DeliveryRow {
   id: string;
   repo: string;
   event: EventName;

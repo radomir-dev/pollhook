@@ -1,19 +1,17 @@
 import { readFileSync } from "node:fs";
 import { implementedEvents } from "./registry.ts";
-import { parseTuning, type EventTuning, type Strategy } from "./config/tuning.ts";
+import { parseTuning, type EventTuning } from "./config/tuning.ts";
 import type { AdapterScope, EventName } from "./types.ts";
 import { errorMessage, expandHome } from "./util.ts";
 
-export type { EventTuning, Strategy };
-
-export interface RepoConfig extends EventTuning {
+interface RepoConfig extends EventTuning {
   repo: string;
   events: EventName[];
   intervalMs: number;
   checkRefLimit: number;
 }
 
-export interface OrgConfig extends EventTuning {
+interface OrgConfig extends EventTuning {
   org: string;
   events: EventName[];
   intervalMs: number;

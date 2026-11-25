@@ -32,16 +32,6 @@ export async function orgAndSender(
   return { organization: { login: ctx.org ?? "" }, sender };
 }
 
-export const SUCCESS_CONCLUSIONS = new Set(["success", "neutral", "skipped"]);
-
-export const FAILED_CONCLUSIONS = new Set([
-  "failure",
-  "timed_out",
-  "cancelled",
-  "action_required",
-  "stale",
-]);
-
 export async function observeAlerts(
   ctx: AdapterContext,
   event: EventName,

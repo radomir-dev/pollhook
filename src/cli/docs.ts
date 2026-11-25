@@ -36,8 +36,8 @@ export function replaceSection(readme: string, block: string): string {
   return `${readme.slice(0, start)}${block}${readme.slice(end + END.length)}`;
 }
 
-export const TOC_START = "<!-- toc:start -->";
-export const TOC_END = "<!-- toc:end -->";
+const TOC_START = "<!-- toc:start -->";
+const TOC_END = "<!-- toc:end -->";
 
 export function tocMarkdown(readme: string): string {
   const lines = [TOC_START, ""];

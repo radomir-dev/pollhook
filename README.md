@@ -15,6 +15,8 @@ webhook contract keeps working; the delivery was reconstructed, not pushed.
 1. [Why](#why)
 1. [How it works](#how-it-works)
 1. [Running](#running)
+1. [Checks](#checks)
+1. [Releases](#releases)
 1. [Service](#service)
 1. [CLI reference](#cli-reference)
 1. [Reading status](#reading-status)
@@ -105,6 +107,32 @@ receives GitHub-shaped POSTs and must be a loopback address.
 
 The published package ships `dist/` and a `pollhook` bin, so `npx pollhook` works
 once the package is on npm.
+
+## Checks
+
+`npm run doctor` runs the whole battery in parallel and fails on the first bad
+result, which is what CI runs on every push and pull request:
+
+1. `tsc --noEmit` for types.
+2. `oxlint` for correctness and bug patterns.
+3. `oxfmt --check` for formatting.
+4. `knip` for dead code and unused dependencies.
+5. `npm audit --audit-level=high` for advisories.
+6. `node --test` for the suite.
+7. The same suite under `--experimental-test-coverage`, failing under 85% lines,
+   70% branches or 80% functions.
+8. The generated README blocks (`docs:check`).
+9. `npm run build`, `publint --strict` and a `dist/cli.js --help` smoke test.
+
+Mutation testing is not included: Stryker has no `node:test` runner; see issue 9.
+
+## Releases
+
+Conventional Commits drive everything. `pr-title` rejects a pull request whose
+title is not `type(scope): subject`. On `main`, `release-please` keeps one open
+release PR with the version bump and `CHANGELOG.md`; merging it tags the release,
+and `release.yml` — which only runs after `ci` succeeded on `main` — publishes to
+npm over OIDC, with provenance and no stored token.
 
 ## Service
 
