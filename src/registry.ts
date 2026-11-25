@@ -6,6 +6,7 @@ import { pullRequestReview } from "./adapters/pull-request-review.ts";
 import { push } from "./adapters/push.ts";
 import { createRef, deleteRef } from "./adapters/refs.ts";
 import { commitComment } from "./adapters/commit-comment.ts";
+import { mergeGroup, workflowDispatch } from "./adapters/dispatch.ts";
 import { fork } from "./adapters/fork.ts";
 import { issueComment } from "./adapters/issue-comment.ts";
 import { issues } from "./adapters/issues.ts";
@@ -30,6 +31,8 @@ export const ADAPTERS: Record<EventName, Adapter> = {
   public: publicEvent,
   fork,
   commit_comment: commitComment,
+  workflow_dispatch: workflowDispatch,
+  merge_group: mergeGroup,
   workflow_run: workflowRun,
   check_suite: checkSuite,
   check_run: checkRun,

@@ -11,6 +11,8 @@ export type EventName =
   | "public"
   | "fork"
   | "commit_comment"
+  | "workflow_dispatch"
+  | "merge_group"
   | "workflow_run"
   | "check_suite"
   | "check_run"
