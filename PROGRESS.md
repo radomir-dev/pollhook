@@ -551,3 +551,17 @@ Next:
 
 1. P5: back off a degraded adapter for an hour instead of polling it every floor.
 2. P4: revisit the deferred events only if a consumer needs them.
+
+## 2026-11-25: degraded adapters back off
+
+A permanent failure (403 or 404) now pushes that adapter's next poll an hour out,
+so a disabled feature stops costing a request every floor. Transient errors keep
+the normal cadence, `nextPollAt` shows the backoff, and a successful retry clears
+the degraded entry.
+
+Verification: `tsc --noEmit` clean, 82 of 82 tests passing.
+
+Next:
+
+1. P4: revisit the deferred events only if a consumer needs them.
+2. P5: a short README note on reading `status`, including `degraded`.

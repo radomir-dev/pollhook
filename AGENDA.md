@@ -122,7 +122,7 @@ App-only events are reported as unsupported instead of being silently dropped.
    real if a forwarder mode lands.
 4. `status` reports last poll, next poll, last event, quota and request counters,
    and lists adapters that failed permanently as degraded instead of repeating the
-   error every round.
+   error every round. A degraded adapter backs off for an hour.
 5. Done: a ten-minute soak on `omnigame-studio/dev-server` measured 485 requests
    and 135 bodies, about 800 billable per hour; see [PROGRESS.md](PROGRESS.md).
 
