@@ -27,7 +27,7 @@ test("create emits for a branch that was not stored", async () => {
     ["feature", "fff"],
   ]);
   const state = emitFor(db, repo);
-  await createRef.poll({ repo, refs: [], db, gh, emit: state.emit });
+  await createRef.poll({ repo, refs: [], db, durations: db.durations, gh, emit: state.emit });
 
   assert.equal(state.deliveries.length, 1);
   const payload = state.deliveries[0]!.payload;
@@ -42,7 +42,7 @@ test("a moved tag is not a create", async () => {
   seed(db, "tag", "v1", "t1");
   const gh = github([], [["v1", "t2"]]);
   const state = emitFor(db, repo);
-  await createRef.poll({ repo, refs: [], db, gh, emit: state.emit });
+  await createRef.poll({ repo, refs: [], db, durations: db.durations, gh, emit: state.emit });
 
   assert.equal(state.deliveries.length, 0);
   assert.equal(db.getSnapshot(repo, "refs", "tag:v1")?.state, "t2");
@@ -54,7 +54,7 @@ test("a re-created ref emits create again", async () => {
   seed(db, "branch", "feature", "deleted");
   const gh = github([["feature", "fff"]]);
   const state = emitFor(db, repo);
-  await createRef.poll({ repo, refs: [], db, gh, emit: state.emit });
+  await createRef.poll({ repo, refs: [], db, durations: db.durations, gh, emit: state.emit });
 
   assert.equal(state.deliveries.length, 1);
   assert.equal(state.deliveries[0]!.payload.ref, "refs/heads/feature");
@@ -68,13 +68,13 @@ test("delete emits once for a missing branch", async () => {
   const gh = github([["main", "aaa"]]);
   const state = emitFor(db, repo);
 
-  await deleteRef.poll({ repo, refs: [], db, gh, emit: state.emit });
+  await deleteRef.poll({ repo, refs: [], db, durations: db.durations, gh, emit: state.emit });
   assert.equal(state.deliveries.length, 1);
   assert.equal(state.deliveries[0]!.payload.ref, "refs/heads/feature");
   assert.equal(state.deliveries[0]!.payload.ref_type, "branch");
   assert.equal(db.getSnapshot(repo, "refs", "branch:feature")?.state, "deleted");
 
-  await deleteRef.poll({ repo, refs: [], db, gh, emit: state.emit });
+  await deleteRef.poll({ repo, refs: [], db, durations: db.durations, gh, emit: state.emit });
   assert.equal(state.deliveries.length, 1);
   db.close();
 });
@@ -84,7 +84,7 @@ test("delete emits for a removed tag", async () => {
   seed(db, "tag", "v1", "t1");
   const gh = github([]);
   const state = emitFor(db, repo);
-  await deleteRef.poll({ repo, refs: [], db, gh, emit: state.emit });
+  await deleteRef.poll({ repo, refs: [], db, durations: db.durations, gh, emit: state.emit });
 
   assert.equal(state.deliveries.length, 1);
   assert.equal(state.deliveries[0]!.payload.ref, "refs/tags/v1");

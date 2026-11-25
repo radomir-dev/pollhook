@@ -25,6 +25,13 @@ create table if not exists deliveries (
   delivered_at text,
   unique (repo, event, fingerprint)
 );
+create table if not exists workflow_durations (
+  repo text not null,
+  workflow_id text not null,
+  duration_ms integer not null,
+  recorded_at text not null
+);
+create index if not exists workflow_durations_lookup on workflow_durations (repo, workflow_id);
 create index if not exists deliveries_repo_event on deliveries (repo, event);
 `;
 

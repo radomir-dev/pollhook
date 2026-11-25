@@ -27,7 +27,7 @@ test("a moved branch emits a push assembled from compare", async () => {
     [`/repos/acme/app/compare/aaa...bbb`]: compare("aaa", "bbb"),
   });
   const state = emitFor(db, repo);
-  await push.poll({ repo, refs: [], db, gh, emit: state.emit });
+  await push.poll({ repo, refs: [], db, durations: db.durations, gh, emit: state.emit });
 
   assert.equal(state.deliveries.length, 1);
   const payload = state.deliveries[0]!.payload;
@@ -48,7 +48,7 @@ test("a diverged compare marks the push as forced", async () => {
     [`/repos/acme/app/compare/aaa...bbb`]: compare("aaa", "bbb", "diverged"),
   });
   const state = emitFor(db, repo);
-  await push.poll({ repo, refs: [], db, gh, emit: state.emit });
+  await push.poll({ repo, refs: [], db, durations: db.durations, gh, emit: state.emit });
   assert.equal(state.deliveries[0]!.payload.forced, true);
   db.close();
 });
@@ -58,7 +58,7 @@ test("an unchanged tip emits nothing", async () => {
   db.putSnapshot(repo, "push", "main", "aaa", { name: "main", sha: "aaa" });
   const gh = new FakeGitHub({ [BRANCHES]: branches("main", "aaa") });
   const state = emitFor(db, repo);
-  await push.poll({ repo, refs: [], db, gh, emit: state.emit });
+  await push.poll({ repo, refs: [], db, durations: db.durations, gh, emit: state.emit });
   assert.equal(state.deliveries.length, 0);
   db.close();
 });
@@ -70,7 +70,7 @@ test("a branch first seen after priming is reported as created", async () => {
     [`/repos/acme/app/commits?sha=feature&per_page=20`]: [{ id: "f1" }],
   });
   const state = emitFor(db, repo);
-  await push.poll({ repo, refs: [], db, gh, emit: state.emit });
+  await push.poll({ repo, refs: [], db, durations: db.durations, gh, emit: state.emit });
 
   const payload = state.deliveries[0]!.payload;
   assert.equal(payload.created, true);
@@ -85,11 +85,11 @@ test("a failed compare advances the snapshot without delivering or retrying", as
   const gh = new FakeGitHub({ [BRANCHES]: branches("main", "bbb") });
   const state = emitFor(db, repo);
 
-  await push.poll({ repo, refs: [], db, gh, emit: state.emit });
+  await push.poll({ repo, refs: [], db, durations: db.durations, gh, emit: state.emit });
   assert.equal(state.deliveries.length, 0);
   assert.equal(db.getSnapshot(repo, "push", "main")?.state, "bbb");
 
-  await push.poll({ repo, refs: [], db, gh, emit: state.emit });
+  await push.poll({ repo, refs: [], db, durations: db.durations, gh, emit: state.emit });
   assert.equal(state.deliveries.length, 0);
   db.close();
 });

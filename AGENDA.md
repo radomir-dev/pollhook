@@ -123,7 +123,10 @@ App-only events are reported as unsupported instead of being silently dropped.
 4. `status` reports last poll, next poll, last event, quota and request counters,
    and lists adapters that failed permanently as degraded instead of repeating the
    error every round. A degraded adapter backs off for an hour.
-5. Done: a ten-minute soak on `omnigame-studio/dev-server` measured 485 requests
+5. Scheduling keeps the request budget without slowing detection: `poke` polls on
+   demand, `emit --brief` shows elapsed time, and `workflow_run` polls every 30
+   seconds while runs are early against their typical duration.
+6. Done: a ten-minute soak on `omnigame-studio/dev-server` measured 485 requests
    and 135 bodies, about 800 billable per hour; see [PROGRESS.md](PROGRESS.md).
 
 Acceptance: a 24-hour soak on a quiet repository holds the request budget and

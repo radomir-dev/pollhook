@@ -2,27 +2,17 @@ import type { Config } from "./config.ts";
 import type { StateStore } from "./db.ts";
 import type { Adapter, AdapterScope, Emit, EventName, GithubClient } from "./types.ts";
 import { adaptersFor } from "./registry.ts";
-import { errorMessage, isStatus, nowIso, unique } from "./util.ts";
-
-export interface RepoStatus {
-  repo: string;
-  kind: AdapterScope;
-  events: string[];
-  lastPollAt: string | null;
-  lastEventAt: string | null;
-  lastError: string | null;
-  nextPollAt: string | null;
-  degraded: Array<{ event: string; reason: string }>;
-}
+import { HeadCache, refsFor } from "./poller/refs.ts";
+import { delayFor } from "./poller/schedule.ts";
+import { DEGRADED_MS, isPermanent, statusFor, type RepoStatus } from "./poller/status.ts";
+import { errorMessage, nowIso } from "./util.ts";
 
 const TICK_MS = 1000;
-const DEGRADED_MS = 60 * 60 * 1000;
-const HEAD_TTL_MS = 30_000;
 
 export class Poller {
   private readonly nextDue = new Map<string, number>();
   private readonly statuses = new Map<string, RepoStatus>();
-  private readonly headCache = new Map<string, { at: number; sha: string }>();
+  private readonly headCache = new HeadCache();
   private readonly degraded = new Map<string, Map<EventName, string>>();
   private timer: NodeJS.Timeout | null = null;
   private stopped = false;
@@ -114,7 +104,7 @@ export class Poller {
     let refs: string[] = [];
     if (kind === "repo") {
       try {
-        refs = await this.refsFor(name, events, checkRefLimit);
+        refs = await refsFor(this.db, this.headCache, this.gh, name, events, checkRefLimit);
       } catch (error) {
         roundError = errorMessage(error);
       }
@@ -160,7 +150,7 @@ export class Poller {
   ): Promise<boolean> {
     const dueKey = `${kind}:${name}:${adapter.name}`;
     if ((this.nextDue.get(dueKey) ?? 0) > Date.now()) return false;
-    this.nextDue.set(dueKey, Date.now() + Math.max(adapter.intervalFloorMs, intervalMs));
+    this.nextDue.set(dueKey, Date.now() + delayFor(adapter, intervalMs, this.db, name));
     const primedKey = `primed:${kind}:${name}:${adapter.name}`;
     const cold = this.db.getCursor(primedKey) === null;
     await adapter.poll({
@@ -168,6 +158,7 @@ export class Poller {
       org: kind === "org" ? name : null,
       refs,
       db: this.db,
+      durations: this.db.durations,
       gh: this.gh,
       emit: cold
         ? () => {}
@@ -204,53 +195,4 @@ export class Poller {
   private schedule(delay: number): void {
     this.timer = setTimeout(() => this.loop(), delay);
   }
-
-  private async refsFor(name: string, events: EventName[], limit: number): Promise<string[]> {
-    const wantsRefs = events.some(
-      (event) => event === "check_run" || event === "check_suite" || event === "status",
-    );
-    if (!wantsRefs) return [];
-    const refs = this.db
-      .listSnapshots(name, "pull_request")
-      .filter((row) => row.data?.state === "open" && typeof row.data?.head?.sha === "string")
-      .slice(0, limit)
-      .map((row) => row.data.head.sha as string);
-    const head = await this.defaultBranchHead(name);
-    if (head) refs.push(head);
-    return unique(refs);
-  }
-
-  private async defaultBranchHead(repo: string): Promise<string | null> {
-    const cached = this.headCache.get(repo);
-    if (cached && cached.at + HEAD_TTL_MS > Date.now()) return cached.sha;
-    try {
-      const info = await this.gh.repoInfo(repo);
-      const result = await this.gh.get<{ object: { sha: string } }>(
-        `/repos/${repo}/git/ref/heads/${encodeURIComponent(info.default_branch)}`,
-      );
-      const sha = result.data?.object?.sha;
-      if (!sha) return null;
-      this.headCache.set(repo, { at: Date.now(), sha });
-      return sha;
-    } catch {
-      return null;
-    }
-  }
-}
-
-function statusFor(kind: AdapterScope, name: string, events: EventName[]): RepoStatus {
-  return {
-    repo: name,
-    kind,
-    events: [...events],
-    lastPollAt: null,
-    lastEventAt: null,
-    lastError: null,
-    nextPollAt: null,
-    degraded: [],
-  };
-}
-
-function isPermanent(error: unknown): boolean {
-  return isStatus(error, 403) || isStatus(error, 404);
 }

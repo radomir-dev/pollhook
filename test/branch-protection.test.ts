@@ -24,11 +24,11 @@ test("branch protection: first sight primes, then a change carries from and to",
   });
   const state = emitFor(db, repo);
 
-  await branchProtection.poll({ repo, refs: [], db, gh, emit: state.emit });
+  await branchProtection.poll({ repo, refs: [], db, durations: db.durations, gh, emit: state.emit });
   assert.equal(state.deliveries.length, 0, "priming records without delivering");
 
   gh.respond(PROTECTION, protection({ enforce_admins: { enabled: false } }));
-  await branchProtection.poll({ repo, refs: [], db, gh, emit: state.emit });
+  await branchProtection.poll({ repo, refs: [], db, durations: db.durations, gh, emit: state.emit });
 
   assert.equal(state.deliveries.length, 1);
   assert.equal(state.deliveries[0]!.action, "edited");
@@ -44,7 +44,7 @@ test("branch protection: an unprotected branch is skipped", async () => {
   const db = new StateStore(":memory:");
   const gh = new FakeGitHub({ [BRANCHES]: [{ name: "feature" }] });
   const state = emitFor(db, repo);
-  await branchProtection.poll({ repo, refs: [], db, gh, emit: state.emit });
+  await branchProtection.poll({ repo, refs: [], db, durations: db.durations, gh, emit: state.emit });
   assert.equal(state.deliveries.length, 0);
   db.close();
 });

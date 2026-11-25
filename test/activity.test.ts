@@ -45,15 +45,15 @@ test("release: published on first sight, then published again from draft", async
   const db = new StateStore(":memory:");
   const gh = new FakeGitHub({ [RELEASES]: [rel()] });
   const state = emitFor(db, repo);
-  await release.poll({ repo, refs: [], db, gh, emit: state.emit });
+  await release.poll({ repo, refs: [], db, durations: db.durations, gh, emit: state.emit });
   assert.equal(state.deliveries.at(-1)!.action, "published");
 
   gh.respond(RELEASES, [rel({ id: 2, draft: true, published_at: null })]);
-  await release.poll({ repo, refs: [], db, gh, emit: state.emit });
+  await release.poll({ repo, refs: [], db, durations: db.durations, gh, emit: state.emit });
   assert.equal(state.deliveries.at(-1)!.action, "created");
 
   gh.respond(RELEASES, [rel({ id: 2, draft: false })]);
-  await release.poll({ repo, refs: [], db, gh, emit: state.emit });
+  await release.poll({ repo, refs: [], db, durations: db.durations, gh, emit: state.emit });
   assert.equal(state.deliveries.at(-1)!.action, "published");
   db.close();
 });
@@ -63,12 +63,12 @@ test("label: created, edited, then deleted once", async () => {
   const gh = new FakeGitHub({ [LABELS]: [lab("bug")] });
   const state = emitFor(db, repo);
 
-  await label.poll({ repo, refs: [], db, gh, emit: state.emit });
+  await label.poll({ repo, refs: [], db, durations: db.durations, gh, emit: state.emit });
   gh.respond(LABELS, [lab("bug", { color: "000000" })]);
-  await label.poll({ repo, refs: [], db, gh, emit: state.emit });
+  await label.poll({ repo, refs: [], db, durations: db.durations, gh, emit: state.emit });
   gh.respond(LABELS, []);
-  await label.poll({ repo, refs: [], db, gh, emit: state.emit });
-  await label.poll({ repo, refs: [], db, gh, emit: state.emit });
+  await label.poll({ repo, refs: [], db, durations: db.durations, gh, emit: state.emit });
+  await label.poll({ repo, refs: [], db, durations: db.durations, gh, emit: state.emit });
 
   assert.deepEqual(
     state.deliveries.map((delivery) => delivery.action),
@@ -82,11 +82,11 @@ test("milestone: created, closed, then deleted", async () => {
   const gh = new FakeGitHub({ [MILESTONES]: [ms()] });
   const state = emitFor(db, repo);
 
-  await milestone.poll({ repo, refs: [], db, gh, emit: state.emit });
+  await milestone.poll({ repo, refs: [], db, durations: db.durations, gh, emit: state.emit });
   gh.respond(MILESTONES, [ms({ state: "closed" })]);
-  await milestone.poll({ repo, refs: [], db, gh, emit: state.emit });
+  await milestone.poll({ repo, refs: [], db, durations: db.durations, gh, emit: state.emit });
   gh.respond(MILESTONES, []);
-  await milestone.poll({ repo, refs: [], db, gh, emit: state.emit });
+  await milestone.poll({ repo, refs: [], db, durations: db.durations, gh, emit: state.emit });
 
   assert.deepEqual(
     state.deliveries.map((delivery) => delivery.action),

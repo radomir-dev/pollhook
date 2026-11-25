@@ -39,7 +39,7 @@ test("team: created, edited, deleted", async () => {
   const db = new StateStore(":memory:");
   const gh = new FakeGitHub({ [TEAMS]: [{ id: 1, name: "core", slug: "core" }] });
   const state = emitFor(db, "acme");
-  const ctx = { repo: "acme", org: "acme", refs: [], db, gh, emit: state.emit };
+  const ctx = { repo: "acme", org: "acme", refs: [], db, durations: db.durations, gh, emit: state.emit };
 
   await team.poll(ctx);
   gh.respond(TEAMS, [{ id: 1, name: "core", slug: "core", description: "x" }]);

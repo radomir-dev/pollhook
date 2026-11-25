@@ -22,7 +22,7 @@ test("deployment: each new deployment emits created", async () => {
   const db = new StateStore(":memory:");
   const gh = new FakeGitHub({ [DEPLOYMENTS_30]: [dep()] });
   const state = emitFor(db, repo);
-  await deployment.poll({ repo, refs: [], db, gh, emit: state.emit });
+  await deployment.poll({ repo, refs: [], db, durations: db.durations, gh, emit: state.emit });
 
   assert.equal(state.deliveries.length, 1);
   assert.equal(state.deliveries[0]!.action, "created");
@@ -37,7 +37,7 @@ test("deployment_status: statuses of recent deployments emit created", async () 
     [STATUSES]: [{ id: 10, state: "success", created_at: "t1" }],
   });
   const state = emitFor(db, repo);
-  await deploymentStatus.poll({ repo, refs: [], db, gh, emit: state.emit });
+  await deploymentStatus.poll({ repo, refs: [], db, durations: db.durations, gh, emit: state.emit });
 
   assert.equal(state.deliveries.length, 1);
   assert.equal(
@@ -54,10 +54,10 @@ test("deploy keys: created, then deleted once", async () => {
   });
   const state = emitFor(db, repo);
 
-  await deployKey.poll({ repo, refs: [], db, gh, emit: state.emit });
+  await deployKey.poll({ repo, refs: [], db, durations: db.durations, gh, emit: state.emit });
   gh.respond(KEYS, []);
-  await deployKey.poll({ repo, refs: [], db, gh, emit: state.emit });
-  await deployKey.poll({ repo, refs: [], db, gh, emit: state.emit });
+  await deployKey.poll({ repo, refs: [], db, durations: db.durations, gh, emit: state.emit });
+  await deployKey.poll({ repo, refs: [], db, durations: db.durations, gh, emit: state.emit });
 
   assert.deepEqual(
     state.deliveries.map((delivery) => delivery.action),
@@ -73,13 +73,13 @@ test("rulesets: created, edited, then deleted", async () => {
   });
   const state = emitFor(db, repo);
 
-  await repositoryRuleset.poll({ repo, refs: [], db, gh, emit: state.emit });
+  await repositoryRuleset.poll({ repo, refs: [], db, durations: db.durations, gh, emit: state.emit });
   gh.respond(RULESETS, [
     { id: 5, name: "main", target: "branch", enforcement: "disabled" },
   ]);
-  await repositoryRuleset.poll({ repo, refs: [], db, gh, emit: state.emit });
+  await repositoryRuleset.poll({ repo, refs: [], db, durations: db.durations, gh, emit: state.emit });
   gh.respond(RULESETS, []);
-  await repositoryRuleset.poll({ repo, refs: [], db, gh, emit: state.emit });
+  await repositoryRuleset.poll({ repo, refs: [], db, durations: db.durations, gh, emit: state.emit });
 
   assert.deepEqual(
     state.deliveries.map((delivery) => delivery.action),

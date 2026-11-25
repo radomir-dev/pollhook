@@ -4,6 +4,7 @@ import { DatabaseSync } from "node:sqlite";
 import type { Delivery, EventName, Snapshot, SnapshotRow, SnapshotStore } from "../types.ts";
 import { CursorRepository } from "./cursors.ts";
 import { DeliveryRepository } from "./deliveries.ts";
+import { DurationRepository } from "./durations.ts";
 import { KEEP_PER_GROUP, SCHEMA } from "./schema.ts";
 import { SnapshotRepository } from "./snapshots.ts";
 
@@ -11,6 +12,7 @@ export class StateStore implements SnapshotStore {
   readonly db: DatabaseSync;
   readonly snapshots: SnapshotRepository;
   readonly deliveries: DeliveryRepository;
+  readonly durations: DurationRepository;
   private readonly cursors: CursorRepository;
 
   constructor(path: string) {
@@ -21,6 +23,7 @@ export class StateStore implements SnapshotStore {
     this.snapshots = new SnapshotRepository(this.db);
     this.deliveries = new DeliveryRepository(this.db);
     this.cursors = new CursorRepository(this.db);
+    this.durations = new DurationRepository(this.db);
   }
 
   getSnapshot(repo: string, event: string, key: string): Snapshot | null {

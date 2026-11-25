@@ -25,7 +25,7 @@ test("a new issue emits opened", async () => {
   const db = new StateStore(":memory:");
   const gh = new FakeGitHub({ [ISSUES]: [issue()] });
   const state = emitFor(db, repo);
-  await issues.poll({ repo, refs: [], db, gh, emit: state.emit });
+  await issues.poll({ repo, refs: [], db, durations: db.durations, gh, emit: state.emit });
 
   assert.equal(state.deliveries.length, 1);
   assert.equal(state.deliveries[0]!.action, "opened");
@@ -37,14 +37,14 @@ test("closing an issue emits closed, and a label change emits labeled", async ()
   const db = new StateStore(":memory:");
   const gh = new FakeGitHub({ [ISSUES]: [issue()] });
   const state = emitFor(db, repo);
-  await issues.poll({ repo, refs: [], db, gh, emit: state.emit });
+  await issues.poll({ repo, refs: [], db, durations: db.durations, gh, emit: state.emit });
 
   gh.respond(ISSUES, [issue({ state: "closed" })]);
-  await issues.poll({ repo, refs: [], db, gh, emit: state.emit });
+  await issues.poll({ repo, refs: [], db, durations: db.durations, gh, emit: state.emit });
   assert.equal(state.deliveries.at(-1)!.action, "closed");
 
   gh.respond(ISSUES, [issue({ state: "closed", labels: [{ name: "bug" }] })]);
-  await issues.poll({ repo, refs: [], db, gh, emit: state.emit });
+  await issues.poll({ repo, refs: [], db, durations: db.durations, gh, emit: state.emit });
   assert.equal(state.deliveries.at(-1)!.action, "labeled");
   assert.equal(state.deliveries.length, 3);
   db.close();
@@ -54,10 +54,10 @@ test("an issue body edit emits edited", async () => {
   const db = new StateStore(":memory:");
   const gh = new FakeGitHub({ [ISSUES]: [issue()] });
   const state = emitFor(db, repo);
-  await issues.poll({ repo, refs: [], db, gh, emit: state.emit });
+  await issues.poll({ repo, refs: [], db, durations: db.durations, gh, emit: state.emit });
 
   gh.respond(ISSUES, [issue({ body: "new body" })]);
-  await issues.poll({ repo, refs: [], db, gh, emit: state.emit });
+  await issues.poll({ repo, refs: [], db, durations: db.durations, gh, emit: state.emit });
   assert.equal(state.deliveries.at(-1)!.action, "edited");
   db.close();
 });
@@ -68,7 +68,7 @@ test("pull requests in the issues list are ignored", async () => {
     [ISSUES]: [issue({ pull_request: { url: "https://api.github.com/repos/acme/app/pulls/1" } })],
   });
   const state = emitFor(db, repo);
-  await issues.poll({ repo, refs: [], db, gh, emit: state.emit });
+  await issues.poll({ repo, refs: [], db, durations: db.durations, gh, emit: state.emit });
   assert.equal(state.deliveries.length, 0);
   db.close();
 });
@@ -87,7 +87,7 @@ test("a comment emits created, then edited, and carries its issue", async () => 
     ],
   });
   const state = emitFor(db, repo);
-  await issueComment.poll({ repo, refs: [], db, gh, emit: state.emit });
+  await issueComment.poll({ repo, refs: [], db, durations: db.durations, gh, emit: state.emit });
 
   assert.equal(state.deliveries[0]!.action, "created");
   assert.equal((state.deliveries[0]!.payload.issue as { number: number }).number, 1);
@@ -100,7 +100,7 @@ test("a comment emits created, then edited, and carries its issue", async () => 
       issue_url: "https://api.github.com/repos/acme/app/issues/1",
     },
   ]);
-  await issueComment.poll({ repo, refs: [], db, gh, emit: state.emit });
+  await issueComment.poll({ repo, refs: [], db, durations: db.durations, gh, emit: state.emit });
   assert.equal(state.deliveries.at(-1)!.action, "edited");
   assert.equal(state.deliveries.length, 2);
   db.close();

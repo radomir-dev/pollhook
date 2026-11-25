@@ -16,12 +16,12 @@ test("member: added, edited, then removed once", async () => {
   const gh = new FakeGitHub({ [COLLABORATORS]: [user("ana", true)] });
   const state = emitFor(db, repo);
 
-  await member.poll({ repo, refs: [], db, gh, emit: state.emit });
+  await member.poll({ repo, refs: [], db, durations: db.durations, gh, emit: state.emit });
   gh.respond(COLLABORATORS, [user("ana", false)]);
-  await member.poll({ repo, refs: [], db, gh, emit: state.emit });
+  await member.poll({ repo, refs: [], db, durations: db.durations, gh, emit: state.emit });
   gh.respond(COLLABORATORS, []);
-  await member.poll({ repo, refs: [], db, gh, emit: state.emit });
-  await member.poll({ repo, refs: [], db, gh, emit: state.emit });
+  await member.poll({ repo, refs: [], db, durations: db.durations, gh, emit: state.emit });
+  await member.poll({ repo, refs: [], db, durations: db.durations, gh, emit: state.emit });
 
   assert.deepEqual(
     state.deliveries.map((delivery) => delivery.action),
@@ -36,9 +36,9 @@ test("member: a new collaborator after the list is seeded emits added", async ()
   const gh = new FakeGitHub({ [COLLABORATORS]: [user("ana", true)] });
   const state = emitFor(db, repo);
 
-  await member.poll({ repo, refs: [], db, gh, emit: state.emit });
+  await member.poll({ repo, refs: [], db, durations: db.durations, gh, emit: state.emit });
   gh.respond(COLLABORATORS, [user("ana", true), user("bo", true)]);
-  await member.poll({ repo, refs: [], db, gh, emit: state.emit });
+  await member.poll({ repo, refs: [], db, durations: db.durations, gh, emit: state.emit });
 
   assert.equal(state.deliveries.length, 2);
   assert.equal((state.deliveries[1]!.payload.member as { login: string }).login, "bo");

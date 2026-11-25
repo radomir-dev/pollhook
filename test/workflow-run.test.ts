@@ -29,15 +29,15 @@ test("a run emits once per state transition", async () => {
   const state = emitFor(db, "acme/app");
   const gh = githubWith([run("in_progress")]);
 
-  await workflowRun.poll({ repo: "acme/app", refs: [], db, gh, emit: state.emit });
+  await workflowRun.poll({ repo: "acme/app", refs: [], db, durations: db.durations, gh, emit: state.emit });
   assert.equal(state.deliveries.length, 1);
   assert.equal(state.deliveries[0]!.action, "in_progress");
 
-  await workflowRun.poll({ repo: "acme/app", refs: [], db, gh, emit: state.emit });
+  await workflowRun.poll({ repo: "acme/app", refs: [], db, durations: db.durations, gh, emit: state.emit });
   assert.equal(state.deliveries.length, 1, "an unchanged poll emits nothing");
 
   gh.respond(RUNS_PATH, { workflow_runs: [run("completed", "success")] });
-  await workflowRun.poll({ repo: "acme/app", refs: [], db, gh, emit: state.emit });
+  await workflowRun.poll({ repo: "acme/app", refs: [], db, durations: db.durations, gh, emit: state.emit });
   assert.equal(state.deliveries.length, 2);
   assert.equal(state.deliveries[1]!.action, "completed");
   assert.equal((state.deliveries[1]!.payload.workflow_run as { conclusion: string }).conclusion, "success");
@@ -48,9 +48,9 @@ test("a 304 emits nothing and keeps the snapshot", async () => {
   const db = new StateStore(":memory:");
   const state = emitFor(db, "acme/app");
   const gh = githubWith([run("completed", "success")]);
-  await workflowRun.poll({ repo: "acme/app", refs: [], db, gh, emit: state.emit });
+  await workflowRun.poll({ repo: "acme/app", refs: [], db, durations: db.durations, gh, emit: state.emit });
   gh.respond(RUNS_PATH, null);
-  await workflowRun.poll({ repo: "acme/app", refs: [], db, gh, emit: state.emit });
+  await workflowRun.poll({ repo: "acme/app", refs: [], db, durations: db.durations, gh, emit: state.emit });
   assert.equal(state.deliveries.length, 1);
   db.close();
 });
@@ -61,13 +61,13 @@ test("a restart does not redeliver an observed state", async () => {
 
   const first = new StateStore(path);
   const before = emitFor(first, "acme/app");
-  await workflowRun.poll({ repo: "acme/app", refs: [], db: first, gh, emit: before.emit });
+  await workflowRun.poll({ repo: "acme/app", refs: [], db: first, durations: first.durations, gh, emit: before.emit });
   first.close();
   assert.equal(before.deliveries.length, 1);
 
   const second = new StateStore(path);
   const after = emitFor(second, "acme/app");
-  await workflowRun.poll({ repo: "acme/app", refs: [], db: second, gh, emit: after.emit });
+  await workflowRun.poll({ repo: "acme/app", refs: [], db: second, durations: second.durations, gh, emit: after.emit });
   second.close();
   assert.equal(after.deliveries.length, 0);
 });
@@ -76,7 +76,7 @@ test("a run finished before the first poll still emits completed", async () => {
   const db = new StateStore(":memory:");
   const state = emitFor(db, "acme/app");
   const gh = githubWith([run("completed", "failure")]);
-  await workflowRun.poll({ repo: "acme/app", refs: [], db, gh, emit: state.emit });
+  await workflowRun.poll({ repo: "acme/app", refs: [], db, durations: db.durations, gh, emit: state.emit });
   assert.equal(state.deliveries.length, 1);
   assert.equal(state.deliveries[0]!.action, "completed");
   db.close();

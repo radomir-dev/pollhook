@@ -78,6 +78,16 @@ export interface SnapshotStore {
   listSnapshots(repo: string, event: string): SnapshotRow[];
 }
 
+export interface DurationStats {
+  typicalMs: number;
+  samples: number;
+}
+
+export interface DurationStore {
+  record(repo: string, workflowId: string, durationMs: number): void;
+  typical(repo: string, workflowId: string): DurationStats | null;
+}
+
 export interface Delivery {
   id: string;
   repo: string;
@@ -111,6 +121,7 @@ export interface AdapterContext {
   org?: string | null;
   refs: string[];
   db: SnapshotStore;
+  durations: DurationStore;
   gh: GithubClient;
   emit: AdapterEmit;
 }

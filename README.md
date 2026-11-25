@@ -64,6 +64,11 @@ report the current status of a run or a check.
    else.
 4. Use `pollhook run <id>`, `pollhook checks <pr>`, `pollhook pr <n> --until
    merged`, `pollhook pages <sha>` and `pollhook status`.
+5. `pollhook poke [--repo OWNER/NAME]` polls now instead of waiting out the
+   interval, which is how a run you just started shows up within a second.
+6. `pollhook emit --brief` prints one line per delivery: time, repo, event,
+   action, key, then the run or check name, the conclusion when it finished, and
+   the elapsed time while it runs. Full JSON stays the default.
 
 The daemon serves consumers over a unix socket at
 `$XDG_RUNTIME_DIR/pollhook.sock`, so it opens no port. An optional `deliver.url`
@@ -98,6 +103,16 @@ on `PATH` so `node` and `gh auth token` resolve.
 4. `degraded=` lists adapters that answered 403 or 404. They retry after an hour
    and drop off the list when a retry succeeds.
 5. `status --json` prints the same body with the per-adapter degraded reasons.
+
+## Scheduling
+
+Each adapter polls on its target's `intervalSeconds`, never faster than its own
+floor. The daemon keeps the last twenty durations of every workflow and polls
+`workflow_run` every 30 seconds instead of the configured interval while every
+running workflow is still under half its typical duration, so a finished run is
+reported within one slow round and a quiet repository still gets the fast
+interval. Durations come from runs already fetched, so the estimate costs no
+requests.
 
 ## Fidelity
 

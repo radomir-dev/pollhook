@@ -679,3 +679,25 @@ Verification: `tsc --noEmit` clean, 94 of 94 tests passing.
 Next:
 
 1. Per-event intervals, then adaptive polling per target.
+
+## 2026-11-25: workflow durations, richer brief, slow poll while early
+
+1. Every workflow's last twenty durations are stored from runs already fetched,
+   so the typical duration costs no requests. A run's duration is
+   `updated_at - run_started_at`, recorded when it is first seen completed.
+2. `delayFor` polls `workflow_run` every 30 seconds instead of the configured
+   interval while every running workflow is under half its typical duration, and
+   keeps the fast interval otherwise so a new run is noticed quickly. Degraded
+   adapters still back off for an hour.
+3. `emit --brief` adds the run or check name, the conclusion on completion, and
+   the elapsed time while a run is in progress. No payload gains estimated
+   fields; the estimate only affects scheduling and the printed line.
+4. `poller.ts` was split again to stay under 200 lines: `poller/status.ts`,
+   `poller/refs.ts` and `poller/schedule.ts`.
+
+Verification: `tsc --noEmit` clean, 107 of 107 tests passing, every `src` file at
+or under 200 lines.
+
+Next:
+
+1. Per-event intervals, the remaining quota lever.
