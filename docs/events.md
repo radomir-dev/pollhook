@@ -108,7 +108,7 @@ and `changes.branch_protection.from/to`.
 | --- | --- | --- | --- | --- |
 | `member` | `/repos/{o}/{r}/collaborators` | `login` + permission hash | derived | P4 done |
 | `membership` | `/orgs/{org}/memberships/{user}` ~ | `state` + `role` | derived | P4 |
-| `team` | `/orgs/{org}/teams` | `id` + `updated_at` | object | P4 |
+| `team` | `/orgs/{org}/teams` | `id` + `updated_at` | object | P4 done |
 | `team_add` | `/repos/{o}/{r}/teams` | team `id` + repo | derived | P4 |
 | `organization` | `/orgs/{org}` | `id` + `updated_at` | derived | P4 |
 | `org_block` | `/orgs/{org}/blocks` | `id` + `login` | derived | P4 |

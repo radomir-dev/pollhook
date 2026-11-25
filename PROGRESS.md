@@ -434,3 +434,24 @@ Next:
 1. P4: add an optional `orgs` config section, then `membership`, `team` and
    `organization`.
 2. P5: report the next poll time in `status`.
+
+## 2026-11-25: org targets and teams (P4)
+
+An optional `orgs` array joined `repos` in the config. `loadConfig` accepts
+repo-only, org-only or both, defaults org events to the org-scoped adapters, and
+rejects a repo event under `orgs` with the list of allowed names.
+
+The poller polls two target kinds. `Adapter` gained an optional `scope` (`repo` or
+`org`), `adaptersFor(events, scope)` filters, statuses carry `kind`, and
+`AdapterContext.org` is present only for org targets.
+
+`team` is the first org adapter: it hashes the team list, derives created, edited
+and deleted, and carries `organization: {login}` rather than the full org object,
+which would cost another request.
+
+Verification: `tsc --noEmit` clean, 76 of 76 tests passing.
+
+Next:
+
+1. P4 remainder: `membership`, `organization`, projects and packages.
+2. P5: report the next poll time in `status`.

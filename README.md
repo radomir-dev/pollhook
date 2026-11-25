@@ -56,7 +56,8 @@ report the current status of a run or a check.
 1. `npm install && npm run build`, then `npm link` to put `pollhook` on PATH.
    Node 24 is required; `.mise.toml` pins 24.22.3.
 2. Copy `pollhook.example.json` to `~/.config/pollhook/config.json` and set the
-   repository and events.
+   repository and events. An optional `orgs` array covers org-level events;
+   `team` is implemented today.
 3. Run `pollhook daemon`. The token comes from `POLLHOOK_TOKEN`, then your
    `gh auth login`, then `GH_TOKEN`/`GITHUB_TOKEN`. The gh login wins over ambient
    tokens because a `GITHUB_TOKEN` in the environment often belongs to something
@@ -134,8 +135,8 @@ agent actually needs. Event synthesis is the mechanism, not the product.
 
 ## Status
 
-P0, P1, most of P2, most of P3 and the collaborator event of P4 are implemented
-and covered by 71 tests. What shipped and what comes next is in
+P0, P1, most of P2, most of P3 and the first P4 events are implemented and
+covered by 76 tests. What shipped and what comes next is in
 [PROGRESS.md](PROGRESS.md); phases and acceptance criteria are in
 [AGENDA.md](AGENDA.md).
 
