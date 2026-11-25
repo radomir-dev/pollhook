@@ -1,5 +1,7 @@
 export type EventName =
   | "push"
+  | "create"
+  | "delete"
   | "workflow_run"
   | "check_suite"
   | "check_run"
@@ -38,14 +40,14 @@ export interface Snapshot {
 
 export interface SnapshotRow extends Snapshot {
   repo: string;
-  event: EventName;
+  event: string;
   key: string;
 }
 
 export interface SnapshotStore {
-  getSnapshot(repo: string, event: EventName, key: string): Snapshot | null;
-  putSnapshot(repo: string, event: EventName, key: string, state: string, data: unknown): void;
-  listSnapshots(repo: string, event: EventName): SnapshotRow[];
+  getSnapshot(repo: string, event: string, key: string): Snapshot | null;
+  putSnapshot(repo: string, event: string, key: string, state: string, data: unknown): void;
+  listSnapshots(repo: string, event: string): SnapshotRow[];
 }
 
 export interface Delivery {

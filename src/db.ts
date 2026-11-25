@@ -47,7 +47,7 @@ export class StateStore implements SnapshotStore {
     this.db.exec(SCHEMA);
   }
 
-  getSnapshot(repo: string, event: EventName, key: string): Snapshot | null {
+  getSnapshot(repo: string, event: string, key: string): Snapshot | null {
     const row = this.db
       .prepare("select state, data, updated_at from snapshots where repo = ? and event = ? and key = ?")
       .get(repo, event, key) as { state: string; data: string; updated_at: string } | undefined;
@@ -55,7 +55,7 @@ export class StateStore implements SnapshotStore {
     return { state: row.state, data: JSON.parse(row.data), updatedAt: row.updated_at };
   }
 
-  putSnapshot(repo: string, event: EventName, key: string, state: string, data: unknown): void {
+  putSnapshot(repo: string, event: string, key: string, state: string, data: unknown): void {
     this.db
       .prepare(
         `insert into snapshots (repo, event, key, state, data, updated_at)
@@ -66,7 +66,7 @@ export class StateStore implements SnapshotStore {
       .run(repo, event, key, state, JSON.stringify(data), nowIso());
   }
 
-  listSnapshots(repo: string, event: EventName): SnapshotRow[] {
+  listSnapshots(repo: string, event: string): SnapshotRow[] {
     const rows = this.db
       .prepare(
         "select repo, event, key, state, data, updated_at from snapshots where repo = ? and event = ? order by updated_at desc, rowid desc",
