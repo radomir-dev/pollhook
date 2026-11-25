@@ -24,7 +24,7 @@ function seedRun(db: StateStore, workflowId: string, startedMsAgo: number): void
 
 test("a workflow still early against its typical duration is polled less often", () => {
   const db = new StateStore(":memory:");
-  for (let index = 0; index < 3; index += 1) db.durations.record(repo, "7", 300_000);
+  for (let index = 0; index < 3; index += 1) db.durations.record(repo, `r${index}`, "7", 300_000);
   seedRun(db, "7", 30_000);
 
   assert.equal(delayFor(adapter("workflow_run", 10_000), 10_000, db, repo), 30_000);
@@ -33,7 +33,7 @@ test("a workflow still early against its typical duration is polled less often",
 
 test("a workflow past half its typical duration keeps the normal interval", () => {
   const db = new StateStore(":memory:");
-  for (let index = 0; index < 3; index += 1) db.durations.record(repo, "7", 300_000);
+  for (let index = 0; index < 3; index += 1) db.durations.record(repo, `r${index}`, "7", 300_000);
   seedRun(db, "7", 200_000);
 
   assert.equal(delayFor(adapter("workflow_run", 10_000), 10_000, db, repo), 10_000);
@@ -42,7 +42,7 @@ test("a workflow past half its typical duration keeps the normal interval", () =
 
 test("an idle repository keeps the normal interval so a new run is seen quickly", () => {
   const db = new StateStore(":memory:");
-  for (let index = 0; index < 3; index += 1) db.durations.record(repo, "7", 300_000);
+  for (let index = 0; index < 3; index += 1) db.durations.record(repo, `r${index}`, "7", 300_000);
 
   assert.equal(delayFor(adapter("workflow_run", 10_000), 10_000, db, repo), 10_000);
   db.close();
@@ -50,7 +50,7 @@ test("an idle repository keeps the normal interval so a new run is seen quickly"
 
 test("the slow rule never drops below the adapter floor", () => {
   const db = new StateStore(":memory:");
-  for (let index = 0; index < 3; index += 1) db.durations.record(repo, "7", 600_000);
+  for (let index = 0; index < 3; index += 1) db.durations.record(repo, `r${index}`, "7", 600_000);
   seedRun(db, "7", 5_000);
 
   assert.equal(delayFor(adapter("workflow_run", 120_000), 10_000, db, repo), 120_000);
@@ -59,7 +59,7 @@ test("the slow rule never drops below the adapter floor", () => {
 
 test("other adapters ignore the workflow rule", () => {
   const db = new StateStore(":memory:");
-  for (let index = 0; index < 3; index += 1) db.durations.record(repo, "7", 600_000);
+  for (let index = 0; index < 3; index += 1) db.durations.record(repo, `r${index}`, "7", 600_000);
   seedRun(db, "7", 5_000);
 
   assert.equal(delayFor(adapter("push", 10_000), 10_000, db, repo), 10_000);

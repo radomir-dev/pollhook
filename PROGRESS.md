@@ -684,7 +684,8 @@ Next:
 
 1. Every workflow's last twenty durations are stored from runs already fetched,
    so the typical duration costs no requests. A run's duration is
-   `updated_at - run_started_at`, recorded when it is first seen completed.
+   `updated_at - run_started_at`, recorded once per run id, so the first poll
+   backfills the whole list and later polls insert nothing.
 2. `delayFor` polls `workflow_run` every 30 seconds instead of the configured
    interval while every running workflow is under half its typical duration, and
    keeps the fast interval otherwise so a new run is noticed quickly. Degraded

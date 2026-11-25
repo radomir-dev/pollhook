@@ -84,7 +84,7 @@ export interface DurationStats {
 }
 
 export interface DurationStore {
-  record(repo: string, workflowId: string, durationMs: number): void;
+  record(repo: string, runId: string, workflowId: string, durationMs: number): void;
   typical(repo: string, workflowId: string): DurationStats | null;
 }
 

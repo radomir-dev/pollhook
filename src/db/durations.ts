@@ -12,17 +12,18 @@ export class DurationRepository {
     this.db = db;
   }
 
-  record(repo: string, workflowId: string, durationMs: number): void {
+  record(repo: string, runId: string, workflowId: string, durationMs: number): void {
     if (!Number.isFinite(durationMs) || durationMs <= 0) return;
     this.db
       .prepare(
-        "insert into workflow_durations (repo, workflow_id, duration_ms, recorded_at) values (?, ?, ?, ?)",
+        `insert or ignore into run_durations (repo, run_id, workflow_id, duration_ms, recorded_at)
+         values (?, ?, ?, ?, ?)`,
       )
-      .run(repo, workflowId, Math.round(durationMs), nowIso());
+      .run(repo, runId, workflowId, Math.round(durationMs), nowIso());
     this.db
       .prepare(
-        `delete from workflow_durations where repo = ? and workflow_id = ? and rowid not in
-         (select rowid from workflow_durations where repo = ? and workflow_id = ?
+        `delete from run_durations where repo = ? and workflow_id = ? and rowid not in
+         (select rowid from run_durations where repo = ? and workflow_id = ?
           order by rowid desc limit ?)`,
       )
       .run(repo, workflowId, repo, workflowId, KEEP_PER_WORKFLOW);
@@ -31,7 +32,7 @@ export class DurationRepository {
   typical(repo: string, workflowId: string): DurationStats | null {
     const rows = this.db
       .prepare(
-        `select duration_ms from workflow_durations where repo = ? and workflow_id = ?
+        `select duration_ms from run_durations where repo = ? and workflow_id = ?
          order by rowid desc limit ?`,
       )
       .all(repo, workflowId, KEEP_PER_WORKFLOW) as { duration_ms: number }[];
