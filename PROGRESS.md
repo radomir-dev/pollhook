@@ -511,3 +511,25 @@ Next:
 1. P5: repeat the ten-minute soak including an org target and the newer adapters,
    and confirm the request budget.
 2. P4: revisit the deferred events only if a consumer needs them.
+
+## 2026-11-25: soak with an org target
+
+Ten minutes with the example config: 33 repository events plus `team` and
+`membership` on `radomir-dev`, sampled every minute.
+
+1. 470 requests, 426 of them `304`, so 44 bodies were fetched.
+2. 60 deliveries. The quota fell 131, so roughly 87 responses belonged to other
+   clients on the same token.
+3. Extrapolated: about 3,100 requests per hour and 300 billable, under the limit.
+4. The only error was the expected 403 from code scanning, which is disabled on
+   that repository. It stays visible in `status` rather than being swallowed, per
+   the P3 decision that missing capabilities should fail loudly.
+5. Both targets reported `nextPollAt`.
+
+Verification: `tsc --noEmit` clean, 80 of 80 tests passing.
+
+Next:
+
+1. P5: report a permanently unavailable feature once, as degraded, instead of on
+   every round.
+2. P4: revisit the deferred events only if a consumer needs them.
