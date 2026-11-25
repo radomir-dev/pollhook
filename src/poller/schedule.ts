@@ -1,4 +1,5 @@
 import type { Adapter, DurationStore, SnapshotStore } from "../types.ts";
+import type { EventTuning, Strategy } from "../config/tuning.ts";
 
 const SLOW_INTERVAL_MS = 30_000;
 const EARLY_SHARE = 0.5;
@@ -7,14 +8,33 @@ export interface ScheduleStore extends SnapshotStore {
   durations: DurationStore;
 }
 
+type Target = EventTuning & { intervalMs: number };
+
+export function resolveInterval(config: EventTuning, target: Target, adapter: Adapter): number {
+  return (
+    target.intervals?.[adapter.name] ??
+    config.intervals?.[adapter.name] ??
+    target.intervalMs
+  );
+}
+
+export function resolveStrategy(
+  config: EventTuning,
+  target: EventTuning,
+  adapter: Adapter,
+): Strategy {
+  return target.strategies?.[adapter.name] ?? config.strategies?.[adapter.name] ?? "fixed";
+}
+
 export function delayFor(
   adapter: Adapter,
   intervalMs: number,
   db: ScheduleStore,
   repo: string,
+  strategy: Strategy = "fixed",
 ): number {
   const base = Math.max(adapter.intervalFloorMs, intervalMs);
-  if (adapter.name !== "workflow_run") return base;
+  if (strategy !== "while-active") return base;
   return runsAreEarly(db, repo) ? Math.max(base, SLOW_INTERVAL_MS) : base;
 }
 

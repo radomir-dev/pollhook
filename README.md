@@ -57,7 +57,11 @@ report the current status of a run or a check.
    Node 24 is required; `.mise.toml` pins 24.22.3.
 2. Copy `pollhook.example.json` to `~/.config/pollhook/config.json` and set the
    repository and events. An optional `orgs` array covers org-level events;
-   `team` and `membership` are implemented today.
+   `team` and `membership` are implemented today. `intervals` sets a poll interval
+   per event, globally or per repository, and `strategies` picks `fixed` or
+   `while-active` per event. A repository's own value wins over the global one,
+   which wins over the target's `intervalSeconds`; the adapter floor always wins
+   last, so nothing polls faster than the API tolerates.
 3. Run `pollhook daemon`. The token comes from `POLLHOOK_TOKEN`, then your
    `gh auth login`, then `GH_TOKEN`/`GITHUB_TOKEN`. The gh login wins over ambient
    tokens because a `GITHUB_TOKEN` in the environment often belongs to something
@@ -106,13 +110,15 @@ on `PATH` so `node` and `gh auth token` resolve.
 
 ## Scheduling
 
-Each adapter polls on its target's `intervalSeconds`, never faster than its own
-floor. The daemon keeps the last twenty durations of every workflow and polls
-`workflow_run` every 30 seconds instead of the configured interval while every
-running workflow is still under half its typical duration, so a finished run is
-reported within one slow round and a quiet repository still gets the fast
-interval. Durations come from runs already fetched, so the estimate costs no
-requests.
+Each adapter polls on its resolved interval, never faster than its own floor:
+the repository's `intervals` entry, then the global one, then the target's
+`intervalSeconds`. With `strategies: { "workflow_run": "while-active" }` the daemon
+keeps the last twenty durations of every workflow and polls `workflow_run` every
+30 seconds instead of the configured interval while every running workflow is
+still under half its typical duration, so a finished run is reported within one
+slow round and a quiet repository still gets the fast interval. The default
+strategy is `fixed`. Durations come from runs already fetched, so the estimate
+costs no requests.
 
 ## Fidelity
 

@@ -27,7 +27,7 @@ test("a workflow still early against its typical duration is polled less often",
   for (let index = 0; index < 3; index += 1) db.durations.record(repo, `r${index}`, "7", 300_000);
   seedRun(db, "7", 30_000);
 
-  assert.equal(delayFor(adapter("workflow_run", 10_000), 10_000, db, repo), 30_000);
+  assert.equal(delayFor(adapter("workflow_run", 10_000), 10_000, db, repo, "while-active"), 30_000);
   db.close();
 });
 
@@ -36,7 +36,7 @@ test("a workflow past half its typical duration keeps the normal interval", () =
   for (let index = 0; index < 3; index += 1) db.durations.record(repo, `r${index}`, "7", 300_000);
   seedRun(db, "7", 200_000);
 
-  assert.equal(delayFor(adapter("workflow_run", 10_000), 10_000, db, repo), 10_000);
+  assert.equal(delayFor(adapter("workflow_run", 10_000), 10_000, db, repo, "while-active"), 10_000);
   db.close();
 });
 
@@ -44,7 +44,7 @@ test("an idle repository keeps the normal interval so a new run is seen quickly"
   const db = new StateStore(":memory:");
   for (let index = 0; index < 3; index += 1) db.durations.record(repo, `r${index}`, "7", 300_000);
 
-  assert.equal(delayFor(adapter("workflow_run", 10_000), 10_000, db, repo), 10_000);
+  assert.equal(delayFor(adapter("workflow_run", 10_000), 10_000, db, repo, "while-active"), 10_000);
   db.close();
 });
 
@@ -53,7 +53,16 @@ test("the slow rule never drops below the adapter floor", () => {
   for (let index = 0; index < 3; index += 1) db.durations.record(repo, `r${index}`, "7", 600_000);
   seedRun(db, "7", 5_000);
 
-  assert.equal(delayFor(adapter("workflow_run", 120_000), 10_000, db, repo), 120_000);
+  assert.equal(delayFor(adapter("workflow_run", 120_000), 10_000, db, repo, "while-active"), 120_000);
+  db.close();
+});
+
+test("the default strategy is fixed, so an early run is polled at the normal interval", () => {
+  const db = new StateStore(":memory:");
+  for (let index = 0; index < 3; index += 1) db.durations.record(repo, `e${index}`, "7", 300_000);
+  seedRun(db, "7", 30_000);
+
+  assert.equal(delayFor(adapter("workflow_run", 10_000), 10_000, db, repo), 10_000);
   db.close();
 });
 

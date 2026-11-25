@@ -1,10 +1,11 @@
 import type { Config } from "./config.ts";
+import type { EventTuning, Strategy } from "./config/tuning.ts";
 import type { StateStore } from "./db.ts";
 import type { Adapter, AdapterScope, Emit, EventName, GithubClient } from "./types.ts";
 import { adaptersFor } from "./registry.ts";
 import { HeadCache, refsFor } from "./poller/refs.ts";
-import { delayFor } from "./poller/schedule.ts";
-import { DEGRADED_MS, isPermanent, statusFor, type RepoStatus } from "./poller/status.ts";
+import { delayFor, resolveInterval, resolveStrategy } from "./poller/schedule.ts";
+import { DEGRADED_MS, isPermanent, statusFor, statusList, type RepoStatus } from "./poller/status.ts";
 import { errorMessage, nowIso } from "./util.ts";
 
 const TICK_MS = 1000;
@@ -50,28 +51,16 @@ export class Poller {
   }
 
   listStatuses(): RepoStatus[] {
-    return [...this.statuses.values()].map((status) => ({
-      ...status,
-      nextPollAt: this.nextPollFor(status),
-      degraded: this.degradedFor(status.repo),
-    }));
-  }
-
-  private nextPollFor(status: RepoStatus): string | null {
-    const due = adaptersFor(status.events as EventName[], status.kind)
-      .map((adapter) => this.nextDue.get(`${status.kind}:${status.repo}:${adapter.name}`))
-      .filter((value): value is number => typeof value === "number");
-    if (due.length === 0) return null;
-    return new Date(Math.min(...due)).toISOString();
+    return statusList(this.statuses, this.nextDue, this.degraded);
   }
 
   async pollOnce(): Promise<void> {
     if (this.stopped) return;
     for (const repo of this.config.repos) {
-      await this.pollTarget("repo", repo.repo, repo.events, repo.intervalMs, repo.checkRefLimit);
+      await this.pollTarget("repo", repo.repo, repo.events, repo, repo.checkRefLimit);
     }
     for (const org of this.config.orgs) {
-      await this.pollTarget("org", org.org, org.events, org.intervalMs, 0);
+      await this.pollTarget("org", org.org, org.events, org, 0);
     }
   }
 
@@ -79,10 +68,10 @@ export class Poller {
     kind: AdapterScope,
     name: string,
     events: EventName[],
-    intervalMs: number,
+    target: EventTuning & { intervalMs: number },
     checkRefLimit: number,
   ): Promise<void> {
-    const roundError = await this.pollAdapters(kind, name, events, intervalMs, checkRefLimit);
+    const roundError = await this.pollAdapters(kind, name, events, target, checkRefLimit);
     const status = this.statuses.get(name);
     if (!status) return;
     if (roundError) {
@@ -97,7 +86,7 @@ export class Poller {
     kind: AdapterScope,
     name: string,
     events: EventName[],
-    intervalMs: number,
+    target: EventTuning & { intervalMs: number },
     checkRefLimit: number,
   ): Promise<string | null> {
     let roundError: string | null = null;
@@ -111,7 +100,14 @@ export class Poller {
     }
     for (const adapter of adaptersFor(events, kind)) {
       try {
-        const polled = await this.pollAdapter(kind, name, refs, intervalMs, adapter);
+        const polled = await this.pollAdapter(
+          kind,
+          name,
+          refs,
+          resolveInterval(this.config, target, adapter),
+          resolveStrategy(this.config, target, adapter),
+          adapter,
+        );
         if (polled) this.clearDegraded(name, adapter.name);
       } catch (error) {
         if (isPermanent(error)) {
@@ -135,22 +131,17 @@ export class Poller {
     this.degraded.get(name)?.delete(event);
   }
 
-  private degradedFor(name: string): Array<{ event: string; reason: string }> {
-    return [...(this.degraded.get(name) ?? new Map<EventName, string>())].map(
-      ([event, reason]) => ({ event, reason }),
-    );
-  }
-
   private async pollAdapter(
     kind: AdapterScope,
     name: string,
     refs: string[],
     intervalMs: number,
+    strategy: Strategy,
     adapter: Adapter,
   ): Promise<boolean> {
     const dueKey = `${kind}:${name}:${adapter.name}`;
     if ((this.nextDue.get(dueKey) ?? 0) > Date.now()) return false;
-    this.nextDue.set(dueKey, Date.now() + delayFor(adapter, intervalMs, this.db, name));
+    this.nextDue.set(dueKey, Date.now() + delayFor(adapter, intervalMs, this.db, name, strategy));
     const primedKey = `primed:${kind}:${name}:${adapter.name}`;
     const cold = this.db.getCursor(primedKey) === null;
     await adapter.poll({

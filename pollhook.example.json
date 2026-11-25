@@ -38,15 +38,30 @@
         "status"
       ],
       "intervalSeconds": 30,
-      "checkRefLimit": 5
+      "checkRefLimit": 5,
+      "intervals": {
+        "check_run": 60,
+        "check_suite": 60,
+        "status": 60
+      }
     }
   ],
   "orgs": [
     {
       "org": "radomir-dev",
-      "events": ["team", "membership"],
+      "events": [
+        "team",
+        "membership"
+      ],
       "intervalSeconds": 300
     }
   ],
-  "stateDir": "~/.local/state/pollhook"
+  "stateDir": "~/.local/state/pollhook",
+  "intervals": {
+    "workflow_run": 10,
+    "pull_request": 15
+  },
+  "strategies": {
+    "workflow_run": "while-active"
+  }
 }

@@ -727,3 +727,19 @@ Verification: `tsc --noEmit` clean, 114 of 114 tests passing.
 Next:
 
 1. Quota governor from `X-RateLimit-*`.
+
+## 2026-11-25: per-event intervals and strategies
+
+`intervals` and `strategies` are accepted globally and per repository or org. A
+repository's event interval wins over the global one, which wins over
+`intervalSeconds`; the adapter floor still wins last. `strategies` accepts `fixed`
+(default) or `while-active`, which applies the existing early-run rule. Parsing
+moved to `src/config/tuning.ts`, status building to `src/poller/status.ts` and
+interval resolution to `src/poller/schedule.ts`, so `config.ts` and `poller.ts`
+stay under 200 lines.
+
+Verification: `tsc --noEmit` clean, 120 of 120 tests passing.
+
+Next:
+
+1. Quota governor from `X-RateLimit-*` and `Retry-After`.

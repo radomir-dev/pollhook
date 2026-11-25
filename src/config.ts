@@ -1,16 +1,19 @@
 import { readFileSync } from "node:fs";
 import { implementedEvents } from "./registry.ts";
+import { parseTuning, type EventTuning, type Strategy } from "./config/tuning.ts";
 import type { AdapterScope, EventName } from "./types.ts";
 import { errorMessage, expandHome } from "./util.ts";
 
-export interface RepoConfig {
+export type { EventTuning, Strategy };
+
+export interface RepoConfig extends EventTuning {
   repo: string;
   events: EventName[];
   intervalMs: number;
   checkRefLimit: number;
 }
 
-export interface OrgConfig {
+export interface OrgConfig extends EventTuning {
   org: string;
   events: EventName[];
   intervalMs: number;
@@ -21,7 +24,7 @@ export interface DeliverConfig {
   secret?: string;
 }
 
-export interface Config {
+export interface Config extends EventTuning {
   repos: RepoConfig[];
   orgs: OrgConfig[];
   stateDir: string;
@@ -60,7 +63,8 @@ export function loadConfig(override?: string): Config {
 
   const stateDir = expandHome(typeof raw.stateDir === "string" ? raw.stateDir : DEFAULT_STATE);
   const deliver = raw.deliver === undefined ? undefined : parseDeliver(raw.deliver, path);
-  return { repos, orgs, stateDir, ...(deliver ? { deliver } : {}) };
+  const tuning = parseTuning(raw, path, "config", implementedEvents("repo"));
+  return { repos, orgs, stateDir, ...tuning, ...(deliver ? { deliver } : {}) };
 }
 
 function parseRepo(value: unknown, index: number, path: string): RepoConfig {
@@ -70,11 +74,13 @@ function parseRepo(value: unknown, index: number, path: string): RepoConfig {
     throw new Error(`config ${path}: repos[${index}].repo must look like owner/name`);
   }
   const intervalSeconds = intervalFor(value.intervalSeconds, 60, path, `repos[${index}]`);
+  const events = parseEvents(value.events, index, path, "repos", "repo");
   return {
     repo,
-    events: parseEvents(value.events, index, path, "repos", "repo"),
+    events,
     intervalMs: intervalSeconds * 1000,
     checkRefLimit: positiveNumber(value.checkRefLimit, 5),
+    ...parseTuning(value, path, `repos[${index}]`, events),
   };
 }
 
@@ -85,10 +91,12 @@ function parseOrg(value: unknown, index: number, path: string): OrgConfig {
     throw new Error(`config ${path}: orgs[${index}].org must be an organization name`);
   }
   const intervalSeconds = intervalFor(value.intervalSeconds, 300, path, `orgs[${index}]`);
+  const events = parseEvents(value.events, index, path, "orgs", "org");
   return {
     org,
-    events: parseEvents(value.events, index, path, "orgs", "org"),
+    events,
     intervalMs: intervalSeconds * 1000,
+    ...parseTuning(value, path, `orgs[${index}]`, events),
   };
 }
 

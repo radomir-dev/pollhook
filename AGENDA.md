@@ -36,8 +36,9 @@ config accepts org targets; see [PROGRESS.md](PROGRESS.md). The phases below rem
    delivery targets, poll intervals, secret.
 2. State in SQLite (`node:sqlite`): observed objects, cursors, ETags, delivery log,
    dedupe fingerprints.
-3. Scheduler: per-endpoint interval, jitter, ETag cache, quota governor, one
-   in-flight request per endpoint.
+3. Scheduler: per-event and per-target intervals with `fixed` or `while-active`
+   strategies (done), ETag cache (done), one in-flight round (done). Jitter and
+   the quota governor are not started.
 4. Delivery engine: loopback HTTP POST, GitHub headers, optional HMAC signature,
    retry with backoff, at-least-once plus fingerprint dedupe.
 5. JSONL sink: `pollhook emit` prints deliveries to stdout, one JSON object per line.
