@@ -73,3 +73,20 @@ Next:
    diffs.
 3. Verify whether `gh webhook forward` leaves a hook behind.
 4. Package for npm/npx: P6 in AGENDA.md.
+
+## 2026-11-25: silent priming
+
+The first poll of each event now records snapshots and suppresses deliveries. The
+marker lives in the cursors table as `primed:<repo>:<event>`, so a restart neither
+replays history nor primes again: objects created while the daemon was down still
+deliver on the next poll. The 130-delivery cold-start flood from the idle
+measurement is gone.
+
+Verification: `tsc --noEmit` clean, 32 of 32 tests passing.
+
+Next:
+
+1. P2: `push` from `/compare`, then `create` and `delete` from branch and tag
+   diffs.
+2. Verify whether `gh webhook forward` leaves a hook behind.
+3. Package for npm/npx: P6 in AGENDA.md.

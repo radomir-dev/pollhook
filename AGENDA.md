@@ -140,6 +140,8 @@ Decide before the first release, and keep the runtime requirement in `engines`.
 8. Default interval is 30 seconds. Measured cost is 15 requests per round on a
    two-PR repository, most of them `304`s, so the interval is set by API latency
    rather than by quota.
+9. The first poll of each event primes silently and stores a marker, so a cold
+   start does not replay history and a restart does not prime again.
 
 ## Open questions
 
