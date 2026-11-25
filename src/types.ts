@@ -2,6 +2,8 @@ export type EventName =
   | "push"
   | "create"
   | "delete"
+  | "issues"
+  | "issue_comment"
   | "workflow_run"
   | "check_suite"
   | "check_run"

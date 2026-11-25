@@ -5,6 +5,8 @@ import { pullRequest } from "./adapters/pull-request.ts";
 import { pullRequestReview } from "./adapters/pull-request-review.ts";
 import { push } from "./adapters/push.ts";
 import { createRef, deleteRef } from "./adapters/refs.ts";
+import { issueComment } from "./adapters/issue-comment.ts";
+import { issues } from "./adapters/issues.ts";
 import { commitStatus } from "./adapters/status.ts";
 import { workflowRun } from "./adapters/workflow-run.ts";
 import type { Adapter, EventName } from "./types.ts";
@@ -13,6 +15,8 @@ export const ADAPTERS: Record<EventName, Adapter> = {
   push,
   create: createRef,
   delete: deleteRef,
+  issues,
+  issue_comment: issueComment,
   workflow_run: workflowRun,
   check_suite: checkSuite,
   check_run: checkRun,
