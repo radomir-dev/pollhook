@@ -826,3 +826,10 @@ Verification: `tsc --noEmit` clean, 141 of 141 tests passing.
 Next:
 
 1. Automated releases from Conventional Commits.
+
+## 2026-11-25: agenda moved to issues
+
+The remaining AGENDA.md work is now tracked as issues 1-8 in radomir-dev/pollhook:
+GraphQL events, App-only events, org and package events, jitter, `emit` replay,
+the 24-hour soak, the forwarder mode and the npm publish. AGENDA.md is removed;
+its decisions live in the README and the code.

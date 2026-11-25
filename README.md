@@ -238,11 +238,11 @@ agent actually needs. Event synthesis is the mechanism, not the product.
 P0, P1, most of P2, most of P3 and the first P4 events are implemented and
 covered by 82 tests. What shipped and what comes next is in
 [PROGRESS.md](PROGRESS.md); phases and acceptance criteria are in
-[AGENDA.md](AGENDA.md).
+[the issue tracker](https://github.com/radomir-dev/pollhook/issues).
 
 ## Layout
 
-1. `AGENDA.md`: phases, acceptance criteria, decisions and open questions.
+1. `PROGRESS.md`: what each change did and how it was verified.
 2. `PROGRESS.md`: what is done, what was measured, what is next.
 3. `docs/events.md`: the event catalog with REST source, cursor, fidelity and phase.
 4. `pollhook.example.json`: a starting config.
