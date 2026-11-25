@@ -83,7 +83,8 @@ function createRuntime(config: Config, options: DaemonOptions, socketPath: strin
     waiters: waiters.count,
     deliveries: db.countDeliveries(),
   });
-  return { db, poller, context: { db, listeners, status, waiters } };
+  const poke = (repo?: string) => poller.poke(repo);
+  return { db, poller, context: { db, listeners, status, poke, waiters } };
 }
 
 function createEmit(

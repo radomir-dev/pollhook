@@ -20,6 +20,7 @@ const handlers: Record<string, Handler> = {
   pages: pagesCommand,
   wait: waitCommand,
   cleanup: cleanupCommand,
+  poke: pokeCommand,
 };
 
 export async function dispatchCommand(
@@ -104,6 +105,11 @@ async function waitCommand(config: Config, args: string[]): Promise<number> {
     match: parseMatches(args),
   };
   return finishWait(await waitFor(config, request, args));
+}
+
+async function pokeCommand(config: Config, args: string[]): Promise<number> {
+  unwrap(await rpc(config, { op: "poke", repo: valueFlag(args, "--repo") }));
+  return 0;
 }
 
 function cleanupCommand(): Promise<number> {

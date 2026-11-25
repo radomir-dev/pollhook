@@ -26,6 +26,7 @@ export class Poller {
   private readonly degraded = new Map<string, Map<EventName, string>>();
   private timer: NodeJS.Timeout | null = null;
   private stopped = false;
+  private running = false;
   private readonly config: Config;
   private readonly db: StateStore;
   private readonly gh: GithubClient;
@@ -177,8 +178,25 @@ export class Poller {
     return true;
   }
 
+  poke(target?: string): boolean {
+    if (target && !this.statuses.has(target)) return false;
+    for (const key of this.nextDue.keys()) {
+      const [, name, adapter] = key.split(":") as [string, string, EventName];
+      if (target && name !== target) continue;
+      if (this.degraded.get(name)?.has(adapter)) continue;
+      this.nextDue.delete(key);
+    }
+    if (!this.running && !this.stopped) {
+      if (this.timer) clearTimeout(this.timer);
+      this.schedule(0);
+    }
+    return true;
+  }
+
   private loop(): void {
+    this.running = true;
     void this.pollOnce().finally(() => {
+      this.running = false;
       if (!this.stopped) this.schedule(TICK_MS);
     });
   }

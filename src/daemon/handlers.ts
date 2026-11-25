@@ -71,6 +71,10 @@ function handleRequest(
         body: ctx.db.listDeliveries(Number(message.limit ?? 20), message.repo),
       });
       return;
+    case "poke":
+      if (ctx.poke(message.repo)) writeLine(socket, { ok: true, body: { poked: true } });
+      else writeLine(socket, { ok: false, error: `unknown repository ${String(message.repo)}` });
+      return;
     case "emit":
       subscribe(socket, ctx, cleanup);
       return;

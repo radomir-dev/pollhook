@@ -666,3 +666,16 @@ Verification: `tsc --noEmit` clean, 92 of 92 tests passing.
 Next:
 
 1. Ask about pausing the automation; no unattended code work is queued.
+
+## 2026-11-25: pollhook poke
+
+`pollhook poke [--repo OWNER/NAME]` makes the daemon poll now instead of waiting out
+the interval. It clears the due times (degraded adapters keep their back-off) and
+reschedules the loop unless a round is already running. Unknown repositories are
+rejected.
+
+Verification: `tsc --noEmit` clean, 94 of 94 tests passing.
+
+Next:
+
+1. Per-event intervals, then adaptive polling per target.
