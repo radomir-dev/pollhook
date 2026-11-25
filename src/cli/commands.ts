@@ -1,4 +1,5 @@
 import type { Config } from "../config.ts";
+import { EVENTS_DOC_URL } from "../config/help.ts";
 import type { EventName } from "../types.ts";
 import type { WaitRequest } from "../waits.ts";
 import { parseDuration, positionals, required, valueFlag, values } from "./args.ts";
@@ -51,6 +52,7 @@ async function eventsCommand(config: Config): Promise<number> {
   for (const event of body) {
     process.stdout.write(`${event.event}\t${event.intervalFloorSeconds}s\n`);
   }
+  process.stderr.write(`what each event reports: ${EVENTS_DOC_URL}\n`);
   return 0;
 }
 

@@ -1,4 +1,5 @@
 import type { EventName } from "../types.ts";
+import { MIN_INTERVAL_SECONDS } from "./help.ts";
 
 export type Strategy = "fixed" | "while-active";
 
@@ -41,8 +42,10 @@ function parseIntervals(
       throw new Error(`config ${path}: ${label}.intervals.${event} must be a number of seconds`);
     }
     const parsed = seconds;
-    if (parsed < 5) {
-      throw new Error(`config ${path}: ${label}.intervals.${event} must be at least 5 seconds`);
+    if (parsed < MIN_INTERVAL_SECONDS) {
+      throw new Error(
+        `config ${path}: ${label}.intervals.${event} must be at least ${MIN_INTERVAL_SECONDS} seconds`,
+      );
     }
     intervals[event as EventName] = parsed * 1000;
   }

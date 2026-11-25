@@ -98,6 +98,7 @@ test("status, events, deliveries and poke read from the daemon", async () => {
 
     const events = await capture(() => dispatchCommand(config, "events", []));
     assert.match(events.out, /^workflow_run\t\d+s$/m);
+    assert.match(events.err, /docs\/events\.md/);
 
     const deliveries = await capture(() =>
       dispatchCommand(config, "deliveries", ["--limit", "5", "--repo", "acme/app"]),

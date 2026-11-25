@@ -1,5 +1,6 @@
 import { readFileSync } from "node:fs";
 import { implementedEvents } from "./registry.ts";
+import { EVENTS_DOC_URL, MIN_INTERVAL_SECONDS, missingConfigMessage } from "./config/help.ts";
 import { parseTuning, type EventTuning } from "./config/tuning.ts";
 import type { AdapterScope, EventName } from "./types.ts";
 import { errorMessage, expandHome } from "./util.ts";
@@ -41,12 +42,20 @@ export function configPath(override?: string): string {
 
 export function loadConfig(override?: string): Config {
   const path = configPath(override);
-  let raw: unknown;
+  return parseConfig(readConfigFile(path), path);
+}
+
+function readConfigFile(path: string): unknown {
   try {
-    raw = JSON.parse(readFileSync(path, "utf8"));
+    return JSON.parse(readFileSync(path, "utf8"));
   } catch (error) {
+    if ((error as NodeJS.ErrnoException).code === "ENOENT")
+      throw new Error(missingConfigMessage(path));
     throw new Error(`cannot read config ${path}: ${errorMessage(error)}`);
   }
+}
+
+export function parseConfig(raw: unknown, path: string): Config {
   if (!isRecord(raw)) throw new Error(`config ${path} must be a JSON object`);
 
   const reposRaw = raw.repos ?? [];
@@ -113,7 +122,7 @@ function parseEvents(
   for (const event of value) {
     if (!allowed.includes(event as EventName)) {
       throw new Error(
-        `config ${path}: event "${event}" is not available for ${scope} targets; supported: ${allowed.join(", ") || "none"}`,
+        `config ${path}: event "${event}" is not available for ${scope} targets; supported: ${allowed.join(", ") || "none"}\nwhat each event reports: ${EVENTS_DOC_URL}`,
       );
     }
   }
@@ -122,7 +131,11 @@ function parseEvents(
 
 function intervalFor(value: unknown, fallback: number, path: string, label: string): number {
   const seconds = positiveNumber(value, fallback);
-  if (seconds < 5) throw new Error(`config ${path}: ${label}.intervalSeconds must be at least 5`);
+  if (seconds < MIN_INTERVAL_SECONDS) {
+    throw new Error(
+      `config ${path}: ${label}.intervalSeconds must be at least ${MIN_INTERVAL_SECONDS}`,
+    );
+  }
   return seconds;
 }
 
