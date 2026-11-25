@@ -770,3 +770,16 @@ Verification: `tsc --noEmit` clean, 126 of 126 tests passing.
 Next:
 
 1. AGENDA P4: events still marked deferred that REST can serve.
+
+## 2026-11-25: deployment_protection_rule adapter
+
+Lists environments, then each environment's custom deployment protection rules.
+Rules are keyed `environment:id`, hashed on `enabled` and the app identity, and a
+rule that leaves the list emits `deleted` once. Five-minute floor; one request per
+environment on top of the first.
+
+Verification: `tsc --noEmit` clean, 129 of 129 tests passing.
+
+Next:
+
+1. Remaining deferred events are aggregation or GraphQL; check `deployment_review`.

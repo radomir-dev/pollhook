@@ -12,6 +12,7 @@ import { commitComment } from "./adapters/commit-comment.ts";
 import { dependabotAlert } from "./adapters/dependabot-alert.ts";
 import { deployKey } from "./adapters/deploy-key.ts";
 import { deployment } from "./adapters/deployment.ts";
+import { deploymentProtectionRule } from "./adapters/deployment-protection-rule.ts";
 import { deploymentStatus } from "./adapters/deployment-status.ts";
 import { mergeGroup, workflowDispatch } from "./adapters/dispatch.ts";
 import { fork } from "./adapters/fork.ts";
@@ -54,6 +55,7 @@ export const ADAPTERS: Record<EventName, Adapter> = {
   secret_scanning_alert: secretScanningAlert,
   deployment,
   deployment_status: deploymentStatus,
+  deployment_protection_rule: deploymentProtectionRule,
   deploy_key: deployKey,
   repository_ruleset: repositoryRuleset,
   repository_advisory: repositoryAdvisory,

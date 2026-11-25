@@ -32,7 +32,7 @@ name or commit SHA.
 | `deployment` | `/repos/{o}/{r}/deployments` | `id` + `updated_at` | object | P3 done |
 | `deployment_status` | `/repos/{o}/{r}/deployments/{id}/statuses` | `id` + `updated_at` | object | P3 done |
 | `deployment_review` | `/repos/{o}/{r}/actions/runs/{run_id}/pending_deployments` | environment `id` + approval state | partial | deferred |
-| `deployment_protection_rule` | `/repos/{o}/{r}/environments/{env}/deployment_protection_rules` ~ | rule `id` + `updated_at` | partial | deferred |
+| `deployment_protection_rule` | `/repos/{o}/{r}/environments/{env}/deployment_protection_rules` | `environment` + rule `id` + app/enabled hash | object | P3 done |
 | `merge_group` | runs where `event=merge_group` | run `id` + `head_sha` | partial | P2 done |
 
 `check_suite` and `check_run` need the head SHAs you care about, so they are polled

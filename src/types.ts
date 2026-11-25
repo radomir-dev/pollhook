@@ -20,6 +20,7 @@ export type EventName =
   | "secret_scanning_alert"
   | "deployment"
   | "deployment_status"
+  | "deployment_protection_rule"
   | "deploy_key"
   | "repository_ruleset"
   | "repository_advisory"
