@@ -245,3 +245,26 @@ Next:
    `secret_scanning_scan`, `deployment`, `deployment_status`.
 2. Verify whether `gh webhook forward` leaves a hook behind.
 3. Package for npm/npx: P6 in AGENDA.md.
+
+## 2026-11-25: deployments, deploy keys, rulesets (P3)
+
+1. `deployment` emits `created` on the first sight of a deployment id. A
+   deployment is immutable, so `created_at` is the whole state.
+2. `deployment_status` reads the ten newest deployments and their statuses, which
+   is 11 requests per round at a five-minute floor, and emits `created` per status
+   id.
+3. `deploy_key` emits `created` on first sight and `deleted` on absence. Key
+   material is immutable, so a title change only updates the snapshot.
+4. `repository_ruleset` hashes the ruleset object, maps a changed hash to
+   `edited`, and absence to `deleted`.
+
+Verification: `tsc --noEmit` clean, 64 of 64 tests passing.
+
+Next:
+
+1. P3 remainder: `repository_advisory`, `repository_vulnerability_alert`,
+   `branch_protection_rule`, `branch_protection_configuration`,
+   `secret_scanning_alert_location`, `secret_scanning_scan`, `deployment_review`,
+   `deployment_protection_rule`, `security_and_analysis`.
+2. Verify whether `gh webhook forward` leaves a hook behind.
+3. Package for npm/npx: P6 in AGENDA.md.

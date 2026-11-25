@@ -29,8 +29,8 @@ name or commit SHA.
 | `check_run` | `/repos/{o}/{r}/commits/{ref}/check-runs` | `id` + `status` + `conclusion` | object | P1 |
 | `status` | `/repos/{o}/{r}/commits/{ref}/statuses` | `id` + `updated_at` | object | P1 |
 | `page_build` | `/repos/{o}/{r}/pages/builds` | `id` + `updated_at` | object | P1 |
-| `deployment` | `/repos/{o}/{r}/deployments` | `id` + `updated_at` | object | P3 |
-| `deployment_status` | `/repos/{o}/{r}/deployments/{id}/statuses` | `id` + `updated_at` | object | P3 |
+| `deployment` | `/repos/{o}/{r}/deployments` | `id` + `updated_at` | object | P3 done |
+| `deployment_status` | `/repos/{o}/{r}/deployments/{id}/statuses` | `id` + `updated_at` | object | P3 done |
 | `deployment_review` | `/repos/{o}/{r}/actions/runs/{run_id}/pending_deployments` | environment `id` + approval state | partial | P3 |
 | `deployment_protection_rule` | `/repos/{o}/{r}/environments/{env}/deployment_protection_rules` ~ | rule `id` + `updated_at` | partial | P3 |
 | `merge_group` | runs where `event=merge_group` | run `id` + `head_sha` | partial | P2 done |
@@ -71,13 +71,13 @@ per active run, so it is opt-in per repository.
 | `public` | `/repos/{o}/{r}` → `visibility` | repo `id` + `visibility` | derived | P2 done |
 | `repository` | `/repos/{o}/{r}` | `id` + `updated_at` + `full_name` | derived | P2 done |
 | `release` | `/repos/{o}/{r}/releases` | `id` + `updated_at` | object | P2 done |
-| `deploy_key` | `/repos/{o}/{r}/keys` | `id` + `created_at` | object | P3 |
+| `deploy_key` | `/repos/{o}/{r}/keys` | `id` + `created_at` | object | P3 done |
 | `gollum` | wiki git remote `{repo}.wiki.git` | commit SHA | derived | P4 |
 | `package` | `/user/packages`, `/orgs/{org}/packages` | `id` + `updated_at` | object | P4 |
 | `registry_package` | same as `package` | `id` + `updated_at` | object | P4 |
 | `repository_dispatch` | none, triggered by an API call | — | none | — |
 | `repository_import` | `/repos/{o}/{r}/import` | `status` + `updated_at` | derived | P3 |
-| `repository_ruleset` | `/repos/{o}/{r}/rulesets` | `id` + `updated_at` | object | P3 |
+| `repository_ruleset` | `/repos/{o}/{r}/rulesets` | `id` + `updated_at` | object | P3 done |
 | `branch_protection_rule` | `/repos/{o}/{r}/branches/{branch}/protection` | hash of the protection object | derived | P3 |
 | `branch_protection_configuration` | same as `branch_protection_rule` | hash of the protection object | derived | P3 |
 | `security_and_analysis` | `/repos/{o}/{r}` → `security_and_analysis` | hash of the object | derived | P3 |

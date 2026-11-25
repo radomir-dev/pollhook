@@ -9,9 +9,9 @@ toward the 76 events in GitHub's catalog without changing the delivery format.
 
 Status: P0, P1, most of P2 (`push`, `create`, `delete`, `issues`,
 `issue_comment`, `release`, `label`, `milestone`, `repository`, `public`, `fork`,
-`commit_comment`, `workflow_dispatch`, `merge_group`) and the three alert events
-of P3 are implemented; see [PROGRESS.md](PROGRESS.md). The phases below remain the
-plan for everything else.
+`commit_comment`, `workflow_dispatch`, `merge_group`), the three alert events and
+the deployment, deploy key and ruleset events of P3 are implemented; see
+[PROGRESS.md](PROGRESS.md). The phases below remain the plan for everything else.
 
 ## Principles
 
