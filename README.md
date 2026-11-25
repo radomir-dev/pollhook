@@ -8,6 +8,26 @@ organisations and event types you subscribe to, turns observed state changes int
 GitHub-shaped deliveries, and POSTs them to a local endpoint. A handler written against GitHub's
 webhook contract keeps working; the delivery was reconstructed, not pushed.
 
+## Table of contents
+
+<!-- toc:start -->
+
+1. [Why](#why)
+1. [How it works](#how-it-works)
+1. [Running](#running)
+1. [Service](#service)
+1. [CLI reference](#cli-reference)
+1. [Reading status](#reading-status)
+1. [Scheduling](#scheduling)
+1. [Fidelity](#fidelity)
+1. [Prior art](#prior-art)
+1. [Guarantees](#guarantees)
+1. [Status](#status)
+1. [Layout](#layout)
+1. [Name](#name)
+
+<!-- toc:end -->
+
 ## Why
 
 Agents waiting on CI loop `gh run watch`, `gh pr checks` and `gh pr view`. Every
@@ -68,11 +88,14 @@ report the current status of a run or a check.
    `gh auth login`, then `GH_TOKEN`/`GITHUB_TOKEN`. The gh login wins over ambient
    tokens because a `GITHUB_TOKEN` in the environment often belongs to something
    else.
-4. Use `pollhook run <id>`, `pollhook checks <pr>`, `pollhook pr <n> --until
+4. The daemon reloads `config.json` on `SIGHUP` and when the file changes, so a
+   config edit keeps the socket and every open `emit` stream alive. A broken edit
+   is reported as `configError` in `status` and the previous config keeps running.
+5. Use `pollhook run <id>`, `pollhook checks <pr>`, `pollhook pr <n> --until
    merged`, `pollhook pages <sha>` and `pollhook status`.
-5. `pollhook poke [--repo OWNER/NAME]` polls now instead of waiting out the
+6. `pollhook poke [--repo OWNER/NAME]` polls now instead of waiting out the
    interval, which is how a run you just started shows up within a second.
-6. `pollhook emit --brief` prints one line per delivery: time, repo, event,
+7. `pollhook emit --brief` prints one line per delivery: time, repo, event,
    action, key, then the run or check name, the conclusion when it finished, and
    the elapsed time while it runs. Full JSON stays the default.
 

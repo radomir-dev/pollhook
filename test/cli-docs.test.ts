@@ -2,7 +2,14 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import test from "node:test";
-import { cliMarkdown, END, replaceSection, START } from "../src/cli/docs.ts";
+import {
+  cliMarkdown,
+  END,
+  replaceSection,
+  replaceToc,
+  START,
+  tocMarkdown,
+} from "../src/cli/docs.ts";
 import { COMMANDS, invocation } from "../src/cli/spec.ts";
 import { USAGE } from "../src/cli/usage.ts";
 
@@ -46,4 +53,19 @@ test("the committed README carries the generated block unchanged", () => {
 
 test("a README without markers is rejected instead of silently unchanged", () => {
   assert.throws(() => replaceSection("# no markers here\n", cliMarkdown()), /missing the/);
+});
+
+test("the table of contents lists every section slug", () => {
+  const readme = "# Title\n\n## Why\n\n## CLI reference\n\n## Name & identity\n";
+  const toc = tocMarkdown(readme);
+
+  assert.match(toc, /1\. \[Why\]\(#why\)/);
+  assert.match(toc, /1\. \[CLI reference\]\(#cli-reference\)/);
+  assert.match(toc, /1\. \[Name & identity\]\(#name-identity\)/);
+});
+
+test("the committed README carries the generated table of contents", () => {
+  const readme = readFileSync(join(root, "README.md"), "utf8");
+
+  assert.equal(replaceToc(readme), readme);
 });

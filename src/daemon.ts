@@ -1,27 +1,17 @@
 import { rmSync } from "node:fs";
 import { connect, createServer, type Server, type Socket } from "node:net";
 import { join } from "node:path";
-import type { Config } from "./config.ts";
-import { StateStore } from "./db.ts";
-import { postDelivery } from "./delivery.ts";
-import { GitHub, resolveToken } from "./github.ts";
-import { Poller } from "./poller.ts";
-import type { Delivery, Emit, GithubClient } from "./types.ts";
-import { errorMessage } from "./util.ts";
-import type { DaemonContext } from "./daemon/context.ts";
+import { configPath, loadConfig, type Config } from "./config.ts";
 import { handleConnection } from "./daemon/handlers.ts";
+import { createRuntime, type DaemonOptions, type Runtime } from "./daemon/runtime.ts";
+import { watchConfig } from "./daemon/watch.ts";
 
-const PRUNE_MS = 7 * 24 * 60 * 60 * 1000;
+export type { DaemonOptions };
 
 export interface DaemonHandle {
   socketPath: string;
   closed: Promise<void>;
   close(): Promise<void>;
-}
-
-export interface DaemonOptions {
-  gh?: GithubClient;
-  socketPath?: string;
 }
 
 export function socketPathFor(config: Config): string {
@@ -50,65 +40,26 @@ export async function startDaemon(
   const closed = new Promise<void>((resolve) => {
     resolveClosed = resolve;
   });
-  const close = createClose(server, runtime, sockets, socketPath, resolveClosed);
+  const path = configPath(options.configPath);
+  const reload = () => {
+    try {
+      runtime.reload(loadConfig(path));
+    } catch (error) {
+      runtime.configError(error);
+    }
+  };
+  const watch = options.watch === false ? null : watchConfig(path, reload, runtime.configError);
+  process.on("SIGHUP", reload);
   process.once("SIGINT", () => void close());
   process.once("SIGTERM", () => void close());
-  return { socketPath, closed, close };
-}
 
-interface Runtime {
-  db: StateStore;
-  poller: Poller;
-  context: DaemonContext;
-}
-
-function createRuntime(config: Config, options: DaemonOptions, socketPath: string): Runtime {
-  const db = new StateStore(join(config.stateDir, "state.db"));
-  db.prune(PRUNE_MS);
-  const gh = options.gh ?? new GitHub(resolveToken(), db);
-  const listeners = new Set<(delivery: Delivery) => void>();
-  const waiters = { count: 0 };
-  const ref: { poller?: Poller } = {};
-  const emit = createEmit(config, db, listeners, ref);
-  const poller = new Poller(config, db, gh, emit);
-  ref.poller = poller;
-  poller.start();
-
-  const status = () => ({
-    pid: process.pid,
-    socket: socketPath,
-    quota: gh instanceof GitHub ? gh.quota : null,
-    http: gh instanceof GitHub ? gh.stats : null,
-    repos: poller.listStatuses(),
-    waiters: waiters.count,
-    deliveries: db.countDeliveries(),
-  });
-  const poke = (repo?: string) => poller.poke(repo);
-  return { db, poller, context: { db, listeners, status, poke, waiters } };
-}
-
-function createEmit(
-  config: Config,
-  db: StateStore,
-  listeners: Set<(delivery: Delivery) => void>,
-  ref: { poller?: Poller },
-): Emit {
-  return (repo, event, action, key, payload, state) => {
-    const delivery = db.recordDelivery(repo, event, action, key, state, payload);
-    if (!delivery) return;
-    ref.poller?.markEvent(repo);
-    for (const listener of listeners) {
-      try {
-        listener(delivery);
-      } catch {}
-    }
-    if (!config.deliver) return;
-    void postDelivery(delivery, config.deliver)
-      .then(() => db.markDelivered(delivery.id))
-      .catch((error) =>
-        console.error(`[pollhook] delivery ${delivery.id} failed: ${errorMessage(error)}`),
-      );
+  const stop = createClose(server, runtime, sockets, socketPath, resolveClosed);
+  const close = async () => {
+    watch?.stop();
+    process.off("SIGHUP", reload);
+    await stop();
   };
+  return { socketPath, closed, close };
 }
 
 async function listen(server: Server, path: string): Promise<void> {
@@ -133,7 +84,7 @@ function createClose(
   return async () => {
     if (closing) return;
     closing = true;
-    runtime.poller.stop();
+    runtime.stop();
     for (const socket of sockets) socket.destroy();
     await new Promise<void>((resolve) => server.close(() => resolve()));
     runtime.db.close();

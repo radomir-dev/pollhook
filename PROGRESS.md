@@ -812,3 +812,17 @@ deprecated `branch_protection_rule` that shares its endpoint with an implemented
 event. None of them can be built honestly from the REST API today, so the
 implementation agenda stops here. Next work is operational: a 24-hour soak and
 the `emit` reconnect with replay.
+
+## 2026-11-25: config reload and generated table of contents
+
+`config.json` is watched and also reloaded on `SIGHUP`. A reload rebuilds the
+poller against the same database, socket, listeners and waiters, so open streams
+survive it; an invalid file is reported as `configError` and the old config keeps
+running. The README table of contents is generated from its `##` headings by the
+same script that produces the CLI reference.
+
+Verification: `tsc --noEmit` clean, 141 of 141 tests passing.
+
+Next:
+
+1. Automated releases from Conventional Commits.

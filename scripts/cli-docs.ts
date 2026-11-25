@@ -1,10 +1,10 @@
 import { readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
-import { cliMarkdown, replaceSection } from "../src/cli/docs.ts";
+import { cliMarkdown, replaceSection, replaceToc } from "../src/cli/docs.ts";
 
 const readme = join(import.meta.dirname, "..", "README.md");
 const current = readFileSync(readme, "utf8");
-const next = replaceSection(current, cliMarkdown());
+const next = replaceToc(replaceSection(current, cliMarkdown()));
 
 if (process.argv.includes("--check")) {
   if (next !== current) {
