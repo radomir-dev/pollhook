@@ -8,8 +8,8 @@ webhook on the repository and no admin rights. Later phases widen the event surf
 toward the 76 events in GitHub's catalog without changing the delivery format.
 
 Status: P0, P1 and part of P2 (`push`, `create`, `delete`, `issues`,
-`issue_comment`) are implemented; see [PROGRESS.md](PROGRESS.md). The phases below
-remain the plan for everything else.
+`issue_comment`, `release`, `label`, `milestone`) are implemented; see
+[PROGRESS.md](PROGRESS.md). The phases below remain the plan for everything else.
 
 ## Principles
 
@@ -66,7 +66,7 @@ Events: `push`, `create`, `delete`, `issues`, `issue_comment`,
 `pull_request_review_comment`, `commit_comment`, `release`, `label`, `milestone`,
 `public`, `repository`, `fork`, `watch`, `star`, `workflow_dispatch`,
 `merge_group`. Done: `push` from `/compare`, `create` and `delete` from ref diffs,
-`issues` and `issue_comment`.
+`issues`, `issue_comment`, `release`, `label`, `milestone`.
 
 Acceptance: a `push` payload assembled from `/compare` matches GitHub's fields for
 `before`, `after`, `commits` and `forced`; opened, closed and reopened across three

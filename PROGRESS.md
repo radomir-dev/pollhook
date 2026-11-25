@@ -148,3 +148,25 @@ Next:
 1. P2 remainder: `release`, `label`, `milestone`.
 2. Verify whether `gh webhook forward` leaves a hook behind.
 3. Package for npm/npx: P6 in AGENDA.md.
+
+## 2026-11-25: releases, labels and milestones (P2)
+
+Three diff adapters:
+
+1. `release` publishes on first sight unless the release is a draft, and derives
+   draft to published, prerelease flips and edits. Deletion is not detected: the
+   list is capped at 30 and absence is not evidence.
+2. `label` hashes name, color, description and default; edits and creations come
+   from that hash, deletion from absence, marked so a re-created label emits
+   `created` again.
+3. `milestone` derives created, closed, reopened and edited from the same pattern,
+   with deletion detected by absence.
+
+Verification: `tsc --noEmit` clean, 50 of 50 tests passing.
+
+Next:
+
+1. P2 remainder: `public`, `repository`, `fork`, `watch`, `star`,
+   `commit_comment`, `workflow_dispatch`, `merge_group`.
+2. Verify whether `gh webhook forward` leaves a hook behind.
+3. Package for npm/npx: P6 in AGENDA.md.

@@ -55,8 +55,8 @@ per active run, so it is opt-in per repository.
 | `commit_comment` | `/repos/{o}/{r}/comments?sort=updated` | `id` + `updated_at` | object | P2 |
 | `discussion` | GraphQL `discussion` | `id` + `updatedAt` | object | P4 |
 | `discussion_comment` | GraphQL `discussionComment` | `id` + `updatedAt` | object | P4 |
-| `label` | `/repos/{o}/{r}/labels` | name + hash of color/description | derived | P2 |
-| `milestone` | `/repos/{o}/{r}/milestones?state=all` | `id` + `updated_at` | object | P2 |
+| `label` | `/repos/{o}/{r}/labels` | name + hash of color/description | derived | P2 done |
+| `milestone` | `/repos/{o}/{r}/milestones?state=all` | `id` + `updated_at` | object | P2 done |
 
 ## Repository and git
 
@@ -70,7 +70,7 @@ per active run, so it is opt-in per repository.
 | `watch` | `/repos/{o}/{r}/subscribers` | `login`, full list per poll | partial | P3 |
 | `public` | `/repos/{o}/{r}` → `visibility` | repo `id` + `visibility` | derived | P2 |
 | `repository` | `/repos/{o}/{r}` | `id` + `updated_at` + `full_name` | derived | P2 |
-| `release` | `/repos/{o}/{r}/releases` | `id` + `updated_at` | object | P2 |
+| `release` | `/repos/{o}/{r}/releases` | `id` + `updated_at` | object | P2 done |
 | `deploy_key` | `/repos/{o}/{r}/keys` | `id` + `created_at` | object | P3 |
 | `gollum` | wiki git remote `{repo}.wiki.git` | commit SHA | derived | P4 |
 | `package` | `/user/packages`, `/orgs/{org}/packages` | `id` + `updated_at` | object | P4 |
