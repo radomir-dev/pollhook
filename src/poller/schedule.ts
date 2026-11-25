@@ -32,8 +32,9 @@ export function delayFor(
   db: ScheduleStore,
   repo: string,
   strategy: Strategy = "fixed",
+  pressure = 1,
 ): number {
-  const base = Math.max(adapter.intervalFloorMs, intervalMs);
+  const base = Math.max(adapter.intervalFloorMs, intervalMs) * Math.max(1, pressure);
   if (strategy !== "while-active") return base;
   return runsAreEarly(db, repo) ? Math.max(base, SLOW_INTERVAL_MS) : base;
 }

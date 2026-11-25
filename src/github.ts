@@ -7,6 +7,11 @@ const DEFAULT_BASE = "https://api.github.com";
 const API_VERSION = "2022-11-28";
 const MIN_REMAINING = 100;
 
+function isRateLimited(response: Response): boolean {
+  if (response.status !== 403 && response.status !== 429) return false;
+  return response.headers.get("retry-after") !== null || response.headers.get("x-ratelimit-remaining") === "0";
+}
+
 export interface Quota {
   limit: number;
   remaining: number;
@@ -79,8 +84,8 @@ export class GitHub implements GithubClient {
         this.stats.notModified += 1;
         return { notModified: true, data: undefined };
       }
-      if ((response.status === 403 || response.status === 429) && this.quota.remaining < MIN_REMAINING && attempt < 1) {
-        await this.waitForReset();
+      if (isRateLimited(response) && attempt < 1) {
+        await this.backOff(response);
         continue;
       }
       if (response.status >= 500 && attempt < 2) {
@@ -136,6 +141,23 @@ export class GitHub implements GithubClient {
     const value = await load();
     this.memoValues.set(key, { at: Date.now(), value });
     return value;
+  }
+
+  pressure(): number {
+    if (this.quota.limit <= 0) return 1;
+    const share = this.quota.remaining / this.quota.limit;
+    if (share <= 0.05) return 10;
+    if (share <= 0.15) return 3;
+    return 1;
+  }
+
+  private async backOff(response: Response): Promise<void> {
+    const retryAfter = Number(response.headers.get("retry-after") ?? 0);
+    if (retryAfter > 0) {
+      await sleep(Math.min(retryAfter, 300) * 1000);
+      return;
+    }
+    await this.waitForReset();
   }
 
   private readQuota(response: Response): void {

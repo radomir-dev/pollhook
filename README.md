@@ -118,7 +118,9 @@ keeps the last twenty durations of every workflow and polls `workflow_run` every
 still under half its typical duration, so a finished run is reported within one
 slow round and a quiet repository still gets the fast interval. The default
 strategy is `fixed`. Durations come from runs already fetched, so the estimate
-costs no requests.
+costs no requests. When quota is short the daemon multiplies every interval by 3
+under 15% remaining and by 10 under 5%, and a `Retry-After` on a 403 or 429 is
+honoured before the next attempt.
 
 ## Fidelity
 

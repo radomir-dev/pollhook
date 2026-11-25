@@ -56,6 +56,8 @@ export interface GetResult<T> {
 }
 
 export interface GithubClient {
+  /** How much to stretch poll intervals under rate-limit pressure; 1 is normal. */
+  pressure?(): number;
   get<T>(path: string, opts?: { etagKey?: string }): Promise<GetResult<T>>;
   probe(path: string): Promise<boolean>;
   repoInfo(repo: string): Promise<RepoInfo>;

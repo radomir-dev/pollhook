@@ -74,3 +74,11 @@ test("other adapters ignore the workflow rule", () => {
   assert.equal(delayFor(adapter("push", 10_000), 10_000, db, repo), 10_000);
   db.close();
 });
+
+test("quota pressure stretches the interval without going below the floor", () => {
+  const db = new StateStore(":memory:");
+
+  assert.equal(delayFor(adapter("push", 10_000), 10_000, db, repo, "fixed", 3), 30_000);
+  assert.equal(delayFor(adapter("push", 10_000), 10_000, db, repo, "fixed", 0.5), 10_000);
+  db.close();
+});

@@ -743,3 +743,17 @@ Verification: `tsc --noEmit` clean, 120 of 120 tests passing.
 Next:
 
 1. Quota governor from `X-RateLimit-*` and `Retry-After`.
+
+## 2026-11-25: quota governor and retry-after
+
+`GitHub.pressure()` reads `X-RateLimit-Remaining` against the limit and stretches
+every resolved interval by 3 at or below 15% remaining and by 10 at or below 5%,
+so polling slows before the budget reaches zero. A 403 or 429 carrying
+`Retry-After` now waits that many seconds (capped at 300) and retries once; a
+403/429 that only reports an exhausted rate limit still waits for the reset.
+
+Verification: `tsc --noEmit` clean, 123 of 123 tests passing.
+
+Next:
+
+1. Delivery retry with exponential backoff.

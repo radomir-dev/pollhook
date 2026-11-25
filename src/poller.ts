@@ -141,7 +141,11 @@ export class Poller {
   ): Promise<boolean> {
     const dueKey = `${kind}:${name}:${adapter.name}`;
     if ((this.nextDue.get(dueKey) ?? 0) > Date.now()) return false;
-    this.nextDue.set(dueKey, Date.now() + delayFor(adapter, intervalMs, this.db, name, strategy));
+    const pressure = this.gh.pressure?.() ?? 1;
+    this.nextDue.set(
+      dueKey,
+      Date.now() + delayFor(adapter, intervalMs, this.db, name, strategy, pressure),
+    );
     const primedKey = `primed:${kind}:${name}:${adapter.name}`;
     const cold = this.db.getCursor(primedKey) === null;
     await adapter.poll({
