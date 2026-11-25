@@ -702,3 +702,16 @@ or under 200 lines.
 Next:
 
 1. Per-event intervals, the remaining quota lever.
+
+## 2026-11-25: workflow_job adapter
+
+`workflow_job` reads `/actions/runs/{id}/jobs` for the five newest runs that are
+still not `completed`, emits `queued`, `in_progress` or `completed` per job id, and
+stops fetching once every run has finished. It depends on `workflow_run` snapshots,
+so it does nothing when that event is not subscribed.
+
+Verification: `tsc --noEmit` clean, 112 of 112 tests passing.
+
+Next:
+
+1. `pull_request_review_comment`.

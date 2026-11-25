@@ -35,6 +35,7 @@ export type EventName =
   | "pull_request"
   | "pull_request_review"
   | "page_build"
+  | "workflow_job"
   | "status";
 
 export interface RepoInfo {

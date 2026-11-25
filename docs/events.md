@@ -23,7 +23,7 @@ name or commit SHA.
 | Event | REST source | Cursor | Fidelity | Phase |
 | --- | --- | --- | --- | --- |
 | `workflow_run` | `/repos/{o}/{r}/actions/runs` | `id` + `run_attempt` + `updated_at` | object | P1 done |
-| `workflow_job` | `/repos/{o}/{r}/actions/runs/{run_id}/jobs` | `id` + `status` + `completed_at` | object | P1 |
+| `workflow_job` | `/repos/{o}/{r}/actions/runs/{run_id}/jobs` | `id` + `status` + `completed_at` | object | P1 done |
 | `workflow_dispatch` | runs where `event=workflow_dispatch` | run `id` | derived | P2 done |
 | `check_suite` | `/repos/{o}/{r}/commits/{ref}/check-suites` | `id` + `updated_at` | object | P1 done |
 | `check_run` | `/repos/{o}/{r}/commits/{ref}/check-runs` | `id` + `status` + `conclusion` | object | P1 done |
@@ -37,7 +37,8 @@ name or commit SHA.
 
 `check_suite` and `check_run` need the head SHAs you care about, so they are polled
 per watched ref: branch tips plus open PR heads. `workflow_job` costs one request
-per active run, so it is opt-in per repository.
+per active run, capped at the five newest, and only runs that `workflow_run` has
+already recorded: subscribe to `workflow_run` as well, or it has nothing to read.
 
 ## Pull requests, issues and comments
 

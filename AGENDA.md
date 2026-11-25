@@ -49,7 +49,8 @@ every subscription with phase and fidelity.
 
 ## P1: CI and PR waits
 
-Events: `workflow_run`, `workflow_job`, `check_suite`, `check_run`, `status`,
+Events: `workflow_run`, `workflow_job` (done, one request per active run, capped at
+five, needs `workflow_run` subscribed), `check_suite`, `check_run`, `status`,
 `pull_request`, `pull_request_review`, `page_build`.
 
 Commands: `pollhook run <id>`, `checks <pr>`, `pr <n> --until merged|closed|

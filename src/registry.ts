@@ -29,6 +29,7 @@ import { secretScanningAlert } from "./adapters/secret-scanning-alert.ts";
 import { vulnerabilityAlert } from "./adapters/vulnerability-alert.ts";
 import { release } from "./adapters/release.ts";
 import { commitStatus } from "./adapters/status.ts";
+import { workflowJob } from "./adapters/workflow-job.ts";
 import { workflowRun } from "./adapters/workflow-run.ts";
 import type { Adapter, AdapterScope, EventName } from "./types.ts";
 
@@ -62,6 +63,7 @@ export const ADAPTERS: Record<EventName, Adapter> = {
   team,
   membership,
   workflow_run: workflowRun,
+  workflow_job: workflowJob,
   check_suite: checkSuite,
   check_run: checkRun,
   pull_request: pullRequest,
