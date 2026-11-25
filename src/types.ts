@@ -24,6 +24,7 @@ export type EventName =
   | "repository_vulnerability_alert"
   | "security_and_analysis"
   | "branch_protection_configuration"
+  | "member"
   | "workflow_run"
   | "check_suite"
   | "check_run"

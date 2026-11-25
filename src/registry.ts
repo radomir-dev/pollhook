@@ -17,6 +17,7 @@ import { fork } from "./adapters/fork.ts";
 import { issueComment } from "./adapters/issue-comment.ts";
 import { issues } from "./adapters/issues.ts";
 import { label } from "./adapters/label.ts";
+import { member } from "./adapters/member.ts";
 import { milestone } from "./adapters/milestone.ts";
 import { publicEvent, repository } from "./adapters/repository.ts";
 import { repositoryAdvisory } from "./adapters/repository-advisory.ts";
@@ -55,6 +56,7 @@ export const ADAPTERS: Record<EventName, Adapter> = {
   repository_vulnerability_alert: vulnerabilityAlert,
   security_and_analysis: securityAndAnalysis,
   branch_protection_configuration: branchProtection,
+  member,
   workflow_run: workflowRun,
   check_suite: checkSuite,
   check_run: checkRun,
