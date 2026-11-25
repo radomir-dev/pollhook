@@ -17,7 +17,11 @@ function deployment(patch: Record<string, unknown> = {}) {
   };
 }
 
-function context(db: StateStore, gh: FakeGitHub, state: { deliveries: Delivery[]; emit: AdapterEmit }) {
+function context(
+  db: StateStore,
+  gh: FakeGitHub,
+  state: { deliveries: Delivery[]; emit: AdapterEmit },
+) {
   return { repo, refs: [], db, durations: db.durations, gh, emit: state.emit };
 }
 

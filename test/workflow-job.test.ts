@@ -25,7 +25,11 @@ function seedRun(db: StateStore, status: string): void {
   db.putSnapshot(repo, "workflow_run", "5", status, { id: 5, status });
 }
 
-function context(db: StateStore, gh: FakeGitHub, state: { deliveries: Delivery[]; emit: AdapterEmit }) {
+function context(
+  db: StateStore,
+  gh: FakeGitHub,
+  state: { deliveries: Delivery[]; emit: AdapterEmit },
+) {
   return { repo, refs: [], db, durations: db.durations, gh, emit: state.emit };
 }
 
@@ -40,7 +44,11 @@ test("a job appears when its run starts and completes once the job finishes", as
   assert.equal(state.deliveries[0]!.action, "in_progress");
   assert.equal(state.deliveries[0]!.key, "90");
 
-  gh.respond(jobs(5), { jobs: [job({ status: "completed", conclusion: "failure", completed_at: "2026-11-25T21:00:00Z" })] });
+  gh.respond(jobs(5), {
+    jobs: [
+      job({ status: "completed", conclusion: "failure", completed_at: "2026-11-25T21:00:00Z" }),
+    ],
+  });
   await workflowJob.poll(context(db, gh, state));
 
   assert.equal(state.deliveries.length, 2);

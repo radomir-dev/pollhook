@@ -13,7 +13,15 @@ const config: Config = {
 };
 
 function run(status: string) {
-  return { id: 1, name: "CI", run_attempt: 1, status, conclusion: null, head_sha: "a", html_url: "" };
+  return {
+    id: 1,
+    name: "CI",
+    run_attempt: 1,
+    status,
+    conclusion: null,
+    head_sha: "a",
+    html_url: "",
+  };
 }
 
 const pause = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));

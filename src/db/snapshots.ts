@@ -14,9 +14,7 @@ export class SnapshotRepository {
       .prepare(
         "select state, data, updated_at from snapshots where repo = ? and event = ? and key = ?",
       )
-      .get(repo, event, key) as
-      | { state: string; data: string; updated_at: string }
-      | undefined;
+      .get(repo, event, key) as { state: string; data: string; updated_at: string } | undefined;
     if (!row) return null;
     return { state: row.state, data: JSON.parse(row.data), updatedAt: row.updated_at };
   }

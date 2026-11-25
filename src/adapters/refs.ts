@@ -36,13 +36,17 @@ async function fetchRefs(ctx: AdapterContext, scope: "create" | "delete"): Promi
     etagKey: `branches:${scope}:${ctx.repo}`,
   });
   if (branches.notModified) refs.push(...stored(ctx, "branch"));
-  else for (const branch of branches.data ?? []) refs.push({ type: "branch", name: branch.name, sha: branch.commit.sha });
+  else
+    for (const branch of branches.data ?? [])
+      refs.push({ type: "branch", name: branch.name, sha: branch.commit.sha });
 
   const tags = await ctx.gh.get<Tag[]>(`/repos/${ctx.repo}/tags?per_page=${LIMIT}`, {
     etagKey: `tags:${scope}:${ctx.repo}`,
   });
   if (tags.notModified) refs.push(...stored(ctx, "tag"));
-  else for (const tag of tags.data ?? []) refs.push({ type: "tag", name: tag.name, sha: tag.commit.sha });
+  else
+    for (const tag of tags.data ?? [])
+      refs.push({ type: "tag", name: tag.name, sha: tag.commit.sha });
   return refs;
 }
 

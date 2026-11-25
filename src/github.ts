@@ -9,7 +9,10 @@ const MIN_REMAINING = 100;
 
 function isRateLimited(response: Response): boolean {
   if (response.status !== 403 && response.status !== 429) return false;
-  return response.headers.get("retry-after") !== null || response.headers.get("x-ratelimit-remaining") === "0";
+  return (
+    response.headers.get("retry-after") !== null ||
+    response.headers.get("x-ratelimit-remaining") === "0"
+  );
 }
 
 export interface Quota {
@@ -64,7 +67,9 @@ export class GitHub implements GithubClient {
 
   async get<T>(path: string, opts: { etagKey?: string } = {}): Promise<GetResult<T>> {
     const etagKey = opts.etagKey;
-    const etag = etagKey ? (this.etags.get(etagKey) ?? this.db.getCursor(etagKey)?.etag ?? undefined) : undefined;
+    const etag = etagKey
+      ? (this.etags.get(etagKey) ?? this.db.getCursor(etagKey)?.etag ?? undefined)
+      : undefined;
     for (let attempt = 0; ; attempt++) {
       await this.gate();
       const headers: Record<string, string> = {

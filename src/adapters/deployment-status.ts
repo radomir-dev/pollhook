@@ -22,13 +22,7 @@ export const deploymentStatus: Adapter = {
       if (statuses.notModified || !statuses.data) continue;
       for (const status of statuses.data) {
         const state = String(status.created_at ?? status.id);
-        const { changed } = observe(
-          ctx,
-          "deployment_status",
-          String(status.id),
-          state,
-          status,
-        );
+        const { changed } = observe(ctx, "deployment_status", String(status.id), state, status);
         if (!changed) continue;
         ctx.emit(
           "deployment_status",

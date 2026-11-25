@@ -135,11 +135,7 @@ function parseMatches(args: string[]): Record<string, string> {
   return match;
 }
 
-async function waitFor(
-  config: Config,
-  request: WaitRequest,
-  args: string[],
-): Promise<RpcResponse> {
+async function waitFor(config: Config, request: WaitRequest, args: string[]): Promise<RpcResponse> {
   return rpc(config, {
     op: "wait",
     request,
@@ -177,7 +173,5 @@ function printStatus(body: any): void {
   process.stdout.write(
     `quota ${body.quota.remaining}/${body.quota.limit} remaining, resets ${body.quota.resetAt ?? "-"}\n`,
   );
-  process.stdout.write(
-    `deliveries ${body.deliveries}, waiters ${body.waiters}, pid ${body.pid}\n`,
-  );
+  process.stdout.write(`deliveries ${body.deliveries}, waiters ${body.waiters}, pid ${body.pid}\n`);
 }

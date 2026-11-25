@@ -53,4 +53,3 @@ function nextPollFor(nextDue: Map<string, number>, status: RepoStatus): string |
 export function isPermanent(error: unknown): boolean {
   return isStatus(error, 403) || isStatus(error, 404);
 }
-

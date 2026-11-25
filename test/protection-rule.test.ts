@@ -13,7 +13,11 @@ function rule(patch: Record<string, unknown> = {}) {
   return { id: 11, node_id: "R_1", enabled: true, app: { id: 5, slug: "ops-gate" }, ...patch };
 }
 
-function context(db: StateStore, gh: FakeGitHub, state: { deliveries: Delivery[]; emit: AdapterEmit }) {
+function context(
+  db: StateStore,
+  gh: FakeGitHub,
+  state: { deliveries: Delivery[]; emit: AdapterEmit },
+) {
   return { repo, refs: [], db, durations: db.durations, gh, emit: state.emit };
 }
 
@@ -34,7 +38,9 @@ test("a new protection rule is created, a changed one is edited", async () => {
   await deploymentProtectionRule.poll(ctx);
   assert.equal(state.deliveries.length, 1);
 
-  gh.respond(rules("production"), { custom_deployment_protection_rules: [rule({ enabled: false })] });
+  gh.respond(rules("production"), {
+    custom_deployment_protection_rules: [rule({ enabled: false })],
+  });
   await deploymentProtectionRule.poll(ctx);
 
   assert.equal(state.deliveries.length, 2);

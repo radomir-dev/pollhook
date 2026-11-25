@@ -20,20 +20,20 @@ name or commit SHA.
 
 ## CI, checks and deployments
 
-| Event | REST source | Cursor | Fidelity | Phase |
-| --- | --- | --- | --- | --- |
-| `workflow_run` | `/repos/{o}/{r}/actions/runs` | `id` + `run_attempt` + `updated_at` | object | P1 done |
-| `workflow_job` | `/repos/{o}/{r}/actions/runs/{run_id}/jobs` | `id` + `status` + `completed_at` | object | P1 done |
-| `workflow_dispatch` | runs where `event=workflow_dispatch` | run `id` | derived | P2 done |
-| `check_suite` | `/repos/{o}/{r}/commits/{ref}/check-suites` | `id` + `updated_at` | object | P1 done |
-| `check_run` | `/repos/{o}/{r}/commits/{ref}/check-runs` | `id` + `status` + `conclusion` | object | P1 done |
-| `status` | `/repos/{o}/{r}/commits/{ref}/statuses` | `id` + `updated_at` | object | P1 done |
-| `page_build` | `/repos/{o}/{r}/pages/builds` | `id` + `updated_at` | object | P1 done |
-| `deployment` | `/repos/{o}/{r}/deployments` | `id` + `updated_at` | object | P3 done |
-| `deployment_status` | `/repos/{o}/{r}/deployments/{id}/statuses` | `id` + `updated_at` | object | P3 done |
-| `deployment_review` | `/repos/{o}/{r}/actions/runs/{run_id}/pending_deployments` | run `id` + environment `id` | partial | P3 done: `requested` only, since an approval or rejection only removes the entry |
-| `deployment_protection_rule` | `/repos/{o}/{r}/environments/{env}/deployment_protection_rules` | `environment` + rule `id` + app/enabled hash | object | P3 done |
-| `merge_group` | runs where `event=merge_group` | run `id` + `head_sha` | partial | P2 done |
+| Event                        | REST source                                                     | Cursor                                       | Fidelity | Phase                                                                            |
+| ---------------------------- | --------------------------------------------------------------- | -------------------------------------------- | -------- | -------------------------------------------------------------------------------- |
+| `workflow_run`               | `/repos/{o}/{r}/actions/runs`                                   | `id` + `run_attempt` + `updated_at`          | object   | P1 done                                                                          |
+| `workflow_job`               | `/repos/{o}/{r}/actions/runs/{run_id}/jobs`                     | `id` + `status` + `completed_at`             | object   | P1 done                                                                          |
+| `workflow_dispatch`          | runs where `event=workflow_dispatch`                            | run `id`                                     | derived  | P2 done                                                                          |
+| `check_suite`                | `/repos/{o}/{r}/commits/{ref}/check-suites`                     | `id` + `updated_at`                          | object   | P1 done                                                                          |
+| `check_run`                  | `/repos/{o}/{r}/commits/{ref}/check-runs`                       | `id` + `status` + `conclusion`               | object   | P1 done                                                                          |
+| `status`                     | `/repos/{o}/{r}/commits/{ref}/statuses`                         | `id` + `updated_at`                          | object   | P1 done                                                                          |
+| `page_build`                 | `/repos/{o}/{r}/pages/builds`                                   | `id` + `updated_at`                          | object   | P1 done                                                                          |
+| `deployment`                 | `/repos/{o}/{r}/deployments`                                    | `id` + `updated_at`                          | object   | P3 done                                                                          |
+| `deployment_status`          | `/repos/{o}/{r}/deployments/{id}/statuses`                      | `id` + `updated_at`                          | object   | P3 done                                                                          |
+| `deployment_review`          | `/repos/{o}/{r}/actions/runs/{run_id}/pending_deployments`      | run `id` + environment `id`                  | partial  | P3 done: `requested` only, since an approval or rejection only removes the entry |
+| `deployment_protection_rule` | `/repos/{o}/{r}/environments/{env}/deployment_protection_rules` | `environment` + rule `id` + app/enabled hash | object   | P3 done                                                                          |
+| `merge_group`                | runs where `event=merge_group`                                  | run `id` + `head_sha`                        | partial  | P2 done                                                                          |
 
 `check_suite` and `check_run` need the head SHAs you care about, so they are polled
 per watched ref: branch tips plus open PR heads. `workflow_job` costs one request
@@ -42,60 +42,60 @@ already recorded: subscribe to `workflow_run` as well, or it has nothing to read
 
 ## Pull requests, issues and comments
 
-| Event | REST source | Cursor | Fidelity | Phase |
-| --- | --- | --- | --- | --- |
-| `pull_request` | `/repos/{o}/{r}/pulls?state=all&sort=updated` | `number` + `updated_at` | object | P1 done |
-| `pull_request_review` | `/repos/{o}/{r}/pulls/{number}/reviews` | `id` + `submitted_at` | object | P1 done |
-| `pull_request_review_comment` | `/repos/{o}/{r}/pulls/comments?sort=updated` | `id` + body hash + `updated_at` | object | P2 done |
-| `pull_request_review_thread` | GraphQL `reviewThreads` ~ | thread `id` + `isResolved` | partial | P4 |
-| `issues` | `/repos/{o}/{r}/issues?state=all&sort=updated&since=` | `number` + `updated_at` | object | P2 done |
-| `issue_comment` | `/repos/{o}/{r}/issues/comments?sort=updated` | `id` + `updated_at` | object | P2 done |
-| `sub_issues` | `/repos/{o}/{r}/issues/{number}/sub_issues` | `id` + `updated_at` | object | P3 |
-| `issue_dependencies` | `/repos/{o}/{r}/issues/{number}/dependencies/*` ~ | relationship `id` | partial | P4 |
-| `issue_relates_to` | `/repos/{o}/{r}/issues/{number}/timeline` ~ | timeline event `id` | partial | P4 |
-| `commit_comment` | `/repos/{o}/{r}/comments?sort=updated` | `id` + `updated_at` | object | P2 done |
-| `discussion` | GraphQL `discussion` | `id` + `updatedAt` | object | P4 |
-| `discussion_comment` | GraphQL `discussionComment` | `id` + `updatedAt` | object | P4 |
-| `label` | `/repos/{o}/{r}/labels` | name + hash of color/description | derived | P2 done |
-| `milestone` | `/repos/{o}/{r}/milestones?state=all` | `id` + `updated_at` | object | P2 done |
+| Event                         | REST source                                           | Cursor                           | Fidelity | Phase   |
+| ----------------------------- | ----------------------------------------------------- | -------------------------------- | -------- | ------- |
+| `pull_request`                | `/repos/{o}/{r}/pulls?state=all&sort=updated`         | `number` + `updated_at`          | object   | P1 done |
+| `pull_request_review`         | `/repos/{o}/{r}/pulls/{number}/reviews`               | `id` + `submitted_at`            | object   | P1 done |
+| `pull_request_review_comment` | `/repos/{o}/{r}/pulls/comments?sort=updated`          | `id` + body hash + `updated_at`  | object   | P2 done |
+| `pull_request_review_thread`  | GraphQL `reviewThreads` ~                             | thread `id` + `isResolved`       | partial  | P4      |
+| `issues`                      | `/repos/{o}/{r}/issues?state=all&sort=updated&since=` | `number` + `updated_at`          | object   | P2 done |
+| `issue_comment`               | `/repos/{o}/{r}/issues/comments?sort=updated`         | `id` + `updated_at`              | object   | P2 done |
+| `sub_issues`                  | `/repos/{o}/{r}/issues/{number}/sub_issues`           | `id` + `updated_at`              | object   | P3      |
+| `issue_dependencies`          | `/repos/{o}/{r}/issues/{number}/dependencies/*` ~     | relationship `id`                | partial  | P4      |
+| `issue_relates_to`            | `/repos/{o}/{r}/issues/{number}/timeline` ~           | timeline event `id`              | partial  | P4      |
+| `commit_comment`              | `/repos/{o}/{r}/comments?sort=updated`                | `id` + `updated_at`              | object   | P2 done |
+| `discussion`                  | GraphQL `discussion`                                  | `id` + `updatedAt`               | object   | P4      |
+| `discussion_comment`          | GraphQL `discussionComment`                           | `id` + `updatedAt`               | object   | P4      |
+| `label`                       | `/repos/{o}/{r}/labels`                               | name + hash of color/description | derived  | P2 done |
+| `milestone`                   | `/repos/{o}/{r}/milestones?state=all`                 | `id` + `updated_at`              | object   | P2 done |
 
 ## Repository and git
 
-| Event | REST source | Cursor | Fidelity | Phase |
-| --- | --- | --- | --- | --- |
-| `push` | `/repos/{o}/{r}/compare/{before}...{after}` | branch tip SHA | derived | P2 done |
-| `create` | `/repos/{o}/{r}/branches`, `/tags` | name + SHA | derived | P2 done |
-| `delete` | `/repos/{o}/{r}/branches`, `/tags` (absence) | name | derived | P2 done |
-| `fork` | `/repos/{o}/{r}/forks?sort=newest` | `id` + `created_at` | object | P2 done |
-| `star` | `/repos/{o}/{r}/stargazers` | `starred_at`, no sort | partial | P3 |
-| `watch` | `/repos/{o}/{r}/subscribers` | `login`, full list per poll | partial | P3 |
-| `public` | `/repos/{o}/{r}` → `visibility` | repo `id` + `visibility` | derived | P2 done |
-| `repository` | `/repos/{o}/{r}` | `id` + `updated_at` + `full_name` | derived | P2 done |
-| `release` | `/repos/{o}/{r}/releases` | `id` + `updated_at` | object | P2 done |
-| `deploy_key` | `/repos/{o}/{r}/keys` | `id` + `created_at` | object | P3 done |
-| `gollum` | wiki git remote `{repo}.wiki.git` | commit SHA | derived | P4 |
-| `package` | `/user/packages`, `/orgs/{org}/packages` | `id` + `updated_at` | object | P4 |
-| `registry_package` | same as `package` | `id` + `updated_at` | object | P4 |
-| `repository_dispatch` | none, triggered by an API call | — | none | — |
-| `repository_import` | `/repos/{o}/{r}/import` | `status` + `updated_at` | derived | P3 |
-| `repository_ruleset` | `/repos/{o}/{r}/rulesets` | `id` + `updated_at` | object | P3 done |
-| `branch_protection_rule` | `/repos/{o}/{r}/branches/{branch}/protection` | hash of the protection object | derived | not implemented: same endpoint as `branch_protection_configuration`, and the deprecated event cannot be told apart from it |
-| `branch_protection_configuration` | same as `branch_protection_rule` | hash of the protection object | derived | P3 done |
-| `security_and_analysis` | `/repos/{o}/{r}` → `security_and_analysis` | hash of the object | derived | P3 done |
-| `meta` | `/meta` | field hash | derived | P4 |
-| `security_advisory` | `/advisories` (global database) | `ghsa_id` + `updated_at` | partial | P4 |
+| Event                             | REST source                                   | Cursor                            | Fidelity | Phase                                                                                                                      |
+| --------------------------------- | --------------------------------------------- | --------------------------------- | -------- | -------------------------------------------------------------------------------------------------------------------------- |
+| `push`                            | `/repos/{o}/{r}/compare/{before}...{after}`   | branch tip SHA                    | derived  | P2 done                                                                                                                    |
+| `create`                          | `/repos/{o}/{r}/branches`, `/tags`            | name + SHA                        | derived  | P2 done                                                                                                                    |
+| `delete`                          | `/repos/{o}/{r}/branches`, `/tags` (absence)  | name                              | derived  | P2 done                                                                                                                    |
+| `fork`                            | `/repos/{o}/{r}/forks?sort=newest`            | `id` + `created_at`               | object   | P2 done                                                                                                                    |
+| `star`                            | `/repos/{o}/{r}/stargazers`                   | `starred_at`, no sort             | partial  | P3                                                                                                                         |
+| `watch`                           | `/repos/{o}/{r}/subscribers`                  | `login`, full list per poll       | partial  | P3                                                                                                                         |
+| `public`                          | `/repos/{o}/{r}` → `visibility`               | repo `id` + `visibility`          | derived  | P2 done                                                                                                                    |
+| `repository`                      | `/repos/{o}/{r}`                              | `id` + `updated_at` + `full_name` | derived  | P2 done                                                                                                                    |
+| `release`                         | `/repos/{o}/{r}/releases`                     | `id` + `updated_at`               | object   | P2 done                                                                                                                    |
+| `deploy_key`                      | `/repos/{o}/{r}/keys`                         | `id` + `created_at`               | object   | P3 done                                                                                                                    |
+| `gollum`                          | wiki git remote `{repo}.wiki.git`             | commit SHA                        | derived  | P4                                                                                                                         |
+| `package`                         | `/user/packages`, `/orgs/{org}/packages`      | `id` + `updated_at`               | object   | P4                                                                                                                         |
+| `registry_package`                | same as `package`                             | `id` + `updated_at`               | object   | P4                                                                                                                         |
+| `repository_dispatch`             | none, triggered by an API call                | —                                 | none     | —                                                                                                                          |
+| `repository_import`               | `/repos/{o}/{r}/import`                       | `status` + `updated_at`           | derived  | P3                                                                                                                         |
+| `repository_ruleset`              | `/repos/{o}/{r}/rulesets`                     | `id` + `updated_at`               | object   | P3 done                                                                                                                    |
+| `branch_protection_rule`          | `/repos/{o}/{r}/branches/{branch}/protection` | hash of the protection object     | derived  | not implemented: same endpoint as `branch_protection_configuration`, and the deprecated event cannot be told apart from it |
+| `branch_protection_configuration` | same as `branch_protection_rule`              | hash of the protection object     | derived  | P3 done                                                                                                                    |
+| `security_and_analysis`           | `/repos/{o}/{r}` → `security_and_analysis`    | hash of the object                | derived  | P3 done                                                                                                                    |
+| `meta`                            | `/meta`                                       | field hash                        | derived  | P4                                                                                                                         |
+| `security_advisory`               | `/advisories` (global database)               | `ghsa_id` + `updated_at`          | partial  | P4                                                                                                                         |
 
 ## Security alerts
 
-| Event | REST source | Cursor | Fidelity | Phase |
-| --- | --- | --- | --- | --- |
-| `dependabot_alert` | `/repos/{o}/{r}/dependabot/alerts` | `number` + `updated_at` | object | P3 done |
-| `code_scanning_alert` | `/repos/{o}/{r}/code-scanning/alerts` | `number` + `updated_at` | object | P3 done |
-| `secret_scanning_alert` | `/repos/{o}/{r}/secret-scanning/alerts` | `number` + `updated_at` | object | P3 done |
-| `secret_scanning_alert_location` | `/secret-scanning/alerts/{n}/locations` per alert | alert `number` + location set | object | not implemented: one request per alert |
-| `secret_scanning_scan` | no public REST endpoint | `id` + `updated_at` | none | not implemented: the endpoint does not exist |
-| `repository_advisory` | `/repos/{o}/{r}/security-advisories` | `ghsa_id` + `updated_at` | object | P3 done |
-| `repository_vulnerability_alert` | `/repos/{o}/{r}/vulnerability-alerts` (on/off) | repo `id` + enabled | partial | P3 done |
+| Event                            | REST source                                       | Cursor                        | Fidelity | Phase                                        |
+| -------------------------------- | ------------------------------------------------- | ----------------------------- | -------- | -------------------------------------------- |
+| `dependabot_alert`               | `/repos/{o}/{r}/dependabot/alerts`                | `number` + `updated_at`       | object   | P3 done                                      |
+| `code_scanning_alert`            | `/repos/{o}/{r}/code-scanning/alerts`             | `number` + `updated_at`       | object   | P3 done                                      |
+| `secret_scanning_alert`          | `/repos/{o}/{r}/secret-scanning/alerts`           | `number` + `updated_at`       | object   | P3 done                                      |
+| `secret_scanning_alert_location` | `/secret-scanning/alerts/{n}/locations` per alert | alert `number` + location set | object   | not implemented: one request per alert       |
+| `secret_scanning_scan`           | no public REST endpoint                           | `id` + `updated_at`           | none     | not implemented: the endpoint does not exist |
+| `repository_advisory`            | `/repos/{o}/{r}/security-advisories`              | `ghsa_id` + `updated_at`      | object   | P3 done                                      |
+| `repository_vulnerability_alert` | `/repos/{o}/{r}/vulnerability-alerts` (on/off)    | repo `id` + enabled           | partial  | P3 done                                      |
 
 Deferred P3 events are not broken links: the REST endpoints return a different
 shape than the webhook payload (`branch_protection_rule` is ruleset-shaped) or
@@ -105,46 +105,46 @@ and `changes.branch_protection.from/to`.
 
 ## Organisation, projects and apps
 
-| Event | REST source | Cursor | Fidelity | Phase |
-| --- | --- | --- | --- | --- |
-| `member` | `/repos/{o}/{r}/collaborators` | `login` + permission hash | derived | P4 done |
-| `membership` | `/orgs/{org}/teams/{slug}/members` | `slug:login` | derived | P4 done |
-| `team` | `/orgs/{org}/teams` | `id` + `updated_at` | object | P4 done |
-| `team_add` | `/repos/{o}/{r}/teams` | team `id` + repo | derived | P4 |
-| `organization` | `/orgs/{org}` | `id` + `updated_at` | derived | P4 |
-| `org_block` | `/orgs/{org}/blocks` | `id` + `login` | derived | P4 |
-| `personal_access_token_request` | `/orgs/{org}/personal-access-token-requests` | `id` + `created_at` | object | P4 |
-| `custom_property` | `/orgs/{org}/properties/schema` ~ | name + hash | derived | P4 |
-| `custom_property_values` | `/orgs/{org}/properties/values` ~ | repo + hash | derived | P4 |
-| `projects_v2` | GraphQL `projectV2` | `id` + `updatedAt` | object | P4 |
-| `projects_v2_item` | GraphQL `projectV2Item` | `id` + `updatedAt` | object | P4 |
-| `projects_v2_status_update` | GraphQL status updates ~ | `id` + `updatedAt` | partial | P4 |
-| `project` | classic Projects, sunset | `id` + `updated_at` | partial | P4 |
-| `project_card` | classic Projects, sunset | `id` + `updated_at` | partial | P4 |
-| `project_column` | classic Projects, sunset | `id` + `updated_at` | partial | P4 |
-| `installation` | `/app/installations` (App JWT) | `id` + `updated_at` | none | — |
-| `installation_repositories` | App JWT, installation repositories | `id` | none | — |
-| `installation_target` | App JWT, installation target | `id` | none | — |
-| `github_app_authorization` | App-only | — | none | — |
-| `marketplace_purchase` | Marketplace API ~ | `id` + `updated_at` | partial | — |
-| `sponsorship` | GraphQL sponsorships ~ | `id` + `updatedAt` | partial | — |
-| `ping` | synthesized at subscription | — | object | P0 |
+| Event                           | REST source                                  | Cursor                    | Fidelity | Phase   |
+| ------------------------------- | -------------------------------------------- | ------------------------- | -------- | ------- |
+| `member`                        | `/repos/{o}/{r}/collaborators`               | `login` + permission hash | derived  | P4 done |
+| `membership`                    | `/orgs/{org}/teams/{slug}/members`           | `slug:login`              | derived  | P4 done |
+| `team`                          | `/orgs/{org}/teams`                          | `id` + `updated_at`       | object   | P4 done |
+| `team_add`                      | `/repos/{o}/{r}/teams`                       | team `id` + repo          | derived  | P4      |
+| `organization`                  | `/orgs/{org}`                                | `id` + `updated_at`       | derived  | P4      |
+| `org_block`                     | `/orgs/{org}/blocks`                         | `id` + `login`            | derived  | P4      |
+| `personal_access_token_request` | `/orgs/{org}/personal-access-token-requests` | `id` + `created_at`       | object   | P4      |
+| `custom_property`               | `/orgs/{org}/properties/schema` ~            | name + hash               | derived  | P4      |
+| `custom_property_values`        | `/orgs/{org}/properties/values` ~            | repo + hash               | derived  | P4      |
+| `projects_v2`                   | GraphQL `projectV2`                          | `id` + `updatedAt`        | object   | P4      |
+| `projects_v2_item`              | GraphQL `projectV2Item`                      | `id` + `updatedAt`        | object   | P4      |
+| `projects_v2_status_update`     | GraphQL status updates ~                     | `id` + `updatedAt`        | partial  | P4      |
+| `project`                       | classic Projects, sunset                     | `id` + `updated_at`       | partial  | P4      |
+| `project_card`                  | classic Projects, sunset                     | `id` + `updated_at`       | partial  | P4      |
+| `project_column`                | classic Projects, sunset                     | `id` + `updated_at`       | partial  | P4      |
+| `installation`                  | `/app/installations` (App JWT)               | `id` + `updated_at`       | none     | —       |
+| `installation_repositories`     | App JWT, installation repositories           | `id`                      | none     | —       |
+| `installation_target`           | App JWT, installation target                 | `id`                      | none     | —       |
+| `github_app_authorization`      | App-only                                     | —                         | none     | —       |
+| `marketplace_purchase`          | Marketplace API ~                            | `id` + `updated_at`       | partial  | —       |
+| `sponsorship`                   | GraphQL sponsorships ~                       | `id` + `updatedAt`        | partial  | —       |
+| `ping`                          | synthesized at subscription                  | —                         | object   | P0      |
 
 ## Action inference
 
 `object` fidelity does not mean the action is free. For `pull_request`, the action
 comes from comparing the previous and the current object:
 
-| Observation | Action |
-| --- | --- |
-| first sight, `state=open`, `created_at=updated_at` | `opened` |
-| `state=open` → `closed`, `merged=false` | `closed` |
-| `state=open` → `closed`, `merged=true` | `closed` with `merged` |
-| `state=closed` → `open` | `reopened` |
-| `head.sha` changed | `synchronize` |
-| `draft=false` → `draft=true` | `converted_to_draft` |
-| `draft=true` → `draft=false` | `ready_for_review` |
-| `labels` set changed | `labeled` / `unlabeled` per label |
+| Observation                                        | Action                            |
+| -------------------------------------------------- | --------------------------------- |
+| first sight, `state=open`, `created_at=updated_at` | `opened`                          |
+| `state=open` → `closed`, `merged=false`            | `closed`                          |
+| `state=open` → `closed`, `merged=true`             | `closed` with `merged`            |
+| `state=closed` → `open`                            | `reopened`                        |
+| `head.sha` changed                                 | `synchronize`                     |
+| `draft=false` → `draft=true`                       | `converted_to_draft`              |
+| `draft=true` → `draft=false`                       | `ready_for_review`                |
+| `labels` set changed                               | `labeled` / `unlabeled` per label |
 
 Everything that happens between two polls and leaves no trace in the final object
 is lost. A close and a reopen inside one interval look like no change at all.

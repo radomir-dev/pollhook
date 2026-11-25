@@ -9,8 +9,10 @@ import { emitFor, FakeGitHub } from "./helpers.ts";
 const repo = "acme/app";
 const DEPENDABOT =
   "/repos/acme/app/dependabot/alerts?state=open,dismissed,fixed,auto_dismissed&per_page=100";
-const codePath = (state: string) => `/repos/acme/app/code-scanning/alerts?state=${state}&per_page=100`;
-const secretPath = (state: string) => `/repos/acme/app/secret-scanning/alerts?state=${state}&per_page=100`;
+const codePath = (state: string) =>
+  `/repos/acme/app/code-scanning/alerts?state=${state}&per_page=100`;
+const secretPath = (state: string) =>
+  `/repos/acme/app/secret-scanning/alerts?state=${state}&per_page=100`;
 
 function dependencyAlert(overrides: Record<string, unknown> = {}) {
   return { number: 1, state: "open", updated_at: "t1", ...overrides };
@@ -50,15 +52,36 @@ test("code scanning: created, fixed, reopened", async () => {
     [codePath("fixed")]: [],
   });
   const state = emitFor(db, repo);
-  await codeScanningAlert.poll({ repo, refs: [], db, durations: db.durations, gh, emit: state.emit });
+  await codeScanningAlert.poll({
+    repo,
+    refs: [],
+    db,
+    durations: db.durations,
+    gh,
+    emit: state.emit,
+  });
 
   gh.respond(codePath("open"), []);
   gh.respond(codePath("fixed"), [scanningAlert({ state: "fixed", updated_at: "t2" })]);
-  await codeScanningAlert.poll({ repo, refs: [], db, durations: db.durations, gh, emit: state.emit });
+  await codeScanningAlert.poll({
+    repo,
+    refs: [],
+    db,
+    durations: db.durations,
+    gh,
+    emit: state.emit,
+  });
 
   gh.respond(codePath("fixed"), []);
   gh.respond(codePath("open"), [scanningAlert({ state: "open", updated_at: "t3" })]);
-  await codeScanningAlert.poll({ repo, refs: [], db, durations: db.durations, gh, emit: state.emit });
+  await codeScanningAlert.poll({
+    repo,
+    refs: [],
+    db,
+    durations: db.durations,
+    gh,
+    emit: state.emit,
+  });
 
   assert.deepEqual(
     state.deliveries.map((delivery) => delivery.action),
@@ -74,22 +97,50 @@ test("secret scanning: created, resolved, validated", async () => {
     [secretPath("resolved")]: [],
   });
   const state = emitFor(db, repo);
-  await secretScanningAlert.poll({ repo, refs: [], db, durations: db.durations, gh, emit: state.emit });
+  await secretScanningAlert.poll({
+    repo,
+    refs: [],
+    db,
+    durations: db.durations,
+    gh,
+    emit: state.emit,
+  });
 
   gh.respond(secretPath("open"), []);
   gh.respond(secretPath("resolved"), [secretAlert({ state: "resolved", updated_at: "t2" })]);
-  await secretScanningAlert.poll({ repo, refs: [], db, durations: db.durations, gh, emit: state.emit });
+  await secretScanningAlert.poll({
+    repo,
+    refs: [],
+    db,
+    durations: db.durations,
+    gh,
+    emit: state.emit,
+  });
 
   gh.respond(secretPath("resolved"), []);
   gh.respond(secretPath("open"), [
     secretAlert({ state: "open", validation_status: "active", updated_at: "t3" }),
   ]);
-  await secretScanningAlert.poll({ repo, refs: [], db, durations: db.durations, gh, emit: state.emit });
+  await secretScanningAlert.poll({
+    repo,
+    refs: [],
+    db,
+    durations: db.durations,
+    gh,
+    emit: state.emit,
+  });
 
   gh.respond(secretPath("open"), [
     secretAlert({ state: "open", validation_status: "inactive", updated_at: "t4" }),
   ]);
-  await secretScanningAlert.poll({ repo, refs: [], db, durations: db.durations, gh, emit: state.emit });
+  await secretScanningAlert.poll({
+    repo,
+    refs: [],
+    db,
+    durations: db.durations,
+    gh,
+    emit: state.emit,
+  });
 
   assert.deepEqual(
     state.deliveries.map((delivery) => delivery.action),

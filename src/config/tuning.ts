@@ -9,7 +9,12 @@ export interface EventTuning {
 
 const STRATEGIES = new Set<string>(["fixed", "while-active"]);
 
-export function parseTuning(value: any, path: string, label: string, allowed: EventName[]): EventTuning {
+export function parseTuning(
+  value: any,
+  path: string,
+  label: string,
+  allowed: EventName[],
+): EventTuning {
   const intervals = parseIntervals(value.intervals, path, label, allowed);
   const strategies = parseStrategies(value.strategies, path, label, allowed);
   return { ...(intervals ? { intervals } : {}), ...(strategies ? { strategies } : {}) };

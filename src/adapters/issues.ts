@@ -27,7 +27,10 @@ export const issues: Adapter = {
     const meta = await repoAndSender(ctx);
     for (const issue of result.data) {
       if (issue.pull_request) continue;
-      const labels = (issue.labels ?? []).map((label: any) => label.name).sort().join(",");
+      const labels = (issue.labels ?? [])
+        .map((label: any) => label.name)
+        .sort()
+        .join(",");
       const body = sha256(`${issue.title}\n${issue.body ?? ""}`);
       const state = `${issue.state}:${labels}:${body}`;
       const { changed, prev } = observe(ctx, "issues", String(issue.number), state, issue);

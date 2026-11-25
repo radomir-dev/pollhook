@@ -30,7 +30,11 @@ export const workflowJob: Adapter = {
         const { changed } = observe(ctx, "workflow_job", String(job.id), state, job);
         if (!changed) continue;
         const action =
-          job.status === "completed" ? "completed" : job.status === "in_progress" ? "in_progress" : "queued";
+          job.status === "completed"
+            ? "completed"
+            : job.status === "in_progress"
+              ? "in_progress"
+              : "queued";
         ctx.emit(
           "workflow_job",
           action,

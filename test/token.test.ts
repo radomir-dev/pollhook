@@ -16,8 +16,14 @@ test("the gh login wins over ambient environment tokens", () => {
 });
 
 test("environment tokens are the fallback when gh has no login", () => {
-  assert.equal(resolveToken({ GITHUB_TOKEN: "env" } as NodeJS.ProcessEnv, () => ""), "env");
-  assert.equal(resolveToken({ GH_TOKEN: "gh-env" } as NodeJS.ProcessEnv, () => ""), "gh-env");
+  assert.equal(
+    resolveToken({ GITHUB_TOKEN: "env" } as NodeJS.ProcessEnv, () => ""),
+    "env",
+  );
+  assert.equal(
+    resolveToken({ GH_TOKEN: "gh-env" } as NodeJS.ProcessEnv, () => ""),
+    "gh-env",
+  );
 });
 
 test("no token anywhere is an error", () => {

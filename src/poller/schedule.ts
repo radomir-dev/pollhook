@@ -11,11 +11,7 @@ export interface ScheduleStore extends SnapshotStore {
 type Target = EventTuning & { intervalMs: number };
 
 export function resolveInterval(config: EventTuning, target: Target, adapter: Adapter): number {
-  return (
-    target.intervals?.[adapter.name] ??
-    config.intervals?.[adapter.name] ??
-    target.intervalMs
-  );
+  return target.intervals?.[adapter.name] ?? config.intervals?.[adapter.name] ?? target.intervalMs;
 }
 
 export function resolveStrategy(

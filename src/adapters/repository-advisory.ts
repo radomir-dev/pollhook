@@ -5,10 +5,9 @@ export const repositoryAdvisory: Adapter = {
   name: "repository_advisory",
   intervalFloorMs: 300_000,
   async poll(ctx) {
-    const result = await ctx.gh.get<any[]>(
-      `/repos/${ctx.repo}/security-advisories?per_page=100`,
-      { etagKey: `advisories:${ctx.repo}` },
-    );
+    const result = await ctx.gh.get<any[]>(`/repos/${ctx.repo}/security-advisories?per_page=100`, {
+      etagKey: `advisories:${ctx.repo}`,
+    });
     if (result.notModified || !result.data) return;
     const meta = await repoAndSender(ctx);
     for (const advisory of result.data) {

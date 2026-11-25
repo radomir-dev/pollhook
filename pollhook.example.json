@@ -49,10 +49,7 @@
   "orgs": [
     {
       "org": "radomir-dev",
-      "events": [
-        "team",
-        "membership"
-      ],
+      "events": ["team", "membership"],
       "intervalSeconds": 300
     }
   ],

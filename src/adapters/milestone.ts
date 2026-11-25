@@ -21,10 +21,9 @@ export const milestone: Adapter = {
   name: "milestone",
   intervalFloorMs: 60_000,
   async poll(ctx) {
-    const result = await ctx.gh.get<any[]>(
-      `/repos/${ctx.repo}/milestones?state=all&per_page=100`,
-      { etagKey: `milestones:${ctx.repo}` },
-    );
+    const result = await ctx.gh.get<any[]>(`/repos/${ctx.repo}/milestones?state=all&per_page=100`, {
+      etagKey: `milestones:${ctx.repo}`,
+    });
     if (result.notModified || !result.data) return;
     const meta = await repoAndSender(ctx);
     const current = new Set(result.data.map((item) => String(item.number)));

@@ -23,9 +23,12 @@ test("the typical duration is the median of the recent samples", () => {
 
 test("samples are kept per workflow and per repository", () => {
   const db = new StateStore(":memory:");
-  for (let index = 0; index < 3; index += 1) db.durations.record("acme/app", `f${index}`, "fast", 10_000);
-  for (let index = 0; index < 3; index += 1) db.durations.record("acme/app", `s${index}`, "slow", 600_000);
-  for (let index = 0; index < 3; index += 1) db.durations.record("acme/lib", `l${index}`, "fast", 30_000);
+  for (let index = 0; index < 3; index += 1)
+    db.durations.record("acme/app", `f${index}`, "fast", 10_000);
+  for (let index = 0; index < 3; index += 1)
+    db.durations.record("acme/app", `s${index}`, "slow", 600_000);
+  for (let index = 0; index < 3; index += 1)
+    db.durations.record("acme/lib", `l${index}`, "fast", 30_000);
 
   assert.equal(db.durations.typical("acme/app", "fast")?.typicalMs, 10_000);
   assert.equal(db.durations.typical("acme/app", "slow")?.typicalMs, 600_000);
@@ -36,7 +39,8 @@ test("samples are kept per workflow and per repository", () => {
 test("only the newest twenty samples count", () => {
   const db = new StateStore(":memory:");
   db.durations.record("acme/app", "old", "1", 1_000);
-  for (let index = 0; index < 20; index += 1) db.durations.record("acme/app", `r${index}`, "1", 120_000);
+  for (let index = 0; index < 20; index += 1)
+    db.durations.record("acme/app", `r${index}`, "1", 120_000);
 
   const typical = db.durations.typical("acme/app", "1");
   assert.equal(typical?.samples, 20);

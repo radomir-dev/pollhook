@@ -134,13 +134,17 @@ test("pr: reviewed needs a review that was not dismissed", () => {
 
 test("pages: waits for the build of that commit", () => {
   const db = new StateStore(":memory:");
-  db.putSnapshot(repo, "page_build", "1", "building", { build: { commit: "abc", status: "building" } });
+  db.putSnapshot(repo, "page_build", "1", "building", {
+    build: { commit: "abc", status: "building" },
+  });
   assert.equal(resolveWait(db, { kind: "pages", repo, sha: "abc" }), null);
 
   db.putSnapshot(repo, "page_build", "1", "built", { build: { commit: "abc", status: "built" } });
   assert.equal(resolveWait(db, { kind: "pages", repo, sha: "abc" })?.exitCode, 0);
 
-  db.putSnapshot(repo, "page_build", "2", "errored", { build: { commit: "def", status: "errored" } });
+  db.putSnapshot(repo, "page_build", "2", "errored", {
+    build: { commit: "def", status: "errored" },
+  });
   assert.equal(resolveWait(db, { kind: "pages", repo, sha: "def" })?.exitCode, 1);
 });
 
@@ -161,10 +165,13 @@ test("event: matches a recent delivery by payload path", () => {
     match: { "workflow_run.conclusion": "failure" },
   });
   assert.equal(hit?.exitCode, 0);
-  assert.equal(resolveWait(db, {
-    kind: "event",
-    repo,
-    event: "workflow_run",
-    match: { action: "nope" },
-  }), null);
+  assert.equal(
+    resolveWait(db, {
+      kind: "event",
+      repo,
+      event: "workflow_run",
+      match: { action: "nope" },
+    }),
+    null,
+  );
 });

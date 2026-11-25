@@ -32,7 +32,9 @@ test("a review comment is created once and edited when its body changes", async 
   await pullRequestReviewComment.poll(ctx);
   assert.equal(state.deliveries.length, 1);
 
-  gh.respond(COMMENTS, [comment({ body: "nit: rename this helper", updated_at: "2026-11-25T20:05:00Z" })]);
+  gh.respond(COMMENTS, [
+    comment({ body: "nit: rename this helper", updated_at: "2026-11-25T20:05:00Z" }),
+  ]);
   await pullRequestReviewComment.poll(ctx);
 
   assert.equal(state.deliveries.length, 2);
@@ -46,7 +48,14 @@ test("the comment carries the pull request it belongs to", async () => {
   const gh = new FakeGitHub({ [COMMENTS]: [comment()] });
   const state = emitFor(db, repo);
 
-  await pullRequestReviewComment.poll({ repo, refs: [], db, durations: db.durations, gh, emit: state.emit });
+  await pullRequestReviewComment.poll({
+    repo,
+    refs: [],
+    db,
+    durations: db.durations,
+    gh,
+    emit: state.emit,
+  });
 
   const pullRequest = state.deliveries[0]!.payload.pull_request as any;
   assert.equal(pullRequest.title, "Tidy the adapter");

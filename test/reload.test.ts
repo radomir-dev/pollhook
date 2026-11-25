@@ -37,7 +37,9 @@ function request(socket: Socket, message: unknown): void {
 }
 
 function nextLine(socket: Socket): Promise<any> {
-  return new Promise((resolve) => socket.once("data", (chunk) => resolve(JSON.parse(String(chunk).trim()))));
+  return new Promise((resolve) =>
+    socket.once("data", (chunk) => resolve(JSON.parse(String(chunk).trim()))),
+  );
 }
 
 test("SIGHUP reloads the config without closing an open connection", async () => {

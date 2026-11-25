@@ -64,7 +64,9 @@ test("a long run name is truncated so the line stays short", () => {
 });
 
 test("events without a subject still print a plain line", () => {
-  const line = brief(delivery({ event: "push", action: "created", key: "refs/heads/main", payload: {} }));
+  const line = brief(
+    delivery({ event: "push", action: "created", key: "refs/heads/main", payload: {} }),
+  );
 
   assert.match(line, /push created refs\/heads\/main$/);
 });

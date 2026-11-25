@@ -31,7 +31,13 @@ export const pullRequestReviewComment: Adapter = {
         "pull_request_review_comment",
         action,
         String(comment.id),
-        { action, pull_request: pullRequest, comment, repository: meta.repository, sender: meta.sender },
+        {
+          action,
+          pull_request: pullRequest,
+          comment,
+          repository: meta.repository,
+          sender: meta.sender,
+        },
         `${state}:${action}`,
       );
     }

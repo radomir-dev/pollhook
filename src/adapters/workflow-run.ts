@@ -21,7 +21,11 @@ export const workflowRun: Adapter = {
       const { changed } = observe(ctx, "workflow_run", String(run.id), state, run);
       if (!changed) continue;
       const action =
-        run.status === "completed" ? "completed" : run.status === "in_progress" ? "in_progress" : "requested";
+        run.status === "completed"
+          ? "completed"
+          : run.status === "in_progress"
+            ? "in_progress"
+            : "requested";
       ctx.emit(
         "workflow_run",
         action,

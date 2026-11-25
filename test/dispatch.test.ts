@@ -27,18 +27,39 @@ test("workflow_dispatch emits once per run, not per status change", async () => 
   const gh = new FakeGitHub({ [DISPATCH]: { workflow_runs: [run()] } });
   const state = emitFor(db, repo);
 
-  await workflowDispatch.poll({ repo, refs: [], db, durations: db.durations, gh, emit: state.emit });
+  await workflowDispatch.poll({
+    repo,
+    refs: [],
+    db,
+    durations: db.durations,
+    gh,
+    emit: state.emit,
+  });
   assert.equal(state.deliveries.length, 1);
   assert.equal((state.deliveries[0]!.payload.workflow_run as { id: number }).id, 1);
 
   gh.respond(DISPATCH, { workflow_runs: [run({ status: "completed", conclusion: "success" })] });
-  await workflowDispatch.poll({ repo, refs: [], db, durations: db.durations, gh, emit: state.emit });
+  await workflowDispatch.poll({
+    repo,
+    refs: [],
+    db,
+    durations: db.durations,
+    gh,
+    emit: state.emit,
+  });
   assert.equal(state.deliveries.length, 1);
 
   gh.respond(DISPATCH, {
     workflow_runs: [run(), run({ id: 2, status: "queued" })],
   });
-  await workflowDispatch.poll({ repo, refs: [], db, durations: db.durations, gh, emit: state.emit });
+  await workflowDispatch.poll({
+    repo,
+    refs: [],
+    db,
+    durations: db.durations,
+    gh,
+    emit: state.emit,
+  });
   assert.equal(state.deliveries.length, 2);
   db.close();
 });
@@ -47,7 +68,14 @@ test("merge_group emits checks_requested with the head it saw", async () => {
   const db = new StateStore(":memory:");
   const gh = new FakeGitHub({
     [MERGE]: {
-      workflow_runs: [run({ id: 9, event: "merge_group", head_sha: "fff", head_branch: "gh-readonly-queue/main" })],
+      workflow_runs: [
+        run({
+          id: 9,
+          event: "merge_group",
+          head_sha: "fff",
+          head_branch: "gh-readonly-queue/main",
+        }),
+      ],
     },
   });
   const state = emitFor(db, repo);
@@ -65,7 +93,14 @@ test("runs for another event are filtered out", async () => {
   const db = new StateStore(":memory:");
   const gh = new FakeGitHub({ [DISPATCH]: { workflow_runs: [run({ event: "push" })] } });
   const state = emitFor(db, repo);
-  await workflowDispatch.poll({ repo, refs: [], db, durations: db.durations, gh, emit: state.emit });
+  await workflowDispatch.poll({
+    repo,
+    refs: [],
+    db,
+    durations: db.durations,
+    gh,
+    emit: state.emit,
+  });
   assert.equal(state.deliveries.length, 0);
   db.close();
 });

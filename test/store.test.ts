@@ -6,15 +6,36 @@ import { tempStateDir } from "./helpers.ts";
 
 test("recording the same delivery twice yields one row", () => {
   const db = new StateStore(":memory:");
-  const first = db.recordDelivery("acme/app", "workflow_run", "in_progress", "1", "1:in_progress:null", {
-    action: "in_progress",
-  });
-  const duplicate = db.recordDelivery("acme/app", "workflow_run", "in_progress", "1", "1:in_progress:null", {
-    action: "in_progress",
-  });
-  const completed = db.recordDelivery("acme/app", "workflow_run", "completed", "1", "1:completed:success", {
-    action: "completed",
-  });
+  const first = db.recordDelivery(
+    "acme/app",
+    "workflow_run",
+    "in_progress",
+    "1",
+    "1:in_progress:null",
+    {
+      action: "in_progress",
+    },
+  );
+  const duplicate = db.recordDelivery(
+    "acme/app",
+    "workflow_run",
+    "in_progress",
+    "1",
+    "1:in_progress:null",
+    {
+      action: "in_progress",
+    },
+  );
+  const completed = db.recordDelivery(
+    "acme/app",
+    "workflow_run",
+    "completed",
+    "1",
+    "1:completed:success",
+    {
+      action: "completed",
+    },
+  );
   assert.ok(first);
   assert.equal(duplicate, null);
   assert.ok(completed);
@@ -39,7 +60,11 @@ test("deliveries survive a reopen and are not re-recorded", () => {
   const path = join(dir, "state.db");
   const state = "1:completed:success";
   const first = new StateStore(path);
-  assert.ok(first.recordDelivery("acme/app", "workflow_run", "completed", "7", state, { action: "completed" }));
+  assert.ok(
+    first.recordDelivery("acme/app", "workflow_run", "completed", "7", state, {
+      action: "completed",
+    }),
+  );
   first.close();
 
   const second = new StateStore(path);

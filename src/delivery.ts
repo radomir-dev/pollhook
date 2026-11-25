@@ -44,7 +44,8 @@ export async function postDelivery(delivery: Delivery, target: DeliverConfig): P
         signal: AbortSignal.timeout(5000),
       });
       if (response.ok) return;
-      if (!isRetryable(response.status)) throw new Rejected(`delivery rejected with ${response.status}`);
+      if (!isRetryable(response.status))
+        throw new Rejected(`delivery rejected with ${response.status}`);
       lastError = new Error(`delivery failed with ${response.status}`);
     } catch (error) {
       if (error instanceof Rejected) throw new Error(error.message);

@@ -26,9 +26,23 @@ test("repository advisory: published, then closed", async () => {
   const gh = new FakeGitHub({ [ADVISORIES]: [advisory()] });
   const state = emitFor(db, repo);
 
-  await repositoryAdvisory.poll({ repo, refs: [], db, durations: db.durations, gh, emit: state.emit });
+  await repositoryAdvisory.poll({
+    repo,
+    refs: [],
+    db,
+    durations: db.durations,
+    gh,
+    emit: state.emit,
+  });
   gh.respond(ADVISORIES, [advisory({ state: "closed", updated_at: "t2" })]);
-  await repositoryAdvisory.poll({ repo, refs: [], db, durations: db.durations, gh, emit: state.emit });
+  await repositoryAdvisory.poll({
+    repo,
+    refs: [],
+    db,
+    durations: db.durations,
+    gh,
+    emit: state.emit,
+  });
 
   assert.deepEqual(
     state.deliveries.map((delivery) => delivery.action),
@@ -42,13 +56,34 @@ test("vulnerability alert: enable, then disable", async () => {
   const gh = new FakeGitHub({}, { [VULNERABILITY]: false });
   const state = emitFor(db, repo);
 
-  await vulnerabilityAlert.poll({ repo, refs: [], db, durations: db.durations, gh, emit: state.emit });
+  await vulnerabilityAlert.poll({
+    repo,
+    refs: [],
+    db,
+    durations: db.durations,
+    gh,
+    emit: state.emit,
+  });
   assert.equal(state.deliveries.length, 0, "first sight only records state");
 
   gh.probes[VULNERABILITY] = true;
-  await vulnerabilityAlert.poll({ repo, refs: [], db, durations: db.durations, gh, emit: state.emit });
+  await vulnerabilityAlert.poll({
+    repo,
+    refs: [],
+    db,
+    durations: db.durations,
+    gh,
+    emit: state.emit,
+  });
   gh.probes[VULNERABILITY] = false;
-  await vulnerabilityAlert.poll({ repo, refs: [], db, durations: db.durations, gh, emit: state.emit });
+  await vulnerabilityAlert.poll({
+    repo,
+    refs: [],
+    db,
+    durations: db.durations,
+    gh,
+    emit: state.emit,
+  });
 
   assert.deepEqual(
     state.deliveries.map((delivery) => delivery.action),
@@ -62,14 +97,28 @@ test("security and analysis: change carries from and to", async () => {
   const gh = new FakeGitHub({ [REPO]: { id: 1, security_and_analysis: {} } });
   const state = emitFor(db, repo);
 
-  await securityAndAnalysis.poll({ repo, refs: [], db, durations: db.durations, gh, emit: state.emit });
+  await securityAndAnalysis.poll({
+    repo,
+    refs: [],
+    db,
+    durations: db.durations,
+    gh,
+    emit: state.emit,
+  });
   assert.equal(state.deliveries.length, 0);
 
   gh.respond(REPO, {
     id: 1,
     security_and_analysis: { advanced_security: { status: "enabled" } },
   });
-  await securityAndAnalysis.poll({ repo, refs: [], db, durations: db.durations, gh, emit: state.emit });
+  await securityAndAnalysis.poll({
+    repo,
+    refs: [],
+    db,
+    durations: db.durations,
+    gh,
+    emit: state.emit,
+  });
 
   assert.equal(state.deliveries.length, 1);
   const changes = state.deliveries[0]!.payload.changes as {

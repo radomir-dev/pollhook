@@ -9,10 +9,7 @@ export interface RpcResponse {
   exitCode?: number;
 }
 
-export async function rpc(
-  config: Config,
-  message: Record<string, unknown>,
-): Promise<RpcResponse> {
+export async function rpc(config: Config, message: Record<string, unknown>): Promise<RpcResponse> {
   const socket = await connectSocket(socketPathFor(config));
   try {
     return await new Promise<RpcResponse>((resolve, reject) => {

@@ -15,16 +15,24 @@ export function cliMarkdown(): string {
   lines.push("", "Flags:", "");
   for (const command of COMMANDS) {
     if (!command.flags?.length) continue;
-    lines.push(`- \`pollhook ${command.name}\`: ${command.flags.map((flag) => `\`${flag.flag}\` ${flag.description}`).join("; ")}`);
+    lines.push(
+      `- \`pollhook ${command.name}\`: ${command.flags.map((flag) => `\`${flag.flag}\` ${flag.description}`).join("; ")}`,
+    );
   }
-  lines.push("", `Exit codes: ${EXIT_CODES.map((code) => `\`${code.flag}\` ${code.description}`).join(", ")}.`, "", END);
+  lines.push(
+    "",
+    `Exit codes: ${EXIT_CODES.map((code) => `\`${code.flag}\` ${code.description}`).join(", ")}.`,
+    "",
+    END,
+  );
   return lines.join("\n");
 }
 
 export function replaceSection(readme: string, block: string): string {
   const start = readme.indexOf(START);
   const end = readme.indexOf(END);
-  if (start < 0 || end < start) throw new Error(`README is missing the ${START} ... ${END} markers`);
+  if (start < 0 || end < start)
+    throw new Error(`README is missing the ${START} ... ${END} markers`);
   return `${readme.slice(0, start)}${block}${readme.slice(end + END.length)}`;
 }
 
@@ -53,7 +61,8 @@ function slug(title: string): string {
 export function replaceToc(readme: string): string {
   const start = readme.indexOf(TOC_START);
   const end = readme.indexOf(TOC_END);
-  if (start < 0 || end < start) throw new Error(`README is missing the ${TOC_START} ... ${TOC_END} markers`);
+  if (start < 0 || end < start)
+    throw new Error(`README is missing the ${TOC_START} ... ${TOC_END} markers`);
   const block = tocMarkdown(readme);
   return `${readme.slice(0, start)}${block}${readme.slice(end + TOC_END.length)}`;
 }

@@ -32,7 +32,10 @@ export function resolveWait(db: StateStore, request: WaitRequest): WaitOutcome |
   }
 }
 
-function resolveRun(db: StateStore, request: Extract<WaitRequest, { kind: "run" }>): WaitOutcome | null {
+function resolveRun(
+  db: StateStore,
+  request: Extract<WaitRequest, { kind: "run" }>,
+): WaitOutcome | null {
   const snapshot = db.getSnapshot(request.repo, "workflow_run", request.id);
   if (!snapshot) return null;
   const run = snapshot.data;
@@ -48,7 +51,10 @@ function resolveRun(db: StateStore, request: Extract<WaitRequest, { kind: "run" 
   };
 }
 
-function resolveChecks(db: StateStore, request: Extract<WaitRequest, { kind: "checks" }>): WaitOutcome | null {
+function resolveChecks(
+  db: StateStore,
+  request: Extract<WaitRequest, { kind: "checks" }>,
+): WaitOutcome | null {
   const pull = db.getSnapshot(request.repo, "pull_request", String(request.pr));
   const head = pull?.data?.head?.sha;
   if (!head) return null;
@@ -105,7 +111,10 @@ function resolvePullRequest(
   return null;
 }
 
-function resolvePages(db: StateStore, request: Extract<WaitRequest, { kind: "pages" }>): WaitOutcome | null {
+function resolvePages(
+  db: StateStore,
+  request: Extract<WaitRequest, { kind: "pages" }>,
+): WaitOutcome | null {
   const builds = db
     .listSnapshots(request.repo, "page_build")
     .filter((row) => row.data?.build?.commit === request.sha);
@@ -119,7 +128,10 @@ function resolvePages(db: StateStore, request: Extract<WaitRequest, { kind: "pag
   };
 }
 
-function resolveEvent(db: StateStore, request: Extract<WaitRequest, { kind: "event" }>): WaitOutcome | null {
+function resolveEvent(
+  db: StateStore,
+  request: Extract<WaitRequest, { kind: "event" }>,
+): WaitOutcome | null {
   const recent = db.listDeliveries(50, request.repo);
   const match = recent.find(
     (delivery) =>

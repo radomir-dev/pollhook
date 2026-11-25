@@ -14,7 +14,13 @@ export const fork: Adapter = {
       const key = String(forkee.id);
       const { changed } = observe(ctx, "fork", key, String(forkee.created_at ?? ""), forkee);
       if (!changed) continue;
-      ctx.emit("fork", null, key, { forkee, repository: meta.repository, sender: meta.sender }, key);
+      ctx.emit(
+        "fork",
+        null,
+        key,
+        { forkee, repository: meta.repository, sender: meta.sender },
+        key,
+      );
     }
   },
 };

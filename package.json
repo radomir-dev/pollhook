@@ -1,14 +1,14 @@
 {
   "name": "pollhook",
   "version": "0.1.0",
-  "type": "module",
   "description": "GitHub webhook deliveries without webhooks: a local listener fed by REST API polling",
   "bin": {
     "pollhook": "./dist/cli.js"
   },
-  "engines": {
-    "node": ">=24"
-  },
+  "files": [
+    "dist"
+  ],
+  "type": "module",
   "scripts": {
     "start": "node src/cli.ts daemon",
     "test": "node --test test/*.test.ts",
@@ -16,13 +16,26 @@
     "build": "tsc -p tsconfig.build.json",
     "prepublishOnly": "npm run build",
     "docs": "node scripts/cli-docs.ts",
-    "docs:check": "node scripts/cli-docs.ts --check"
+    "docs:check": "node scripts/cli-docs.ts --check",
+    "lint": "oxlint src test scripts",
+    "format": "oxfmt",
+    "format:check": "oxfmt --check src test scripts"
   },
   "devDependencies": {
     "@types/node": "^26.6.10",
+    "knip": "^6.48.0",
+    "listr2": "^11.4.1",
+    "oxfmt": "^0.80.0",
+    "oxlint": "^1.95.0",
+    "publint": "^0.3.25",
     "typescript": "^7.0.2"
   },
-  "files": [
-    "dist"
-  ]
+  "engines": {
+    "node": ">=24"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/radomir-dev/pollhook.git"
+  }
 }

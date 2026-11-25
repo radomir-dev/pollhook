@@ -60,19 +60,17 @@ export class DeliveryRepository {
   }
 
   list(limit: number, repo?: string): Delivery[] {
-    const rows = (
-      repo
-        ? this.db
-            .prepare(
-              "select id, repo, event, action, key, payload, created_at, delivered_at from deliveries where repo = ? order by rowid desc limit ?",
-            )
-            .all(repo, limit)
-        : this.db
-            .prepare(
-              "select id, repo, event, action, key, payload, created_at, delivered_at from deliveries order by rowid desc limit ?",
-            )
-            .all(limit)
-    ) as unknown as DeliveryRow[];
+    const rows = (repo
+      ? this.db
+          .prepare(
+            "select id, repo, event, action, key, payload, created_at, delivered_at from deliveries where repo = ? order by rowid desc limit ?",
+          )
+          .all(repo, limit)
+      : this.db
+          .prepare(
+            "select id, repo, event, action, key, payload, created_at, delivered_at from deliveries order by rowid desc limit ?",
+          )
+          .all(limit)) as unknown as DeliveryRow[];
     return rows.map(toDelivery);
   }
 

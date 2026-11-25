@@ -21,7 +21,13 @@ export const repositoryRuleset: Adapter = {
 
     for (const ruleset of result.data) {
       const state = stateFor(ruleset);
-      const { changed, prev } = observe(ctx, "repository_ruleset", String(ruleset.id), state, ruleset);
+      const { changed, prev } = observe(
+        ctx,
+        "repository_ruleset",
+        String(ruleset.id),
+        state,
+        ruleset,
+      );
       if (!changed) continue;
       const action = prev && prev.state !== DELETED ? "edited" : "created";
       ctx.emit(

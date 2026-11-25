@@ -14,7 +14,15 @@ function setup(members: Array<{ id: number; login: string }>) {
     [MEMBERS]: members,
   });
   const state = emitFor(db, "acme");
-  const ctx = { repo: "acme", org: "acme", refs: [], db, durations: db.durations, gh, emit: state.emit };
+  const ctx = {
+    repo: "acme",
+    org: "acme",
+    refs: [],
+    db,
+    durations: db.durations,
+    gh,
+    emit: state.emit,
+  };
   return { db, gh, state, ctx };
 }
 
@@ -62,7 +70,15 @@ test("membership: teams outside the polled set keep their members", async () => 
     [MEMBERS]: [{ id: 1, login: "ana" }],
   });
   const state = emitFor(db, "acme");
-  await membership.poll({ repo: "acme", org: "acme", refs: [], db, durations: db.durations, gh, emit: state.emit });
+  await membership.poll({
+    repo: "acme",
+    org: "acme",
+    refs: [],
+    db,
+    durations: db.durations,
+    gh,
+    emit: state.emit,
+  });
 
   assert.equal(state.deliveries.length, 1);
   assert.equal(state.deliveries[0]!.key, "core:ana");

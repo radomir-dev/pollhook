@@ -25,10 +25,14 @@ function ruleKey(environment: string, id: number): string {
 }
 
 function ruleState(rule: Rule): string {
-  return sha256(JSON.stringify({ enabled: rule.enabled, app: rule.app?.slug ?? rule.app?.id ?? null }));
+  return sha256(
+    JSON.stringify({ enabled: rule.enabled, app: rule.app?.slug ?? rule.app?.id ?? null }),
+  );
 }
 
-async function fetchRules(ctx: AdapterContext): Promise<Array<{ environment: string; rule: Rule }>> {
+async function fetchRules(
+  ctx: AdapterContext,
+): Promise<Array<{ environment: string; rule: Rule }>> {
   const envResult = await ctx.gh.get<Environments>(
     `/repos/${ctx.repo}/environments?per_page=${LIMIT}`,
     { etagKey: `environments:${ctx.repo}` },
@@ -57,7 +61,10 @@ export const deploymentProtectionRule: Adapter = {
       const key = ruleKey(environment, rule.id);
       seen.add(key);
       const state = ruleState(rule);
-      const { changed, prev } = observe(ctx, "deployment_protection_rule", key, state, { environment, rule });
+      const { changed, prev } = observe(ctx, "deployment_protection_rule", key, state, {
+        environment,
+        rule,
+      });
       if (!changed) continue;
       const action = prev && prev.state !== "deleted" ? "edited" : "created";
       ctx.emit(

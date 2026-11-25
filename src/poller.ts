@@ -5,7 +5,13 @@ import type { Adapter, AdapterScope, Emit, EventName, GithubClient } from "./typ
 import { adaptersFor } from "./registry.ts";
 import { HeadCache, refsFor } from "./poller/refs.ts";
 import { delayFor, resolveInterval, resolveStrategy } from "./poller/schedule.ts";
-import { DEGRADED_MS, isPermanent, statusFor, statusList, type RepoStatus } from "./poller/status.ts";
+import {
+  DEGRADED_MS,
+  isPermanent,
+  statusFor,
+  statusList,
+  type RepoStatus,
+} from "./poller/status.ts";
 import { errorMessage, nowIso } from "./util.ts";
 
 const TICK_MS = 1000;

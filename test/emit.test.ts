@@ -21,7 +21,10 @@ function serve(socket: Socket, received: string[], finished: () => void) {
 test("emit subscribes and prints deliveries without the subscription ack", async () => {
   const stateDir = tempStateDir();
   const configPath = join(stateDir, "config.json");
-  writeFileSync(configPath, JSON.stringify({ repos: [{ repo: "acme/app", events: ["push"] }], stateDir }));
+  writeFileSync(
+    configPath,
+    JSON.stringify({ repos: [{ repo: "acme/app", events: ["push"] }], stateDir }),
+  );
   const received: string[] = [];
   let closed = () => {};
   const done = new Promise<void>((resolve) => (closed = resolve));

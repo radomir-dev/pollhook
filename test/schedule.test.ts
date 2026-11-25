@@ -53,7 +53,10 @@ test("the slow rule never drops below the adapter floor", () => {
   for (let index = 0; index < 3; index += 1) db.durations.record(repo, `r${index}`, "7", 600_000);
   seedRun(db, "7", 5_000);
 
-  assert.equal(delayFor(adapter("workflow_run", 120_000), 10_000, db, repo, "while-active"), 120_000);
+  assert.equal(
+    delayFor(adapter("workflow_run", 120_000), 10_000, db, repo, "while-active"),
+    120_000,
+  );
   db.close();
 });
 

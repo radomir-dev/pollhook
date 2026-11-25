@@ -8,10 +8,7 @@ interface PendingDeployments {
   pending_deployments?: any[];
 }
 
-async function fetchPending(
-  ctx: AdapterContext,
-  runId: string,
-): Promise<any[]> {
+async function fetchPending(ctx: AdapterContext, runId: string): Promise<any[]> {
   const result = await ctx.gh.get<PendingDeployments | any[]>(
     `/repos/${ctx.repo}/actions/runs/${runId}/pending_deployments`,
     { etagKey: `pending-deployments:${ctx.repo}:${runId}` },

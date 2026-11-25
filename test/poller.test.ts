@@ -102,10 +102,7 @@ test("priming is per event, not per object: a new object after a restart still d
 
   let emitted = 0;
   gh.respond(path, {
-    workflow_runs: [
-      runFixture(1, "in_progress", null),
-      runFixture(9, "completed", "success"),
-    ],
+    workflow_runs: [runFixture(1, "in_progress", null), runFixture(9, "completed", "success")],
   });
   await new Poller(workflowConfig, db, gh, () => {
     emitted += 1;
@@ -151,11 +148,7 @@ test("a permanent error is reported as degraded, not as a round error", async ()
 
 test("a transient error stays in lastError", async () => {
   const db = new StateStore(":memory:");
-  const gh = new FakeGitHub(
-    {},
-    {},
-    { "/repos/acme/app/actions/runs?per_page=50": "500 boom" },
-  );
+  const gh = new FakeGitHub({}, {}, { "/repos/acme/app/actions/runs?per_page=50": "500 boom" });
   const poller = new Poller(workflowConfig, db, gh, () => {});
   await poller.pollOnce();
 

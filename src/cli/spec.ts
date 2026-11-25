@@ -25,7 +25,9 @@ export const COMMANDS: CommandSpec[] = [
     name: "daemon",
     args: "[--config PATH]",
     summary: "Polls GitHub and serves consumers over a unix socket.",
-    flags: [{ flag: "--config PATH", description: "config file, default ~/.config/pollhook/config.json" }],
+    flags: [
+      { flag: "--config PATH", description: "config file, default ~/.config/pollhook/config.json" },
+    ],
   },
   {
     name: "status",
