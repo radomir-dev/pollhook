@@ -113,6 +113,12 @@ App-only events are reported as unsupported instead of being silently dropped.
 Acceptance: a 24-hour soak on a quiet repository holds the request budget and
 leaves no hooks behind.
 
+## P6: packaging
+
+Publish to npm so `npx pollhook` works without cloning. The bin is TypeScript today;
+either require Node 24 (type stripping) or compile to JavaScript at publish time.
+Decide before the first release, and keep the runtime requirement in `engines`.
+
 ## Decisions
 
 1. Node 24 pinned with mise, TypeScript, no framework, `node:sqlite`. A single Go

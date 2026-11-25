@@ -72,3 +72,4 @@ Next:
 2. P2: `push` from `/compare`, then `create` and `delete` from branch and tag
    diffs.
 3. Verify whether `gh webhook forward` leaves a hook behind.
+4. Package for npm/npx: P6 in AGENDA.md.
