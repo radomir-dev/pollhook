@@ -98,3 +98,11 @@ test("status exits 2 when no daemon is listening", async () => {
   assert.equal(result.status, 2);
   assert.match(result.stderr, /cannot reach pollhook/);
 });
+
+test("the SQLite experimental warning is not printed", async () => {
+  const stateDir = tempStateDir();
+  const result = await cli(["status"], writeConfig(stateDir), stateDir);
+
+  assert.doesNotMatch(result.stderr, /ExperimentalWarning/);
+  assert.match(result.stderr, /cannot reach pollhook/);
+});

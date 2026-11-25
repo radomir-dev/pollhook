@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import "./quiet.ts";
 import { loadConfig } from "./config.ts";
 import { startDaemon } from "./daemon.ts";
 import { valueFlag } from "./cli/args.ts";

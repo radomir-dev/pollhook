@@ -30,7 +30,8 @@ rights, a public URL or a GitHub App.
 
 ## Install
 
-Node 24 or newer is required (the state store uses `node:sqlite`).
+Node 22.13 or newer is required (the state store uses `node:sqlite`, which is
+unflagged from 22.13). Node prints an experimental-SQLite warning that is harmless.
 
     npm install -g pollhook
 
