@@ -170,8 +170,10 @@ function printStatus(body: any): void {
       `${repo.repo}  events=${repo.events.length}  last_poll=${repo.lastPollAt ?? "-"}  next_poll=${repo.nextPollAt ?? "-"}  last_event=${repo.lastEventAt ?? "-"}${error}${degraded}\n`,
     );
   }
-  process.stdout.write(
-    `quota ${body.quota.remaining}/${body.quota.limit} remaining, resets ${body.quota.resetAt ?? "-"}\n`,
-  );
+  if (body.quota) {
+    process.stdout.write(
+      `quota ${body.quota.remaining}/${body.quota.limit} remaining, resets ${body.quota.resetAt ?? "-"}\n`,
+    );
+  }
   process.stdout.write(`deliveries ${body.deliveries}, waiters ${body.waiters}, pid ${body.pid}\n`);
 }
