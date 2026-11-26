@@ -148,12 +148,15 @@ The unit keeps your home read-only except `~/.local/state`.
 
 ## Rate limits
 
-A `304 Not Modified` does not count against GitHub's limit, and pollhook sends
-`If-None-Match` on every poll, so a quiet repository is cheap: a ten-minute soak on
-one repository made 485 requests, 135 of them with bodies, about 800 billable per
-hour. Every poll is delayed by up to 10% at random, so targets that share an
-interval do not hit the API in lockstep. When quota runs low the daemon stretches every interval (3x under 15%
-remaining, 10x under 5%) and honours `Retry-After`. `pollhook poke` polls
+GitHub caps each token at a number of API requests per hour (5,000 for a normal
+token). That is a rate limit, not a charge: reading the API costs nothing, and
+pollhook is free to run. A `304 Not Modified` does not count against the limit, and
+pollhook sends `If-None-Match` on every poll, so a quiet repository uses little of
+it: a ten-minute run on one repository made 485 requests, 135 of them with bodies,
+which is about 800 requests an hour counted against the limit. Every poll is delayed
+by up to 10% at random, so targets that share an interval do not hit the API in
+lockstep. When the remaining quota runs low the daemon stretches every interval (3x
+under 15% remaining, 10x under 5%) and honours `Retry-After`. `pollhook poke` polls
 immediately when you know something just happened.
 
 ## Reading status
