@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.9.0](https://github.com/radomir-dev/pollhook/compare/v0.8.0...v0.9.0) (2026-11-26)
+
+
+### Features
+
+* poll organization, org_block and custom property events ([ef8c471](https://github.com/radomir-dev/pollhook/commit/ef8c471bae05199a9b03742d0cd1a6e280e88bd8))
+* poll organization, org_block and custom property events ([fa6626c](https://github.com/radomir-dev/pollhook/commit/fa6626c0da3854311ba3e2e1a24fa8d81a0594ed))
+* **site:** give the favicon a pollhook hook mark ([3f4c2b4](https://github.com/radomir-dev/pollhook/commit/3f4c2b4e3d8f9f775ae69fb5a958d1a9f1ece699))
+* **site:** give the favicon a pollhook hook mark ([7a0f34d](https://github.com/radomir-dev/pollhook/commit/7a0f34dba0f28d97f6a868db21ffb152c856f7ce))
+
 ## [0.8.0](https://github.com/radomir-dev/pollhook/compare/v0.7.0...v0.8.0) (2026-11-26)
 
 
