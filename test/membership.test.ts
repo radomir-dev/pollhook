@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import test from "node:test";
+import { test } from "vitest";
 import { membership } from "../src/adapters/membership.ts";
 import { StateStore } from "../src/db.ts";
 import { emitFor, FakeGitHub } from "./helpers.ts";

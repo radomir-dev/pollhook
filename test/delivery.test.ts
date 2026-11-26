@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { createHmac } from "node:crypto";
 import { writeFileSync } from "node:fs";
 import { join } from "node:path";
-import test from "node:test";
+import { test } from "vitest";
 import { loadConfig } from "../src/config.ts";
 import { deliveryHeaders, signatureHeaders } from "../src/delivery.ts";
 import type { Delivery } from "../src/types.ts";

@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { connect, type Socket } from "node:net";
-import test from "node:test";
+import { test } from "vitest";
 import { startDaemon } from "../src/daemon.ts";
 import type { Config } from "../src/config.ts";
 import { FakeGitHub, rpcTo, tempStateDir } from "./helpers.ts";

@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import test from "node:test";
+import { test } from "vitest";
 import { brief } from "../src/cli/format.ts";
 import type { Delivery } from "../src/types.ts";
 

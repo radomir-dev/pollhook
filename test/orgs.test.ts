@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { writeFileSync } from "node:fs";
 import { join } from "node:path";
-import test from "node:test";
+import { test } from "vitest";
 import { team } from "../src/adapters/team.ts";
 import { loadConfig, type Config } from "../src/config.ts";
 import { StateStore } from "../src/db.ts";

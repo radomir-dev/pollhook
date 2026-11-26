@@ -4,7 +4,7 @@ import { existsSync, writeFileSync } from "node:fs";
 import { createServer } from "node:http";
 import type { AddressInfo } from "node:net";
 import { join } from "node:path";
-import test from "node:test";
+import { test } from "vitest";
 import { tempStateDir } from "./helpers.ts";
 
 const root = join(import.meta.dirname, "..");

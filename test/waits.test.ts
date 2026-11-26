@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import test from "node:test";
+import { test } from "vitest";
 import { StateStore } from "../src/db.ts";
 import { resolveWait } from "../src/waits.ts";
 

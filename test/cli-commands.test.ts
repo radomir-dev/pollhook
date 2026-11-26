@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { join } from "node:path";
 import { createServer } from "node:http";
 import type { AddressInfo } from "node:net";
-import test from "node:test";
+import { test } from "vitest";
 import { StateStore } from "../src/db.ts";
 import { GitHub } from "../src/github.ts";
 import { dispatchCommand } from "../src/cli/commands.ts";

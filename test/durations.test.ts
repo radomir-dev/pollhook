@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import test from "node:test";
+import { test } from "vitest";
 import { StateStore } from "../src/db.ts";
 
 test("a workflow reports no typical duration below three samples", () => {

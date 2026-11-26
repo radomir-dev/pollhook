@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import test from "node:test";
+import { test } from "vitest";
 import { parseDuration, positionals, required, valueFlag, values } from "../src/cli/args.ts";
 
 test("parseDuration understands seconds, minutes, hours and bare seconds", () => {

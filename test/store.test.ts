@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { join } from "node:path";
-import test from "node:test";
+import { test } from "vitest";
 import { StateStore } from "../src/db.ts";
 import { tempStateDir } from "./helpers.ts";
 

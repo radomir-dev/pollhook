@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import test from "node:test";
+import { test } from "vitest";
 import { StateStore } from "../src/db.ts";
 import { delayFor, jitterMs } from "../src/poller/schedule.ts";
 import type { Adapter } from "../src/types.ts";

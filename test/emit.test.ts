@@ -3,7 +3,7 @@ import { spawn } from "node:child_process";
 import { writeFileSync } from "node:fs";
 import { createServer, type Server, type Socket } from "node:net";
 import { join } from "node:path";
-import test from "node:test";
+import { test } from "vitest";
 import { tempStateDir } from "./helpers.ts";
 
 const root = join(import.meta.dirname, "..");

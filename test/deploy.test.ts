@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import test from "node:test";
+import { test } from "vitest";
 import { deployKey } from "../src/adapters/deploy-key.ts";
 import { deployment } from "../src/adapters/deployment.ts";
 import { deploymentStatus } from "../src/adapters/deployment-status.ts";

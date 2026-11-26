@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import test from "node:test";
+import { test } from "vitest";
 import { repositoryAdvisory } from "../src/adapters/repository-advisory.ts";
 import { securityAndAnalysis } from "../src/adapters/security-and-analysis.ts";
 import { vulnerabilityAlert } from "../src/adapters/vulnerability-alert.ts";

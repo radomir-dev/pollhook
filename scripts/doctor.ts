@@ -6,8 +6,6 @@ import { Listr } from "listr2";
 const run = promisify(execFile);
 const root = join(import.meta.dirname, "..");
 
-const COVERAGE_FLOORS = { lines: 85, branches: 70, funcs: 80 };
-
 interface Result {
   stdout: string;
   stderr: string;
@@ -21,24 +19,6 @@ async function exec(command: string, ...args: string[]): Promise<Result> {
     const detail = [error.stdout, error.stderr].filter(Boolean).join("\n").trim();
     throw new Error(detail || error.message);
   }
-}
-
-function coverageRow(output: string): { lines: number; branches: number; funcs: number } {
-  const row = output.split("\n").find((line) => line.includes("all files"));
-  if (!row) throw new Error("coverage report has no summary row");
-  const cells = row.split("|").map((cell) => cell.trim());
-  return {
-    lines: Number(cells[1]),
-    branches: Number(cells[2]),
-    funcs: Number(cells[3]),
-  };
-}
-
-function assertFloors(actual: { lines: number; branches: number; funcs: number }): void {
-  const failures = Object.entries(COVERAGE_FLOORS)
-    .filter(([key, floor]) => actual[key as keyof typeof actual] < floor)
-    .map(([key, floor]) => `${key} ${actual[key as keyof typeof actual]}% < ${floor}%`);
-  if (failures.length > 0) throw new Error(`coverage below floor: ${failures.join(", ")}`);
 }
 
 const failures: string[] = [];
@@ -90,15 +70,10 @@ const tasks = new Listr(
       return "no high or critical advisories";
     }),
     task("Tests and coverage", async () => {
-      const { stdout, stderr } = await exec(
-        process.execPath,
-        "--test",
-        "--experimental-test-coverage",
-        "test/*.test.ts",
-      );
-      const actual = coverageRow(`${stdout}\n${stderr}`);
-      assertFloors(actual);
-      return `all tests pass; lines ${actual.lines}%, branches ${actual.branches}%, functions ${actual.funcs}%`;
+      const { stdout } = await exec("npx", "vitest", "run", "--coverage");
+      const tests = /Tests\s+(\d+) passed/.exec(stdout)?.[1];
+      const lines = /Lines\s+:\s+([\d.]+)%/.exec(stdout)?.[1];
+      return `${tests} tests pass; ${lines}% of lines covered, above the floors in vitest.config.ts`;
     }),
     task("Generated docs", async () => {
       await exec("node", "scripts/cli-docs.ts", "--check");

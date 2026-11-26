@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { join } from "node:path";
-import test from "node:test";
+import { test } from "vitest";
 import { workflowRun } from "../src/adapters/workflow-run.ts";
 import { StateStore } from "../src/db.ts";
 import { emitFor, FakeGitHub, tempStateDir } from "./helpers.ts";

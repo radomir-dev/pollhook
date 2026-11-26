@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import test from "node:test";
+import { test } from "vitest";
 import { codeScanningAlert } from "../src/adapters/code-scanning-alert.ts";
 import { dependabotAlert } from "../src/adapters/dependabot-alert.ts";
 import { secretScanningAlert } from "../src/adapters/secret-scanning-alert.ts";

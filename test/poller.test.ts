@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import test from "node:test";
+import { test } from "vitest";
 import type { Config } from "../src/config.ts";
 import { StateStore } from "../src/db.ts";
 import { Poller } from "../src/poller.ts";

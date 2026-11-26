@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { join } from "node:path";
-import test from "node:test";
+import { test } from "vitest";
 import type { Config } from "../src/config.ts";
 import { startDaemon } from "../src/daemon.ts";
 import { FakeGitHub, rpcTo, tempStateDir } from "./helpers.ts";

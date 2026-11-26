@@ -269,8 +269,13 @@ later Node versions.
     npm run doctor
 
 `doctor` runs types, lint, format, architecture rules, dead-code detection, an
-audit, the tests with coverage floors, the generated-docs check, and the build with
-a package check. CI runs the same command. Pull request titles must follow
+audit, the tests (vitest) with coverage floors, the generated-docs check, and the
+build with a package check. CI runs the same command.
+
+Mutation testing is separate because it takes a long time: `npm run mutation` runs
+Stryker over `src/` with the suite, and a weekly workflow uploads the HTML report.
+Stryker cannot read TypeScript 7's compiler API, so `stryker.config.json` points
+`tsconfigFile` at a file that does not exist to skip its tsconfig rewrite. Pull request titles must follow
 Conventional Commits; releases, the changelog and the npm publish are automated
 from them. Open work is in the [issue tracker](https://github.com/radomir-dev/pollhook/issues).
 

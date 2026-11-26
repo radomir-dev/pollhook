@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import test from "node:test";
+import { test } from "vitest";
 import { issueComment } from "../src/adapters/issue-comment.ts";
 import { issues } from "../src/adapters/issues.ts";
 import { StateStore } from "../src/db.ts";

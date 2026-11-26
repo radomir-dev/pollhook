@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import test from "node:test";
+import { test } from "vitest";
 import { commitComment } from "../src/adapters/commit-comment.ts";
 import { fork } from "../src/adapters/fork.ts";
 import { publicEvent, repository } from "../src/adapters/repository.ts";

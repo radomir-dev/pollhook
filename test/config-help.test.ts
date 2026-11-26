@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { writeFileSync } from "node:fs";
 import { join } from "node:path";
-import test from "node:test";
+import { test } from "vitest";
 import { loadConfig, parseConfig } from "../src/config.ts";
 import { tempStateDir } from "./helpers.ts";
 

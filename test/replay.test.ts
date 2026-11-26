@@ -3,7 +3,7 @@ import { spawn } from "node:child_process";
 import { writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { connect, type Socket } from "node:net";
-import test from "node:test";
+import { test } from "vitest";
 import type { Config } from "../src/config.ts";
 import { startDaemon } from "../src/daemon.ts";
 import { FakeGitHub, rpcTo, tempStateDir } from "./helpers.ts";

@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import test from "node:test";
+import { test } from "vitest";
 import { label } from "../src/adapters/label.ts";
 import { milestone } from "../src/adapters/milestone.ts";
 import { release } from "../src/adapters/release.ts";

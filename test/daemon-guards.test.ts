@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { spawn } from "node:child_process";
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
-import test from "node:test";
+import { test } from "vitest";
 import { createIdleExit } from "../src/daemon/idle.ts";
 import { acquireLock } from "../src/daemon/lock.ts";
 import { tempStateDir } from "./helpers.ts";

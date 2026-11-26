@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
-import test from "node:test";
+import { test } from "vitest";
 import { parseConfig } from "../src/config.ts";
 import { MIN_INTERVAL_SECONDS } from "../src/config/help.ts";
 import { configSchema, findUnknownKeys } from "../src/config/schema.ts";

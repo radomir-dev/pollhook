@@ -12,7 +12,7 @@
   "type": "module",
   "scripts": {
     "start": "node src/cli.ts daemon",
-    "test": "node --test test/*.test.ts",
+    "test": "vitest run",
     "typecheck": "tsc --noEmit",
     "build": "tsc -p tsconfig.build.json",
     "prepublishOnly": "npm run build",
@@ -22,18 +22,24 @@
     "format": "oxfmt",
     "format:check": "oxfmt --check src test scripts",
     "doctor": "node scripts/doctor.ts",
-    "arch": "depcruise src test scripts --config .dependency-cruiser.cjs"
+    "arch": "depcruise src test scripts --config .dependency-cruiser.cjs",
+    "test:coverage": "vitest run --coverage",
+    "mutation": "stryker run"
   },
   "devDependencies": {
+    "@stryker-mutator/core": "^10.1.1",
+    "@stryker-mutator/vitest-runner": "^10.1.1",
     "@swc/core": "^1.16.22",
     "@types/node": "^26.6.10",
+    "@vitest/coverage-v8": "^5.1.2",
     "dependency-cruiser": "^18.9.0",
     "knip": "^6.48.0",
     "listr2": "^11.4.1",
     "oxfmt": "^0.80.0",
     "oxlint": "^1.95.0",
     "publint": "^0.3.25",
-    "typescript": "^7.0.2"
+    "typescript": "^7.0.2",
+    "vitest": "^5.1.2"
   },
   "engines": {
     "node": ">=22.13.0"
