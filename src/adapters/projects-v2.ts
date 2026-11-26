@@ -1,10 +1,7 @@
 import type { Adapter } from "../types.ts";
 import { sha256 } from "../util.ts";
-import { observe, orgAndSender } from "./common.ts";
+import { observe, orgAndSender, PAGE_SIZE, projectsPath } from "./common.ts";
 
-export const PAGE_SIZE = 100;
-export const projectsPath = (org: string): string =>
-  `/orgs/${org}/projectsV2?per_page=${PAGE_SIZE}`;
 const DELETED = "deleted";
 
 function stateOf(project: any): string {

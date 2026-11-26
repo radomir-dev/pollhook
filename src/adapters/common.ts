@@ -1,5 +1,8 @@
 import type { AdapterContext, EventName, RepoInfo, Snapshot } from "../types.ts";
 
+export const PAGE_SIZE = 100;
+export const projectsPath = (org: string): string =>
+  `/orgs/${org}/projectsV2?per_page=${PAGE_SIZE}`;
 export const DISCUSSIONS_PATH = "discussions?sort=updated&direction=desc&per_page=100";
 
 export interface Observation {

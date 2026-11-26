@@ -1,7 +1,6 @@
 import type { Adapter, AdapterContext } from "../types.ts";
 import { sha256 } from "../util.ts";
-import { observe, orgAndSender } from "./common.ts";
-import { PAGE_SIZE, projectsPath } from "./projects-v2.ts";
+import { observe, orgAndSender, PAGE_SIZE, projectsPath } from "./common.ts";
 
 const DELETED = "deleted";
 
