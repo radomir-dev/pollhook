@@ -20,7 +20,12 @@ test("config accepts orgs without repos and defaults to org events", () => {
   const config = loadConfig(configFile({ orgs: [{ org: "acme" }] }));
   assert.equal(config.repos.length, 0);
   assert.equal(config.orgs[0]!.org, "acme");
-  assert.deepEqual(config.orgs[0]!.events, ["team", "membership"]);
+  assert.deepEqual(config.orgs[0]!.events, [
+    "team",
+    "membership",
+    "projects_v2",
+    "projects_v2_item",
+  ]);
   assert.equal(config.orgs[0]!.intervalMs, 300_000);
 });
 
