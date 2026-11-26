@@ -229,7 +229,7 @@ permanently different:
 3. `sender` is the authenticated user, not necessarily whoever acted.
 4. GitHub App events (`installation*`, `marketplace_purchase`) are out of scope on
    purpose: they need an App, and pollhook works with a plain token. GraphQL-only
-   state (projects, discussions) is not supported yet.
+   state (review thread resolution, project status updates) is not supported yet.
 
 pollhook is also deliberately not a webhook tool. It never creates a webhook or
 an App, and it does not wrap `gh webhook forward`, which needs a real webhook and

@@ -54,8 +54,8 @@ test("an interval below the five second floor or an unknown event is rejected", 
     /intervals.workflow_run must be at least 5 seconds/,
   );
   assert.throws(
-    () => load({ intervals: { discussion: 30 }, repos }),
-    /discussion is not a subscribed event/,
+    () => load({ intervals: { projects_v2: 30 }, repos }),
+    /projects_v2 is not a subscribed event/,
   );
 });
 

@@ -17,6 +17,8 @@ import { deploymentReview } from "./adapters/deployment-review.ts";
 import { deploymentStatus } from "./adapters/deployment-status.ts";
 import { mergeGroup, workflowDispatch } from "./adapters/dispatch.ts";
 import { fork } from "./adapters/fork.ts";
+import { discussion } from "./adapters/discussion.ts";
+import { discussionComment } from "./adapters/discussion-comment.ts";
 import { issueComment } from "./adapters/issue-comment.ts";
 import { issues } from "./adapters/issues.ts";
 import { label } from "./adapters/label.ts";
@@ -42,6 +44,8 @@ export const ADAPTERS: Record<EventName, Adapter> = {
   delete: deleteRef,
   issues,
   issue_comment: issueComment,
+  discussion,
+  discussion_comment: discussionComment,
   release,
   label,
   milestone,

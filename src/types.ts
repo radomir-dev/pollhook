@@ -6,6 +6,8 @@ export type EventName =
   | "delete"
   | "issues"
   | "issue_comment"
+  | "discussion"
+  | "discussion_comment"
   | "release"
   | "label"
   | "milestone"

@@ -42,22 +42,22 @@ already recorded: subscribe to `workflow_run` as well, or it has nothing to read
 
 ## Pull requests, issues and comments
 
-| Event                         | REST source                                           | Cursor                           | Fidelity | Phase   |
-| ----------------------------- | ----------------------------------------------------- | -------------------------------- | -------- | ------- |
-| `pull_request`                | `/repos/{o}/{r}/pulls?state=all&sort=updated`         | `number` + `updated_at`          | object   | P1 done |
-| `pull_request_review`         | `/repos/{o}/{r}/pulls/{number}/reviews`               | `id` + `submitted_at`            | object   | P1 done |
-| `pull_request_review_comment` | `/repos/{o}/{r}/pulls/comments?sort=updated`          | `id` + body hash + `updated_at`  | object   | P2 done |
-| `pull_request_review_thread`  | GraphQL `reviewThreads` ~                             | thread `id` + `isResolved`       | partial  | P4      |
-| `issues`                      | `/repos/{o}/{r}/issues?state=all&sort=updated&since=` | `number` + `updated_at`          | object   | P2 done |
-| `issue_comment`               | `/repos/{o}/{r}/issues/comments?sort=updated`         | `id` + `updated_at`              | object   | P2 done |
-| `sub_issues`                  | `/repos/{o}/{r}/issues/{number}/sub_issues`           | `id` + `updated_at`              | object   | P3      |
-| `issue_dependencies`          | `/repos/{o}/{r}/issues/{number}/dependencies/*` ~     | relationship `id`                | partial  | P4      |
-| `issue_relates_to`            | `/repos/{o}/{r}/issues/{number}/timeline` ~           | timeline event `id`              | partial  | P4      |
-| `commit_comment`              | `/repos/{o}/{r}/comments?sort=updated`                | `id` + `updated_at`              | object   | P2 done |
-| `discussion`                  | GraphQL `discussion`                                  | `id` + `updatedAt`               | object   | P4      |
-| `discussion_comment`          | GraphQL `discussionComment`                           | `id` + `updatedAt`               | object   | P4      |
-| `label`                       | `/repos/{o}/{r}/labels`                               | name + hash of color/description | derived  | P2 done |
-| `milestone`                   | `/repos/{o}/{r}/milestones?state=all`                 | `id` + `updated_at`              | object   | P2 done |
+| Event                         | REST source                                           | Cursor                                                      | Fidelity | Phase   |
+| ----------------------------- | ----------------------------------------------------- | ----------------------------------------------------------- | -------- | ------- |
+| `pull_request`                | `/repos/{o}/{r}/pulls?state=all&sort=updated`         | `number` + `updated_at`                                     | object   | P1 done |
+| `pull_request_review`         | `/repos/{o}/{r}/pulls/{number}/reviews`               | `id` + `submitted_at`                                       | object   | P1 done |
+| `pull_request_review_comment` | `/repos/{o}/{r}/pulls/comments?sort=updated`          | `id` + body hash + `updated_at`                             | object   | P2 done |
+| `pull_request_review_thread`  | GraphQL `reviewThreads` ~                             | thread `id` + `isResolved`                                  | partial  | P4      |
+| `issues`                      | `/repos/{o}/{r}/issues?state=all&sort=updated&since=` | `number` + `updated_at`                                     | object   | P2 done |
+| `issue_comment`               | `/repos/{o}/{r}/issues/comments?sort=updated`         | `id` + `updated_at`                                         | object   | P2 done |
+| `sub_issues`                  | `/repos/{o}/{r}/issues/{number}/sub_issues`           | `id` + `updated_at`                                         | object   | P3      |
+| `issue_dependencies`          | `/repos/{o}/{r}/issues/{number}/dependencies/*` ~     | relationship `id`                                           | partial  | P4      |
+| `issue_relates_to`            | `/repos/{o}/{r}/issues/{number}/timeline` ~           | timeline event `id`                                         | partial  | P4      |
+| `commit_comment`              | `/repos/{o}/{r}/comments?sort=updated`                | `id` + `updated_at`                                         | object   | P2 done |
+| `discussion`                  | `/repos/{o}/{r}/discussions?sort=updated`             | `number` + state, lock, answer, category, labels, body hash | derived  | P4 done |
+| `discussion_comment`          | `/repos/{o}/{r}/discussions/{n}/comments`             | comment `id` + body hash + `updated_at`                     | partial  | P4 done |
+| `label`                       | `/repos/{o}/{r}/labels`                               | name + hash of color/description                            | derived  | P2 done |
+| `milestone`                   | `/repos/{o}/{r}/milestones?state=all`                 | `id` + `updated_at`                                         | object   | P2 done |
 
 ## Repository and git
 
@@ -133,6 +133,15 @@ and `changes.branch_protection.from/to`.
 Rows marked `out of scope` need a GitHub App, which pollhook deliberately does not
 support: it stays a read-only, token-only tool with nothing installed on the
 repository.
+
+Discussions come from REST, not GraphQL, and revalidate with `304` like the rest.
+`discussion` infers `created`, `edited`, `closed`, `reopened`, `locked`, `unlocked`,
+`answered`, `unanswered`, `category_changed`, `labeled` and `unlabeled` from the diff;
+`deleted`, `pinned` and `transferred` leave no trace in the list. A new comment alone
+does not produce a `discussion` event. `discussion_comment` reads the first 100
+top-level comments of at most ten changed discussions per round, so replies, deleted
+comments and comments past the first 100 are not seen, and a comment edit is only
+noticed when the discussion's `updated_at` moves.
 
 ## Action inference
 

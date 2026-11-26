@@ -31,6 +31,8 @@
                 "delete",
                 "issues",
                 "issue_comment",
+                "discussion",
+                "discussion_comment",
                 "release",
                 "label",
                 "milestone",
@@ -104,6 +106,16 @@
                 "type": "number",
                 "minimum": 5,
                 "description": "Seconds between issue_comment polls"
+              },
+              "discussion": {
+                "type": "number",
+                "minimum": 5,
+                "description": "Seconds between discussion polls"
+              },
+              "discussion_comment": {
+                "type": "number",
+                "minimum": 5,
+                "description": "Seconds between discussion_comment polls"
               },
               "release": {
                 "type": "number",
@@ -297,6 +309,18 @@
                 ]
               },
               "issue_comment": {
+                "enum": [
+                  "fixed",
+                  "while-active"
+                ]
+              },
+              "discussion": {
+                "enum": [
+                  "fixed",
+                  "while-active"
+                ]
+              },
+              "discussion_comment": {
                 "enum": [
                   "fixed",
                   "while-active"
@@ -597,6 +621,16 @@
           "minimum": 5,
           "description": "Seconds between issue_comment polls"
         },
+        "discussion": {
+          "type": "number",
+          "minimum": 5,
+          "description": "Seconds between discussion polls"
+        },
+        "discussion_comment": {
+          "type": "number",
+          "minimum": 5,
+          "description": "Seconds between discussion_comment polls"
+        },
         "release": {
           "type": "number",
           "minimum": 5,
@@ -789,6 +823,18 @@
           ]
         },
         "issue_comment": {
+          "enum": [
+            "fixed",
+            "while-active"
+          ]
+        },
+        "discussion": {
+          "enum": [
+            "fixed",
+            "while-active"
+          ]
+        },
+        "discussion_comment": {
           "enum": [
             "fixed",
             "while-active"

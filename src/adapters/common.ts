@@ -1,5 +1,7 @@
 import type { AdapterContext, EventName, RepoInfo, Snapshot } from "../types.ts";
 
+export const DISCUSSIONS_PATH = "discussions?sort=updated&direction=desc&per_page=100";
+
 export interface Observation {
   changed: boolean;
   prev: Snapshot | null;
