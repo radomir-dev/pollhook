@@ -1,8 +1,8 @@
 (function initBackground() {
-  const canvas = document.getElementById('bg-canvas');
-  if (!canvas || window.location.search.includes('record')) return;
+  const canvas = document.getElementById("bg-canvas");
+  if (!canvas || window.location.search.includes("record")) return;
 
-  const ctx = canvas.getContext('2d');
+  const ctx = canvas.getContext("2d");
   if (!ctx) return;
 
   let width = 0;
@@ -15,7 +15,7 @@
   let lastPulseTime = 0;
 
   const pointer = { x: -9999, y: -9999, active: false };
-  const motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+  const motionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
 
   function resize() {
     width = window.innerWidth;
@@ -180,36 +180,48 @@
     }
   }
 
-  window.addEventListener('pointermove', (e) => {
-    pointer.x = e.clientX;
-    pointer.y = e.clientY;
-    pointer.active = true;
-  }, { passive: true });
+  window.addEventListener(
+    "pointermove",
+    (e) => {
+      pointer.x = e.clientX;
+      pointer.y = e.clientY;
+      pointer.active = true;
+    },
+    { passive: true },
+  );
 
-  window.addEventListener('pointerleave', () => {
-    pointer.active = false;
-  }, { passive: true });
+  window.addEventListener(
+    "pointerleave",
+    () => {
+      pointer.active = false;
+    },
+    { passive: true },
+  );
 
-  window.addEventListener('pointerdown', (e) => {
-    pointer.x = e.clientX;
-    pointer.y = e.clientY;
-    pointer.active = true;
-    addRipple(e.clientX, e.clientY);
-    triggerLinkPulse();
-  }, { passive: true });
+  window.addEventListener(
+    "pointerdown",
+    (e) => {
+      pointer.x = e.clientX;
+      pointer.y = e.clientY;
+      pointer.active = true;
+      addRipple(e.clientX, e.clientY);
+      triggerLinkPulse();
+    },
+    { passive: true },
+  );
 
-  document.addEventListener('visibilitychange', () => {
+  document.addEventListener("visibilitychange", () => {
     if (document.hidden) stop();
     else start();
   });
 
-  motionQuery.addEventListener('change', () => {
+  motionQuery.addEventListener("change", () => {
     stop();
     start();
   });
 
   let resizeTimer;
-  window.addEventListener('resize', () => {
+  window.addEventListener("resize", () => {
     clearTimeout(resizeTimer);
     resizeTimer = setTimeout(() => {
       resize();
