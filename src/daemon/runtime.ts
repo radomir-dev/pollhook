@@ -50,6 +50,7 @@ export function createRuntime(
     http: gh instanceof GitHub ? gh.stats : null,
     repos: ref.poller?.listStatuses() ?? [],
     waiters: waiters.count,
+    streams: listeners.size,
     deliveries: db.countDeliveries(),
     configReloadedAt: ref.reloadedAt,
     configError: ref.error,

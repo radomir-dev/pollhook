@@ -169,7 +169,7 @@ immediately when you know something just happened.
 
     owner/repo  events=3  last_poll=...  next_poll=...  last_event=...
     quota 4869/5000 remaining, resets ...
-    deliveries 60, waiters 0, pid 1234
+    deliveries 60, waiters 0, streams 1, pid 1234
 
 `error=` is a transient failure that clears after a clean round. `degraded=` lists
 adapters GitHub answered with 403 or 404 (a feature that is disabled, or a token

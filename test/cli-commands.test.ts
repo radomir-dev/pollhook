@@ -91,7 +91,7 @@ test("status, events, deliveries and poke read from the daemon", async () => {
     assert.match(plain.out, /acme\/app {2}events=2/);
     assert.match(plain.out, /error=500 upstream failed/);
     assert.match(plain.out, /degraded=pull_request/);
-    assert.match(plain.out, /deliveries 0, waiters 0, pid \d+/);
+    assert.match(plain.out, /deliveries 0, waiters 0, streams 0, pid \d+/);
 
     const json = await capture(() => dispatchCommand(config, "status", ["--json"]));
     assert.equal(JSON.parse(json.out).repos[0].repo, "acme/app");

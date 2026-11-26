@@ -191,5 +191,7 @@ function printStatus(body: any): void {
       `quota ${body.quota.remaining}/${body.quota.limit} remaining, resets ${body.quota.resetAt ?? "-"}\n`,
     );
   }
-  process.stdout.write(`deliveries ${body.deliveries}, waiters ${body.waiters}, pid ${body.pid}\n`);
+  process.stdout.write(
+    `deliveries ${body.deliveries}, waiters ${body.waiters}, streams ${body.streams ?? 0}, pid ${body.pid}\n`,
+  );
 }

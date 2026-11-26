@@ -142,7 +142,11 @@ test("a real emit process survives a daemon restart and prints the missed delive
   let stderr = "";
   child.stdout.setEncoding("utf8").on("data", (chunk: string) => (stdout += chunk));
   child.stderr.setEncoding("utf8").on("data", (chunk: string) => (stderr += chunk));
-  await pause(500);
+  for (let waited = 0; waited < 10_000; waited += 50) {
+    const status = await rpcTo(socketPath, { op: "status" });
+    if (status.body.streams === 1) break;
+    await pause(50);
+  }
 
   await first.close();
   const second = await startDaemon(configFor(stateDir), {
