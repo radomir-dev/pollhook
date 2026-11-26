@@ -113,7 +113,7 @@ and `changes.branch_protection.from/to`.
 | `team_add`                      | `/repos/{o}/{r}/teams`                       | team `id` + repo                        | derived  | P4           |
 | `organization`                  | `/orgs/{org}`                                | `id` + `updated_at`                     | derived  | P4           |
 | `org_block`                     | `/orgs/{org}/blocks`                         | `id` + `login`                          | derived  | P4           |
-| `personal_access_token_request` | `/orgs/{org}/personal-access-token-requests` | `id` + `created_at`                     | object   | P4           |
+| `personal_access_token_request` | `/orgs/{org}/personal-access-token-requests` | `id` + `created_at`                     | none     | out of scope |
 | `custom_property`               | `/orgs/{org}/properties/schema` ~            | name + hash                             | derived  | P4           |
 | `custom_property_values`        | `/orgs/{org}/properties/values` ~            | repo + hash                             | derived  | P4           |
 | `projects_v2`                   | `/orgs/{org}/projectsV2`                     | `number` + title, `public`, `closed_at` | derived  | P4 done      |
