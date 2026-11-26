@@ -41,7 +41,7 @@ test("init writes a config that loads, creating the directory", () => {
     ["acme/app", "acme/lib"],
   );
   assert.deepEqual(config.repos[0]!.events, ["push", "release"]);
-  assert.match(result.out, /next: pollhook daemon/);
+  assert.match(result.out, /next: pollhook status/);
 });
 
 test("init without a repo writes a placeholder and says to edit it", () => {

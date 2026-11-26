@@ -44,7 +44,7 @@ function initCommand(args: string[]): number {
   process.stdout.write(`wrote ${path}\n`);
   if (repos.length === 0)
     process.stdout.write(`edit it: replace ${PLACEHOLDER} with a repository\n`);
-  process.stdout.write("next: pollhook daemon\n");
+  process.stdout.write("next: pollhook status\n");
   return 0;
 }
 
