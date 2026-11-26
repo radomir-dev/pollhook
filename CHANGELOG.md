@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.5.1](https://github.com/radomir-dev/pollhook/compare/v0.5.0...v0.5.1) (2026-11-26)
+
+
+### Bug Fixes
+
+* **cli:** init points at status now that the daemon starts itself ([7ab85a0](https://github.com/radomir-dev/pollhook/commit/7ab85a0621393e28d4116ca3450c9f644eb16b0a))
+
 ## [0.5.0](https://github.com/radomir-dev/pollhook/compare/v0.4.0...v0.5.0) (2026-11-26)
 
 
