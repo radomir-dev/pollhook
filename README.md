@@ -224,10 +224,13 @@ permanently different:
 2. Short-lived states can be coalesced. A run may go from `queued` to `completed`
    as a single delivery.
 3. `sender` is the authenticated user, not necessarily whoever acted.
-4. GitHub App events (`installation*`, `marketplace_purchase`) and GraphQL-only
-   state (projects, discussions) are not supported.
+4. GitHub App events (`installation*`, `marketplace_purchase`) are out of scope on
+   purpose: they need an App, and pollhook works with a plain token. GraphQL-only
+   state (projects, discussions) is not supported yet.
 
-pollhook is read-only: it never sends `POST`, `PUT`, `PATCH` or `DELETE` to GitHub,
+pollhook is also deliberately not a webhook tool. It never creates a webhook or
+an App, and it does not wrap `gh webhook forward`, which needs a real webhook and
+admin rights; the point is webhooks without webhooks. It is read-only: it never sends `POST`, `PUT`, `PATCH` or `DELETE` to GitHub,
 and nothing listens on a network interface. Deliveries are at-least-once and
 de-duplicated by fingerprint.
 

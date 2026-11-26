@@ -105,30 +105,34 @@ and `changes.branch_protection.from/to`.
 
 ## Organisation, projects and apps
 
-| Event                           | REST source                                  | Cursor                    | Fidelity | Phase   |
-| ------------------------------- | -------------------------------------------- | ------------------------- | -------- | ------- |
-| `member`                        | `/repos/{o}/{r}/collaborators`               | `login` + permission hash | derived  | P4 done |
-| `membership`                    | `/orgs/{org}/teams/{slug}/members`           | `slug:login`              | derived  | P4 done |
-| `team`                          | `/orgs/{org}/teams`                          | `id` + `updated_at`       | object   | P4 done |
-| `team_add`                      | `/repos/{o}/{r}/teams`                       | team `id` + repo          | derived  | P4      |
-| `organization`                  | `/orgs/{org}`                                | `id` + `updated_at`       | derived  | P4      |
-| `org_block`                     | `/orgs/{org}/blocks`                         | `id` + `login`            | derived  | P4      |
-| `personal_access_token_request` | `/orgs/{org}/personal-access-token-requests` | `id` + `created_at`       | object   | P4      |
-| `custom_property`               | `/orgs/{org}/properties/schema` ~            | name + hash               | derived  | P4      |
-| `custom_property_values`        | `/orgs/{org}/properties/values` ~            | repo + hash               | derived  | P4      |
-| `projects_v2`                   | GraphQL `projectV2`                          | `id` + `updatedAt`        | object   | P4      |
-| `projects_v2_item`              | GraphQL `projectV2Item`                      | `id` + `updatedAt`        | object   | P4      |
-| `projects_v2_status_update`     | GraphQL status updates ~                     | `id` + `updatedAt`        | partial  | P4      |
-| `project`                       | classic Projects, sunset                     | `id` + `updated_at`       | partial  | P4      |
-| `project_card`                  | classic Projects, sunset                     | `id` + `updated_at`       | partial  | P4      |
-| `project_column`                | classic Projects, sunset                     | `id` + `updated_at`       | partial  | P4      |
-| `installation`                  | `/app/installations` (App JWT)               | `id` + `updated_at`       | none     | —       |
-| `installation_repositories`     | App JWT, installation repositories           | `id`                      | none     | —       |
-| `installation_target`           | App JWT, installation target                 | `id`                      | none     | —       |
-| `github_app_authorization`      | App-only                                     | —                         | none     | —       |
-| `marketplace_purchase`          | Marketplace API ~                            | `id` + `updated_at`       | partial  | —       |
-| `sponsorship`                   | GraphQL sponsorships ~                       | `id` + `updatedAt`        | partial  | —       |
-| `ping`                          | synthesized at subscription                  | —                         | object   | P0      |
+| Event                           | REST source                                  | Cursor                    | Fidelity | Phase        |
+| ------------------------------- | -------------------------------------------- | ------------------------- | -------- | ------------ |
+| `member`                        | `/repos/{o}/{r}/collaborators`               | `login` + permission hash | derived  | P4 done      |
+| `membership`                    | `/orgs/{org}/teams/{slug}/members`           | `slug:login`              | derived  | P4 done      |
+| `team`                          | `/orgs/{org}/teams`                          | `id` + `updated_at`       | object   | P4 done      |
+| `team_add`                      | `/repos/{o}/{r}/teams`                       | team `id` + repo          | derived  | P4           |
+| `organization`                  | `/orgs/{org}`                                | `id` + `updated_at`       | derived  | P4           |
+| `org_block`                     | `/orgs/{org}/blocks`                         | `id` + `login`            | derived  | P4           |
+| `personal_access_token_request` | `/orgs/{org}/personal-access-token-requests` | `id` + `created_at`       | object   | P4           |
+| `custom_property`               | `/orgs/{org}/properties/schema` ~            | name + hash               | derived  | P4           |
+| `custom_property_values`        | `/orgs/{org}/properties/values` ~            | repo + hash               | derived  | P4           |
+| `projects_v2`                   | GraphQL `projectV2`                          | `id` + `updatedAt`        | object   | P4           |
+| `projects_v2_item`              | GraphQL `projectV2Item`                      | `id` + `updatedAt`        | object   | P4           |
+| `projects_v2_status_update`     | GraphQL status updates ~                     | `id` + `updatedAt`        | partial  | P4           |
+| `project`                       | classic Projects, sunset                     | `id` + `updated_at`       | partial  | P4           |
+| `project_card`                  | classic Projects, sunset                     | `id` + `updated_at`       | partial  | P4           |
+| `project_column`                | classic Projects, sunset                     | `id` + `updated_at`       | partial  | P4           |
+| `installation`                  | `/app/installations` (App JWT)               | `id` + `updated_at`       | none     | out of scope |
+| `installation_repositories`     | App JWT, installation repositories           | `id`                      | none     | out of scope |
+| `installation_target`           | App JWT, installation target                 | `id`                      | none     | out of scope |
+| `github_app_authorization`      | App-only                                     | —                         | none     | out of scope |
+| `marketplace_purchase`          | Marketplace API ~                            | `id` + `updated_at`       | partial  | out of scope |
+| `sponsorship`                   | GraphQL sponsorships ~                       | `id` + `updatedAt`        | partial  | —            |
+| `ping`                          | synthesized at subscription                  | —                         | object   | P0           |
+
+Rows marked `out of scope` need a GitHub App, which pollhook deliberately does not
+support: it stays a read-only, token-only tool with nothing installed on the
+repository.
 
 ## Action inference
 
