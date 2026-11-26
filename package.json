@@ -48,5 +48,23 @@
   "repository": {
     "type": "git",
     "url": "git+https://github.com/radomir-dev/pollhook.git"
+  },
+  "homepage": "https://radomir.dev/pollhook/",
+  "keywords": [
+    "github",
+    "webhook",
+    "webhooks",
+    "polling",
+    "github-actions",
+    "ci",
+    "cli",
+    "rest-api",
+    "etag",
+    "wait-for-ci",
+    "gh-run-watch",
+    "events"
+  ],
+  "bugs": {
+    "url": "https://github.com/radomir-dev/pollhook/issues"
   }
 }

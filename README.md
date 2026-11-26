@@ -9,6 +9,10 @@ a read-only token and turns what it sees into GitHub-shaped events, so you can
 wait for CI, stream repository activity, or feed a webhook handler without admin
 rights, a public URL or a GitHub App.
 
+![pollhook waiting for a CI run and streaming events](https://raw.githubusercontent.com/radomir-dev/pollhook/main/docs/demo.gif)
+
+Website: <https://radomir.dev/pollhook/>
+
 ## Table of contents
 
 <!-- toc:start -->
