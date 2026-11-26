@@ -1,5 +1,20 @@
 # Changelog
 
+## [0.8.0](https://github.com/radomir-dev/pollhook/compare/v0.7.0...v0.8.0) (2026-11-26)
+
+
+### Features
+
+* poll issue dependencies through the REST API ([983a63b](https://github.com/radomir-dev/pollhook/commit/983a63be4009209ace684fbb3c29e4866c899eee))
+* poll issue dependencies through the REST API ([9e3dc81](https://github.com/radomir-dev/pollhook/commit/9e3dc81dc055a5b735fe736c0ff621cf5d0e6518))
+* poll Projects v2 and project items through the REST API ([117f523](https://github.com/radomir-dev/pollhook/commit/117f5235665de73b04ff712593be5054003bfd36))
+* poll Projects v2 and project items through the REST API ([2c7a41c](https://github.com/radomir-dev/pollhook/commit/2c7a41c3c0670002de7a22b47c40cb71d4737e53))
+
+
+### Bug Fixes
+
+* keep the projects page size in the shared adapter helpers ([88441b2](https://github.com/radomir-dev/pollhook/commit/88441b2a6bc77a2e7e62fa8d5dadd7e02fb2b239))
+
 ## [0.7.0](https://github.com/radomir-dev/pollhook/compare/v0.6.0...v0.7.0) (2026-11-26)
 
 
