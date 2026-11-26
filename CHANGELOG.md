@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.4.0](https://github.com/radomir-dev/pollhook/compare/v0.3.1...v0.4.0) (2026-11-26)
+
+
+### Features
+
+* **cli:** add init and config check, add-repo and remove-repo ([2b59f97](https://github.com/radomir-dev/pollhook/commit/2b59f9749152a944c38937dcb32ccfbbd5a4dca2))
+* **cli:** emit reconnects and replays what it missed ([760760d](https://github.com/radomir-dev/pollhook/commit/760760d0800a68abccd97bf0101c24a1cc9881cc))
+* **config:** explain a missing config and link the event catalog ([d0fc726](https://github.com/radomir-dev/pollhook/commit/d0fc72619b8dd00df41e2029f0912a3f935061a5))
+* **config:** publish a JSON Schema and warn about ignored keys ([a42e821](https://github.com/radomir-dev/pollhook/commit/a42e821b088ccc41ca8b11f7403ba46ea91cd831))
+* **poller:** jitter each poll by up to ten percent ([0663b0f](https://github.com/radomir-dev/pollhook/commit/0663b0f49344def5f808f1bd112d0d8f8311e22f))
+
 ## [0.3.1](https://github.com/radomir-dev/pollhook/compare/v0.3.0...v0.3.1) (2026-11-25)
 
 
