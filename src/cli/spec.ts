@@ -61,7 +61,7 @@ export const COMMANDS: CommandSpec[] = [
   },
   {
     name: "daemon",
-    args: "[--config PATH]",
+    args: "[--config PATH] [--idle-exit 30m]",
     summary: "Polls GitHub and serves consumers over a unix socket.",
     flags: [
       { flag: "--config PATH", description: "config file, default ~/.config/pollhook/config.json" },
@@ -132,6 +132,7 @@ export const COMMANDS: CommandSpec[] = [
     summary: "Polls now instead of waiting out the interval.",
     flags: [REPO],
   },
+  { name: "stop", args: "", summary: "Stops the running daemon." },
   { name: "cleanup", args: "", summary: "Reports that pollhook creates no webhooks." },
 ];
 

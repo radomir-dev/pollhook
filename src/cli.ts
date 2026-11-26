@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 import "./quiet.ts";
-import { loadConfig } from "./config.ts";
+import { configPath, loadConfig } from "./config.ts";
 import { startDaemon } from "./daemon.ts";
-import { valueFlag } from "./cli/args.ts";
+import { parseDuration, valueFlag } from "./cli/args.ts";
 import { runConfigCommand } from "./cli/config-commands.ts";
 import { dispatchCommand } from "./cli/commands.ts";
 import { brief } from "./cli/format.ts";
@@ -20,11 +20,17 @@ async function main(argv: string[]): Promise<number> {
   const handled = runConfigCommand(command, args);
   if (handled !== undefined) return handled;
 
-  const config = loadConfig(valueFlag(args, "--config"));
+  if (args.includes("--no-autostart")) process.env.POLLHOOK_NO_AUTOSTART = "1";
+  const configFile = configPath(valueFlag(args, "--config"));
+  process.env.POLLHOOK_CONFIG = configFile;
+  const config = loadConfig(configFile);
   if (command === "daemon") {
-    const daemon = await startDaemon(config);
+    const idle = valueFlag(args, "--idle-exit");
+    const daemon = await startDaemon(config, {
+      idleExitMs: idle ? parseDuration(idle, 0) : undefined,
+    });
     await daemon.closed;
-    return 0;
+    process.exit(0);
   }
   if (command === "emit") {
     await stream(config, { op: "emit" }, args.includes("--brief") ? brief : undefined);

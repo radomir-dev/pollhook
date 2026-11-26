@@ -1,7 +1,9 @@
-import { connect, type Socket } from "node:net";
+import type { Socket } from "node:net";
 import type { Config } from "../config.ts";
 import { socketPathFor } from "../daemon.ts";
 import { nowIso, sleep } from "../util.ts";
+import { connectDaemon } from "./autostart.ts";
+import { connectSocket } from "./socket.ts";
 
 export interface RpcResponse {
   ok: boolean;
@@ -10,8 +12,12 @@ export interface RpcResponse {
   exitCode?: number;
 }
 
-export async function rpc(config: Config, message: Record<string, unknown>): Promise<RpcResponse> {
-  const socket = await connectSocket(socketPathFor(config));
+export async function rpc(
+  config: Config,
+  message: Record<string, unknown>,
+  options: { autostart?: boolean } = {},
+): Promise<RpcResponse> {
+  const socket = await connectDaemon(config, options.autostart);
   try {
     return await new Promise<RpcResponse>((resolve, reject) => {
       let buffer = "";
@@ -51,7 +57,7 @@ export async function stream(
 ): Promise<void> {
   const path = socketPathFor(config);
   const state: StreamState = { since: undefined, seen: new Set() };
-  let socket = await connectSocket(path);
+  let socket = await connectDaemon(config);
   for (;;) {
     await pump(socket, message, state, format);
     process.stderr.write("pollhook: connection lost, reconnecting\n");
@@ -103,14 +109,4 @@ function handleLine(line: string, state: StreamState, format: (body: any) => str
     if (typeof body.createdAt === "string") state.since = body.createdAt;
   }
   process.stdout.write(`${format(body)}\n`);
-}
-
-function connectSocket(path: string): Promise<Socket> {
-  return new Promise((resolve, reject) => {
-    const socket = connect(path);
-    socket.once("connect", () => resolve(socket));
-    socket.once("error", (error) =>
-      reject(new Error(`cannot reach pollhook at ${path}: ${error.message}`)),
-    );
-  });
 }

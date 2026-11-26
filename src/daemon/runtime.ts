@@ -15,6 +15,7 @@ export interface DaemonOptions {
   socketPath?: string;
   configPath?: string;
   watch?: boolean;
+  idleExitMs?: number;
 }
 
 export interface Runtime {
@@ -33,7 +34,7 @@ export function createRuntime(
 ): Runtime {
   const db = new StateStore(join(initial.stateDir, "state.db"));
   db.prune(PRUNE_MS);
-  const gh = options.gh ?? new GitHub(resolveToken(), db);
+  const gh = options.gh ?? new GitHub(resolveToken(), db, process.env.POLLHOOK_API_URL);
   const listeners = new Set<(delivery: Delivery) => void>();
   const waiters = { count: 0 };
   const ref: { poller?: Poller; config: Config; reloadedAt: string | null; error: string | null } =
@@ -73,7 +74,7 @@ export function createRuntime(
     reload,
     configError,
     stop,
-    context: { db, listeners, status, poke, waiters },
+    context: { db, listeners, status, poke, waiters, stop: () => {} },
   };
 }
 

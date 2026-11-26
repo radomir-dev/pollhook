@@ -8,6 +8,7 @@ const VALUE_FLAGS = new Set([
   "--match",
   "--events",
   "--interval",
+  "--idle-exit",
 ]);
 
 export function valueFlag(args: string[], name: string): string | undefined {

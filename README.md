@@ -17,7 +17,7 @@ rights, a public URL or a GitHub App.
 1. [Quick start](#quick-start)
 1. [What you can do with it](#what-you-can-do-with-it)
 1. [Configuration](#configuration)
-1. [Run it as a service](#run-it-as-a-service)
+1. [The daemon](#the-daemon)
 1. [Rate limits](#rate-limits)
 1. [Reading status](#reading-status)
 1. [CLI reference](#cli-reference)
@@ -50,11 +50,7 @@ or run it without installing: `npx pollhook --help`. Needs Node.js 22.13 or newe
    the change up. `pollhook config check` validates the file and prints the
    resolved interval and strategy of every event.
 
-3. Start the daemon, in a terminal or as a service (see below):
-
-        pollhook daemon
-
-4. In another terminal, wait for things:
+3. Wait for things. The first command starts the daemon in the background by itself:
 
         pollhook run 123456789                  # exits 0 on success, 1 on failure
         pollhook checks 42                      # every check on a pull request
@@ -65,7 +61,7 @@ The first poll of each event only records current state, so you never get a repl
 of history. A wait on something that already finished returns immediately.
 
 Exit codes for the wait commands: `0` success, `1` the thing failed, `8` timeout,
-`2` bad arguments or the daemon is not running.
+`2` bad arguments or a daemon that could not be reached.
 
 ## What you can do with it
 
@@ -121,7 +117,24 @@ reported as `configError` in `pollhook status` and the old config keeps running.
    autocompletes event names and flags typos while you type. `pollhook init` adds it
    for you, and `pollhook config check` warns about keys pollhook ignores.
 
-## Run it as a service
+## The daemon
+
+One background process does all the polling and serves every command over a unix
+socket. You never have to start it: the first command that needs it launches it,
+detached, with its log in `~/.local/state/pollhook/daemon.log`, and says so on
+stderr. A daemon started that way exits after 30 minutes with no connected client, so
+a forgotten one does not spend your rate limit. Stop it any time with
+`pollhook stop`.
+
+1. `pollhook daemon` run by hand never exits on its own, and neither does any daemon
+   whose config has a `deliver.url`, since a webhook feed has to stay up.
+2. `--no-autostart` or `POLLHOOK_NO_AUTOSTART=1` turns the automatic start off, and
+   commands then fail with "cannot reach pollhook".
+3. Only one daemon runs per state directory. A second one refuses to start, even
+   when its socket path differs.
+4. `emit` reconnects when the daemon goes away, but never restarts it.
+
+### Run it as a service
 
 With systemd, copy [contrib/pollhook.service](contrib/pollhook.service) to
 `~/.config/systemd/user/`, make sure `ExecStart` points at your `pollhook`
@@ -165,7 +178,7 @@ without access); they retry hourly. `status --json` has the reasons.
 | `pollhook config check [--config PATH]` | Validates the config and prints the resolved interval and strategy per event. |
 | `pollhook config add-repo OWNER/NAME [--events a,b] [--interval N] [--config PATH]` | Adds a repository to the config; a running daemon reloads it. |
 | `pollhook config remove-repo OWNER/NAME [--config PATH]` | Removes a repository from the config. |
-| `pollhook daemon [--config PATH]` | Polls GitHub and serves consumers over a unix socket. |
+| `pollhook daemon [--config PATH] [--idle-exit 30m]` | Polls GitHub and serves consumers over a unix socket. |
 | `pollhook status [--json]` | Shows last and next poll per target, quota, degraded adapters and waiters. |
 | `pollhook events` | Lists every implemented event with its polling floor. |
 | `pollhook deliveries [--limit N] [--repo OWNER/NAME]` | Prints recent deliveries from the state store. |
@@ -176,6 +189,7 @@ without access); they retry hourly. `status --json` has the reasons.
 | `pollhook pages <sha> [--repo OWNER/NAME] [--timeout 30m]` | Waits for the Pages build of a commit. |
 | `pollhook wait --event EVENT [--match key=value]... [--repo OWNER/NAME] [--timeout 30m]` | Waits for any delivery matching an event and optional field matches. |
 | `pollhook poke [--repo OWNER/NAME]` | Polls now instead of waiting out the interval. |
+| `pollhook stop` | Stops the running daemon. |
 | `pollhook cleanup` | Reports that pollhook creates no webhooks. |
 
 Flags:
@@ -233,7 +247,9 @@ de-duplicated by fingerprint.
    dependencies to compile.
 2. **A GitHub token** that can read the repositories you watch, from
    `POLLHOOK_TOKEN`, `gh auth login`, or `GH_TOKEN`/`GITHUB_TOKEN`.
-3. **Linux or macOS.** Developed and tested on Linux; the control socket is a unix
+3. **GitHub.com.** For a GitHub Enterprise Server host, `POLLHOOK_API_URL` overrides
+   the API base URL; that path is untested.
+4. **Linux or macOS.** Developed and tested on Linux; the control socket is a unix
    socket, so Windows is not supported yet.
 
 On Node 22.13 specifically, Node itself prints `ExperimentalWarning: SQLite is an

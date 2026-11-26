@@ -7,4 +7,5 @@ export interface DaemonContext {
   status(): Record<string, unknown>;
   poke(repo?: string): boolean;
   waiters: { count: number };
+  stop(): void;
 }

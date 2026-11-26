@@ -4,6 +4,7 @@ import type { EventName } from "../types.ts";
 import type { WaitRequest } from "../waits.ts";
 import { parseDuration, positionals, required, valueFlag, values } from "./args.ts";
 import { rpc, type RpcResponse } from "./rpc.ts";
+import { DaemonUnreachable } from "./socket.ts";
 import { USAGE } from "./usage.ts";
 
 type Handler = (config: Config, args: string[]) => Promise<number>;
@@ -22,6 +23,7 @@ const handlers: Record<string, Handler> = {
   wait: waitCommand,
   cleanup: cleanupCommand,
   poke: pokeCommand,
+  stop: stopCommand,
 };
 
 export async function dispatchCommand(
@@ -111,6 +113,18 @@ async function waitCommand(config: Config, args: string[]): Promise<number> {
 
 async function pokeCommand(config: Config, args: string[]): Promise<number> {
   unwrap(await rpc(config, { op: "poke", repo: valueFlag(args, "--repo") }));
+  return 0;
+}
+
+async function stopCommand(config: Config): Promise<number> {
+  try {
+    unwrap(await rpc(config, { op: "stop" }, { autostart: false }));
+  } catch (error) {
+    if (!(error instanceof DaemonUnreachable)) throw error;
+    process.stdout.write("pollhook is not running\n");
+    return 0;
+  }
+  process.stdout.write("stopped pollhook\n");
   return 0;
 }
 

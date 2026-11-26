@@ -75,6 +75,9 @@ function handleRequest(
       if (ctx.poke(message.repo)) writeLine(socket, { ok: true, body: { poked: true } });
       else writeLine(socket, { ok: false, error: `unknown repository ${String(message.repo)}` });
       return;
+    case "stop":
+      socket.write(`${JSON.stringify({ ok: true, body: { stopping: true } })}\n`, () => ctx.stop());
+      return;
     case "emit":
       subscribe(socket, ctx, cleanup, message.since);
       return;
