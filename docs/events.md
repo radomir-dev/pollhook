@@ -42,22 +42,22 @@ already recorded: subscribe to `workflow_run` as well, or it has nothing to read
 
 ## Pull requests, issues and comments
 
-| Event                         | REST source                                           | Cursor                                                      | Fidelity | Phase   |
-| ----------------------------- | ----------------------------------------------------- | ----------------------------------------------------------- | -------- | ------- |
-| `pull_request`                | `/repos/{o}/{r}/pulls?state=all&sort=updated`         | `number` + `updated_at`                                     | object   | P1 done |
-| `pull_request_review`         | `/repos/{o}/{r}/pulls/{number}/reviews`               | `id` + `submitted_at`                                       | object   | P1 done |
-| `pull_request_review_comment` | `/repos/{o}/{r}/pulls/comments?sort=updated`          | `id` + body hash + `updated_at`                             | object   | P2 done |
-| `pull_request_review_thread`  | GraphQL `reviewThreads` ~                             | thread `id` + `isResolved`                                  | partial  | P4      |
-| `issues`                      | `/repos/{o}/{r}/issues?state=all&sort=updated&since=` | `number` + `updated_at`                                     | object   | P2 done |
-| `issue_comment`               | `/repos/{o}/{r}/issues/comments?sort=updated`         | `id` + `updated_at`                                         | object   | P2 done |
-| `sub_issues`                  | `/repos/{o}/{r}/issues/{number}/sub_issues`           | `id` + `updated_at`                                         | object   | P3      |
-| `issue_dependencies`          | `/repos/{o}/{r}/issues/{number}/dependencies/*` ~     | relationship `id`                                           | partial  | P4      |
-| `issue_relates_to`            | `/repos/{o}/{r}/issues/{number}/timeline` ~           | timeline event `id`                                         | partial  | P4      |
-| `commit_comment`              | `/repos/{o}/{r}/comments?sort=updated`                | `id` + `updated_at`                                         | object   | P2 done |
-| `discussion`                  | `/repos/{o}/{r}/discussions?sort=updated`             | `number` + state, lock, answer, category, labels, body hash | derived  | P4 done |
-| `discussion_comment`          | `/repos/{o}/{r}/discussions/{n}/comments`             | comment `id` + body hash + `updated_at`                     | partial  | P4 done |
-| `label`                       | `/repos/{o}/{r}/labels`                               | name + hash of color/description                            | derived  | P2 done |
-| `milestone`                   | `/repos/{o}/{r}/milestones?state=all`                 | `id` + `updated_at`                                         | object   | P2 done |
+| Event                         | REST source                                              | Cursor                                                      | Fidelity | Phase   |
+| ----------------------------- | -------------------------------------------------------- | ----------------------------------------------------------- | -------- | ------- |
+| `pull_request`                | `/repos/{o}/{r}/pulls?state=all&sort=updated`            | `number` + `updated_at`                                     | object   | P1 done |
+| `pull_request_review`         | `/repos/{o}/{r}/pulls/{number}/reviews`                  | `id` + `submitted_at`                                       | object   | P1 done |
+| `pull_request_review_comment` | `/repos/{o}/{r}/pulls/comments?sort=updated`             | `id` + body hash + `updated_at`                             | object   | P2 done |
+| `pull_request_review_thread`  | GraphQL `reviewThreads` ~                                | thread `id` + `isResolved`                                  | partial  | P4      |
+| `issues`                      | `/repos/{o}/{r}/issues?state=all&sort=updated&since=`    | `number` + `updated_at`                                     | object   | P2 done |
+| `issue_comment`               | `/repos/{o}/{r}/issues/comments?sort=updated`            | `id` + `updated_at`                                         | object   | P2 done |
+| `sub_issues`                  | `/repos/{o}/{r}/issues/{number}/sub_issues`              | `id` + `updated_at`                                         | object   | P3      |
+| `issue_dependencies`          | `/repos/{o}/{r}/issues/{number}/dependencies/blocked_by` | blocker `id`, read when `total_blocked_by` changes          | partial  | P4 done |
+| `issue_relates_to`            | `/repos/{o}/{r}/issues/{number}/timeline` ~              | timeline event `id`                                         | partial  | P4      |
+| `commit_comment`              | `/repos/{o}/{r}/comments?sort=updated`                   | `id` + `updated_at`                                         | object   | P2 done |
+| `discussion`                  | `/repos/{o}/{r}/discussions?sort=updated`                | `number` + state, lock, answer, category, labels, body hash | derived  | P4 done |
+| `discussion_comment`          | `/repos/{o}/{r}/discussions/{n}/comments`                | comment `id` + body hash + `updated_at`                     | partial  | P4 done |
+| `label`                       | `/repos/{o}/{r}/labels`                                  | name + hash of color/description                            | derived  | P2 done |
+| `milestone`                   | `/repos/{o}/{r}/milestones?state=all`                    | `id` + `updated_at`                                         | object   | P2 done |
 
 ## Repository and git
 
@@ -142,6 +142,15 @@ does not produce a `discussion` event. `discussion_comment` reads the first 100
 top-level comments of at most ten changed discussions per round, so replies, deleted
 comments and comments past the first 100 are not seen, and a comment edit is only
 noticed when the discussion's `updated_at` moves.
+
+`issue_dependencies` watches the `issue_dependencies_summary` that the issues list
+already carries: adding a blocker changes the count and the list `ETag` but not the
+issue's `updated_at`, so the blockers are read only for issues whose
+`total_blocked_by` moved. It emits `blocked_by_added` and `blocked_by_removed`;
+`blocking_added` and `blocking_removed` are the same relationship seen from the other
+end, and the poller cannot tell which end acted. Only the 100 most recently updated
+issues are watched, and swapping one blocker for another between two polls keeps the
+count and goes unnoticed.
 
 ## Action inference
 

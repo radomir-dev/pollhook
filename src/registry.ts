@@ -20,6 +20,7 @@ import { fork } from "./adapters/fork.ts";
 import { discussion } from "./adapters/discussion.ts";
 import { discussionComment } from "./adapters/discussion-comment.ts";
 import { issueComment } from "./adapters/issue-comment.ts";
+import { issueDependencies } from "./adapters/issue-dependencies.ts";
 import { issues } from "./adapters/issues.ts";
 import { label } from "./adapters/label.ts";
 import { member } from "./adapters/member.ts";
@@ -44,6 +45,7 @@ export const ADAPTERS: Record<EventName, Adapter> = {
   delete: deleteRef,
   issues,
   issue_comment: issueComment,
+  issue_dependencies: issueDependencies,
   discussion,
   discussion_comment: discussionComment,
   release,
