@@ -35,7 +35,7 @@ describe("the built site", () => {
   });
 
   test("the canonical url, sitemap and robots agree", () => {
-    assert.ok(html.includes(`<link rel="canonical" href="https://radomir.dev/pollhook/">`));
+    assert.match(html, /<link[^>]+rel="canonical"[^>]+href="https:\/\/radomir\.dev\/pollhook\/"/);
     assert.match(
       readFileSync(join(out, "sitemap.xml"), "utf8"),
       /<loc>https:\/\/radomir\.dev\/pollhook\/<\/loc><lastmod>2026-11-26<\/lastmod>/,
@@ -48,11 +48,11 @@ describe("the built site", () => {
 
   test("the metadata that search engines read is present and within limits", () => {
     const title = /<title>([^<]+)<\/title>/.exec(html)![1]!;
-    const description = /<meta name="description" content="([^"]+)"/.exec(html)![1]!;
+    const description = /<meta[^>]+name="description"[^>]+content="([^"]+)"/.exec(html)![1]!;
     assert.ok(title.length <= 60, `title is ${title.length} characters`);
     assert.ok(description.length <= 160, `description is ${description.length} characters`);
-    assert.ok(html.includes('<meta name="keywords"'));
-    assert.ok(html.includes('property="og:image" content="https://radomir.dev/pollhook/og.png"'));
+    assert.match(html, /<meta[^>]+name="keywords"/);
+    assert.ok(html.includes("https://radomir.dev/pollhook/og.png"));
     assert.ok(html.includes('name="twitter:card" content="summary_large_image"'));
     assert.equal(html.match(/<h1[ >]/g)?.length, 1, "exactly one h1");
   });
@@ -70,6 +70,17 @@ describe("the built site", () => {
     for (const asset of local.filter((url) => !url.startsWith("/") && !url.startsWith("http"))) {
       assert.ok(existsSync(join(out, asset)), `${asset} is referenced but missing`);
     }
+  });
+
+  test("every command snippet has a copy button and wraps instead of scrolling", () => {
+    const snippets = html.match(/class="snippet"/g)?.length ?? 0;
+    const buttons = html.match(/class="snippet-copy"/g)?.length ?? 0;
+    const css = readFileSync(join(out, "style.css"), "utf8");
+
+    assert.ok(snippets >= 3, `${snippets} snippets`);
+    assert.equal(buttons, snippets, "one copy button per snippet");
+    assert.match(css, /\.step-card pre \{[^}]*white-space: pre-wrap/);
+    assert.doesNotMatch(css, /\.step-card pre \{[^}]*overflow-x: auto/);
   });
 
   test("the copy never implies the project costs money", () => {

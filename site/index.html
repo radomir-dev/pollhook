@@ -297,7 +297,25 @@
                 Requires Node 22.13 or newer (utilizes native unflagged
                 <code>node:sqlite</code> store):
               </p>
-              <pre><code>npm install -g pollhook</code></pre>
+              <div class="snippet">
+                <pre><code>npm install -g pollhook</code></pre>
+                <button class="snippet-copy" type="button" aria-label="Copy this command">
+                  <svg
+                    width="12"
+                    height="12"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    aria-hidden="true"
+                  >
+                    <rect x="9" y="9" width="13" height="13" rx="2"></rect>
+                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg
+                  ><span class="snippet-label">Copy</span>
+                </button>
+              </div>
             </li>
 
             <li class="step-card">
@@ -309,7 +327,25 @@
                 Writes <code>~/.config/pollhook/config.json</code> with selected repositories and
                 events:
               </p>
-              <pre><code>pollhook init --repo owner/name --events workflow_run,pull_request</code></pre>
+              <div class="snippet">
+                <pre><code>pollhook init --repo owner/name --events workflow_run,pull_request</code></pre>
+                <button class="snippet-copy" type="button" aria-label="Copy this command">
+                  <svg
+                    width="12"
+                    height="12"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    aria-hidden="true"
+                  >
+                    <rect x="9" y="9" width="13" height="13" rx="2"></rect>
+                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg
+                  ><span class="snippet-label">Copy</span>
+                </button>
+              </div>
             </li>
 
             <li class="step-card">
@@ -321,7 +357,25 @@
                 The daemon starts itself automatically on the first command and exits after 30 idle
                 minutes (stop anytime with <code>pollhook stop</code>):
               </p>
-              <pre><code>pollhook run 1234567890</code></pre>
+              <div class="snippet">
+                <pre><code>pollhook run 1234567890</code></pre>
+                <button class="snippet-copy" type="button" aria-label="Copy this command">
+                  <svg
+                    width="12"
+                    height="12"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    aria-hidden="true"
+                  >
+                    <rect x="9" y="9" width="13" height="13" rx="2"></rect>
+                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg
+                  ><span class="snippet-label">Copy</span>
+                </button>
+              </div>
             </li>
           </ol>
         </div>
@@ -460,6 +514,27 @@
             }
           } catch {
             // Fallback if clipboard API restricted
+          }
+        });
+      }
+    </script>
+    <script>
+      for (const button of document.querySelectorAll(".snippet-copy")) {
+        button.addEventListener("click", async () => {
+          const code = button.closest(".snippet").querySelector("code");
+          const label = button.querySelector(".snippet-label");
+          const original = label.textContent;
+          try {
+            await navigator.clipboard.writeText(code.textContent.trim());
+            label.textContent = "Copied";
+            button.classList.add("copied");
+            setTimeout(() => {
+              label.textContent = original;
+              button.classList.remove("copied");
+            }, 1600);
+          } catch {
+            label.textContent = "Press Ctrl+C";
+            setTimeout(() => (label.textContent = original), 2000);
           }
         });
       }
