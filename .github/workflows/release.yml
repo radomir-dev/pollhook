@@ -48,9 +48,17 @@ jobs:
       - name: Publish to npm when main carries an unpublished version
         run: |
           version=$(node -p "require('./package.json').version")
-          if npm view "pollhook@$version" version >/dev/null 2>&1; then
+          if npm view --prefer-online "pollhook@$version" version >/dev/null 2>&1; then
             echo "pollhook@$version is already on npm"
             exit 0
           fi
           npm ci
-          npm publish --provenance --access public
+          if ! output=$(npm publish --provenance --access public 2>&1); then
+            echo "$output"
+            if echo "$output" | grep -q "cannot publish over the previously published"; then
+              echo "pollhook@$version was published a moment ago; registry reads are lagging"
+              exit 0
+            fi
+            exit 1
+          fi
+          echo "$output"
