@@ -23,6 +23,7 @@ rights, a public URL or a GitHub App.
 1. [CLI reference](#cli-reference)
 1. [Limits](#limits)
 1. [How it compares](#how-it-compares)
+1. [Requirements](#requirements)
 1. [Contributing](#contributing)
 1. [License](#license)
 
@@ -30,12 +31,10 @@ rights, a public URL or a GitHub App.
 
 ## Install
 
-Node 22.13 or newer is required (the state store uses `node:sqlite`, which is
-unflagged from 22.13). Node prints an experimental-SQLite warning that is harmless.
-
     npm install -g pollhook
 
-or run it without installing: `npx pollhook --help`.
+or run it without installing: `npx pollhook --help`. Needs Node.js 22.13 or newer
+([requirements](#requirements)).
 
 ## Quick start
 
@@ -226,6 +225,20 @@ de-duplicated by fingerprint.
 3. `gh event listen` is a waitlisted preview.
 4. The Events API (`/repos/{owner}/{repo}/events`) has no CI, check or deployment
    events, and GitHub documents its latency as "anywhere from 30s to 6h".
+
+## Requirements
+
+1. **Node.js 22.13 or newer.** The state store uses the built-in `node:sqlite`,
+   which is available without a flag from 22.13. pollhook has no native
+   dependencies to compile.
+2. **A GitHub token** that can read the repositories you watch, from
+   `POLLHOOK_TOKEN`, `gh auth login`, or `GH_TOKEN`/`GITHUB_TOKEN`.
+3. **Linux or macOS.** Developed and tested on Linux; the control socket is a unix
+   socket, so Windows is not supported yet.
+
+On Node 22.13 specifically, Node itself prints `ExperimentalWarning: SQLite is an
+experimental feature` once at startup. It is harmless, and pollhook hides it on
+later Node versions.
 
 ## Contributing
 
