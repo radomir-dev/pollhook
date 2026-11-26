@@ -31,6 +31,7 @@
                 "delete",
                 "issues",
                 "issue_comment",
+                "issue_dependencies",
                 "discussion",
                 "discussion_comment",
                 "release",
@@ -106,6 +107,11 @@
                 "type": "number",
                 "minimum": 5,
                 "description": "Seconds between issue_comment polls"
+              },
+              "issue_dependencies": {
+                "type": "number",
+                "minimum": 5,
+                "description": "Seconds between issue_dependencies polls"
               },
               "discussion": {
                 "type": "number",
@@ -309,6 +315,12 @@
                 ]
               },
               "issue_comment": {
+                "enum": [
+                  "fixed",
+                  "while-active"
+                ]
+              },
+              "issue_dependencies": {
                 "enum": [
                   "fixed",
                   "while-active"
@@ -621,6 +633,11 @@
           "minimum": 5,
           "description": "Seconds between issue_comment polls"
         },
+        "issue_dependencies": {
+          "type": "number",
+          "minimum": 5,
+          "description": "Seconds between issue_dependencies polls"
+        },
         "discussion": {
           "type": "number",
           "minimum": 5,
@@ -823,6 +840,12 @@
           ]
         },
         "issue_comment": {
+          "enum": [
+            "fixed",
+            "while-active"
+          ]
+        },
+        "issue_dependencies": {
           "enum": [
             "fixed",
             "while-active"
