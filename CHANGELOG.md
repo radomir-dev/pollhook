@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.5.2](https://github.com/radomir-dev/pollhook/compare/v0.5.1...v0.5.2) (2026-11-26)
+
+
+### Bug Fixes
+
+* **daemon:** a malformed request no longer crashes the daemon ([02c5f68](https://github.com/radomir-dev/pollhook/commit/02c5f68ea6217b37f6777a85bb0b65dc4f6b0fbb))
+
 ## [0.5.1](https://github.com/radomir-dev/pollhook/compare/v0.5.0...v0.5.1) (2026-11-26)
 
 
