@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.7.0](https://github.com/radomir-dev/pollhook/compare/v0.6.0...v0.7.0) (2026-11-26)
+
+
+### Features
+
+* **site:** add the project site and a demo gif ([3405453](https://github.com/radomir-dev/pollhook/commit/3405453071bb963ab29152d05608d8af7a1596dc))
+
+
+### Bug Fixes
+
+* report open streams in status and wait for the subscriber in the restart test ([62b72dc](https://github.com/radomir-dev/pollhook/commit/62b72dca43d855233ac0ecb7635255068e6f64ee))
+
 ## [0.6.0](https://github.com/radomir-dev/pollhook/compare/v0.5.2...v0.6.0) (2026-11-26)
 
 
