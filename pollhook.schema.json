@@ -558,7 +558,11 @@
                 "team",
                 "membership",
                 "projects_v2",
-                "projects_v2_item"
+                "projects_v2_item",
+                "organization",
+                "org_block",
+                "custom_property",
+                "custom_property_values"
               ]
             }
           },
@@ -590,6 +594,26 @@
                 "type": "number",
                 "minimum": 5,
                 "description": "Seconds between projects_v2_item polls"
+              },
+              "organization": {
+                "type": "number",
+                "minimum": 5,
+                "description": "Seconds between organization polls"
+              },
+              "org_block": {
+                "type": "number",
+                "minimum": 5,
+                "description": "Seconds between org_block polls"
+              },
+              "custom_property": {
+                "type": "number",
+                "minimum": 5,
+                "description": "Seconds between custom_property polls"
+              },
+              "custom_property_values": {
+                "type": "number",
+                "minimum": 5,
+                "description": "Seconds between custom_property_values polls"
               }
             },
             "additionalProperties": false
@@ -617,6 +641,30 @@
                 ]
               },
               "projects_v2_item": {
+                "enum": [
+                  "fixed",
+                  "while-active"
+                ]
+              },
+              "organization": {
+                "enum": [
+                  "fixed",
+                  "while-active"
+                ]
+              },
+              "org_block": {
+                "enum": [
+                  "fixed",
+                  "while-active"
+                ]
+              },
+              "custom_property": {
+                "enum": [
+                  "fixed",
+                  "while-active"
+                ]
+              },
+              "custom_property_values": {
                 "enum": [
                   "fixed",
                   "while-active"
