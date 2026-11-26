@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.6.0](https://github.com/radomir-dev/pollhook/compare/v0.5.2...v0.6.0) (2026-11-26)
+
+
+### Features
+
+* poll discussions and discussion comments through REST ([29c2f1c](https://github.com/radomir-dev/pollhook/commit/29c2f1c3a02ced47e0df0eb9f49d3b47728593c8))
+
 ## [0.5.2](https://github.com/radomir-dev/pollhook/compare/v0.5.1...v0.5.2) (2026-11-26)
 
 
