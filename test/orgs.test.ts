@@ -25,6 +25,10 @@ test("config accepts orgs without repos and defaults to org events", () => {
     "membership",
     "projects_v2",
     "projects_v2_item",
+    "organization",
+    "org_block",
+    "custom_property",
+    "custom_property_values",
   ]);
   assert.equal(config.orgs[0]!.intervalMs, 300_000);
 });
