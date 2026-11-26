@@ -27,6 +27,10 @@ import { member } from "./adapters/member.ts";
 import { membership } from "./adapters/membership.ts";
 import { projectsV2 } from "./adapters/projects-v2.ts";
 import { projectsV2Item } from "./adapters/projects-v2-item.ts";
+import { customProperty } from "./adapters/custom-property.ts";
+import { customPropertyValues } from "./adapters/custom-property-values.ts";
+import { orgBlock } from "./adapters/org-block.ts";
+import { organization } from "./adapters/organization.ts";
 import { team } from "./adapters/team.ts";
 import { milestone } from "./adapters/milestone.ts";
 import { publicEvent, repository } from "./adapters/repository.ts";
@@ -77,6 +81,10 @@ export const ADAPTERS: Record<EventName, Adapter> = {
   membership,
   projects_v2: projectsV2,
   projects_v2_item: projectsV2Item,
+  organization,
+  org_block: orgBlock,
+  custom_property: customProperty,
+  custom_property_values: customPropertyValues,
   workflow_run: workflowRun,
   workflow_job: workflowJob,
   check_suite: checkSuite,

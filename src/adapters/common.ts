@@ -60,3 +60,36 @@ export async function observeAlerts(
     );
   }
 }
+
+export type Change = "created" | "edited" | "deleted";
+
+export interface ListEntry {
+  key: string;
+  state: string;
+  item: any;
+}
+
+const GONE = "deleted";
+
+export function diffList(
+  ctx: AdapterContext,
+  event: EventName,
+  entries: ListEntry[],
+  complete: boolean,
+  onChange: (change: Change, item: any, stamp: string, previous: any) => void,
+  prefix = "",
+): void {
+  const seen = new Set(entries.map((entry) => entry.key));
+  for (const { key, state, item } of entries) {
+    const { changed, prev } = observe(ctx, event, key, state, item);
+    if (!changed) continue;
+    const change = prev && prev.state !== GONE ? "edited" : "created";
+    onChange(change, item, `${state}:${prev?.updatedAt ?? ""}`, prev?.data);
+  }
+  if (!complete) return;
+  for (const row of ctx.db.listSnapshots(ctx.repo, event)) {
+    if (!row.key.startsWith(prefix) || row.state === GONE || seen.has(row.key)) continue;
+    ctx.db.putSnapshot(ctx.repo, event, row.key, GONE, row.data);
+    onChange("deleted", row.data, `deleted:${row.updatedAt}`, row.data);
+  }
+}
