@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.5.0](https://github.com/radomir-dev/pollhook/compare/v0.4.0...v0.5.0) (2026-11-26)
+
+
+### Features
+
+* **cli:** start the daemon on demand and add pollhook stop ([a1e6847](https://github.com/radomir-dev/pollhook/commit/a1e6847f3f0de9c25ed5cf259d3f7e4881e054f1))
+
 ## [0.4.0](https://github.com/radomir-dev/pollhook/compare/v0.3.1...v0.4.0) (2026-11-26)
 
 
