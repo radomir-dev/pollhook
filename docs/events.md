@@ -105,34 +105,46 @@ and `changes.branch_protection.from/to`.
 
 ## Organisation, projects and apps
 
-| Event                           | REST source                                  | Cursor                    | Fidelity | Phase        |
-| ------------------------------- | -------------------------------------------- | ------------------------- | -------- | ------------ |
-| `member`                        | `/repos/{o}/{r}/collaborators`               | `login` + permission hash | derived  | P4 done      |
-| `membership`                    | `/orgs/{org}/teams/{slug}/members`           | `slug:login`              | derived  | P4 done      |
-| `team`                          | `/orgs/{org}/teams`                          | `id` + `updated_at`       | object   | P4 done      |
-| `team_add`                      | `/repos/{o}/{r}/teams`                       | team `id` + repo          | derived  | P4           |
-| `organization`                  | `/orgs/{org}`                                | `id` + `updated_at`       | derived  | P4           |
-| `org_block`                     | `/orgs/{org}/blocks`                         | `id` + `login`            | derived  | P4           |
-| `personal_access_token_request` | `/orgs/{org}/personal-access-token-requests` | `id` + `created_at`       | object   | P4           |
-| `custom_property`               | `/orgs/{org}/properties/schema` ~            | name + hash               | derived  | P4           |
-| `custom_property_values`        | `/orgs/{org}/properties/values` ~            | repo + hash               | derived  | P4           |
-| `projects_v2`                   | GraphQL `projectV2`                          | `id` + `updatedAt`        | object   | P4           |
-| `projects_v2_item`              | GraphQL `projectV2Item`                      | `id` + `updatedAt`        | object   | P4           |
-| `projects_v2_status_update`     | GraphQL status updates ~                     | `id` + `updatedAt`        | partial  | P4           |
-| `project`                       | classic Projects, sunset                     | `id` + `updated_at`       | partial  | P4           |
-| `project_card`                  | classic Projects, sunset                     | `id` + `updated_at`       | partial  | P4           |
-| `project_column`                | classic Projects, sunset                     | `id` + `updated_at`       | partial  | P4           |
-| `installation`                  | `/app/installations` (App JWT)               | `id` + `updated_at`       | none     | out of scope |
-| `installation_repositories`     | App JWT, installation repositories           | `id`                      | none     | out of scope |
-| `installation_target`           | App JWT, installation target                 | `id`                      | none     | out of scope |
-| `github_app_authorization`      | App-only                                     | —                         | none     | out of scope |
-| `marketplace_purchase`          | Marketplace API ~                            | `id` + `updated_at`       | partial  | out of scope |
-| `sponsorship`                   | GraphQL sponsorships ~                       | `id` + `updatedAt`        | partial  | —            |
-| `ping`                          | synthesized at subscription                  | —                         | object   | P0           |
+| Event                           | REST source                                  | Cursor                                  | Fidelity | Phase        |
+| ------------------------------- | -------------------------------------------- | --------------------------------------- | -------- | ------------ |
+| `member`                        | `/repos/{o}/{r}/collaborators`               | `login` + permission hash               | derived  | P4 done      |
+| `membership`                    | `/orgs/{org}/teams/{slug}/members`           | `slug:login`                            | derived  | P4 done      |
+| `team`                          | `/orgs/{org}/teams`                          | `id` + `updated_at`                     | object   | P4 done      |
+| `team_add`                      | `/repos/{o}/{r}/teams`                       | team `id` + repo                        | derived  | P4           |
+| `organization`                  | `/orgs/{org}`                                | `id` + `updated_at`                     | derived  | P4           |
+| `org_block`                     | `/orgs/{org}/blocks`                         | `id` + `login`                          | derived  | P4           |
+| `personal_access_token_request` | `/orgs/{org}/personal-access-token-requests` | `id` + `created_at`                     | object   | P4           |
+| `custom_property`               | `/orgs/{org}/properties/schema` ~            | name + hash                             | derived  | P4           |
+| `custom_property_values`        | `/orgs/{org}/properties/values` ~            | repo + hash                             | derived  | P4           |
+| `projects_v2`                   | `/orgs/{org}/projectsV2`                     | `number` + title, `public`, `closed_at` | derived  | P4 done      |
+| `projects_v2_item`              | `/orgs/{org}/projectsV2/{n}/items`           | item `id` + `updated_at` + fields hash  | derived  | P4 done      |
+| `projects_v2_status_update`     | GraphQL status updates ~                     | `id` + `updatedAt`                      | partial  | P4           |
+| `project`                       | classic Projects, sunset                     | `id` + `updated_at`                     | partial  | P4           |
+| `project_card`                  | classic Projects, sunset                     | `id` + `updated_at`                     | partial  | P4           |
+| `project_column`                | classic Projects, sunset                     | `id` + `updated_at`                     | partial  | P4           |
+| `installation`                  | `/app/installations` (App JWT)               | `id` + `updated_at`                     | none     | out of scope |
+| `installation_repositories`     | App JWT, installation repositories           | `id`                                    | none     | out of scope |
+| `installation_target`           | App JWT, installation target                 | `id`                                    | none     | out of scope |
+| `github_app_authorization`      | App-only                                     | —                                       | none     | out of scope |
+| `marketplace_purchase`          | Marketplace API ~                            | `id` + `updated_at`                     | partial  | out of scope |
+| `sponsorship`                   | GraphQL sponsorships ~                       | `id` + `updatedAt`                      | partial  | —            |
+| `ping`                          | synthesized at subscription                  | —                                       | object   | P0           |
 
 Rows marked `out of scope` need a GitHub App, which pollhook deliberately does not
 support: it stays a read-only, token-only tool with nothing installed on the
 repository.
+
+`projects_v2` and `projects_v2_item` need the `project` token scope and an `orgs`
+target; without it the events show up as degraded in `status`. A project's
+`updated_at` moves on every item change, so it only gates the item reads and is left
+out of the `projects_v2` fingerprint: `projects_v2` infers `created`, `edited`,
+`closed`, `reopened` and `deleted`, and `projects_v2_item` infers `created`, `edited`
+(a field change such as Status) and `deleted`. The items list hides archived items,
+so archiving reads as `deleted` and restoring as `created`; `archived`, `restored`,
+`reordered` and `converted` are never sent. Only the first 100 projects, and the
+first 100 items of each, are read, and nothing is reported as deleted when a page is
+full. User-owned projects, `projects_v2_status_update` (no REST endpoint) and classic
+projects (sunset) are not covered.
 
 Discussions come from REST, not GraphQL, and revalidate with `304` like the rest.
 `discussion` infers `created`, `edited`, `closed`, `reopened`, `locked`, `unlocked`,

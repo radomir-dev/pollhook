@@ -43,7 +43,8 @@ or run it without installing: `npx pollhook --help`. Needs Node.js 22.13 or newe
 ## Quick start
 
 1. Authenticate. pollhook uses `POLLHOOK_TOKEN`, then your `gh auth login`, then
-   `GH_TOKEN` or `GITHUB_TOKEN`. A token that can read the repository is enough.
+   `GH_TOKEN` or `GITHUB_TOKEN`. A token that can read the repository is enough;
+   Projects v2 events also need the `project` scope.
 2. Create the config:
 
         pollhook init --repo owner/name --events workflow_run,pull_request,check_run

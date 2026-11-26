@@ -25,6 +25,8 @@ import { issues } from "./adapters/issues.ts";
 import { label } from "./adapters/label.ts";
 import { member } from "./adapters/member.ts";
 import { membership } from "./adapters/membership.ts";
+import { projectsV2 } from "./adapters/projects-v2.ts";
+import { projectsV2Item } from "./adapters/projects-v2-item.ts";
 import { team } from "./adapters/team.ts";
 import { milestone } from "./adapters/milestone.ts";
 import { publicEvent, repository } from "./adapters/repository.ts";
@@ -73,6 +75,8 @@ export const ADAPTERS: Record<EventName, Adapter> = {
   member,
   team,
   membership,
+  projects_v2: projectsV2,
+  projects_v2_item: projectsV2Item,
   workflow_run: workflowRun,
   workflow_job: workflowJob,
   check_suite: checkSuite,

@@ -34,6 +34,8 @@ export type EventName =
   | "member"
   | "team"
   | "membership"
+  | "projects_v2"
+  | "projects_v2_item"
   | "workflow_run"
   | "check_suite"
   | "check_run"
