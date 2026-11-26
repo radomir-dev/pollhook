@@ -3,9 +3,11 @@ import { ADAPTERS, IMPLEMENTED_EVENTS } from "../registry.ts";
 import type { Delivery } from "../types.ts";
 import type { WaitRequest } from "../waits.ts";
 import type { DaemonContext } from "./context.ts";
+import { errorMessage } from "../util.ts";
 import { Waiter } from "./waiter.ts";
 
 const DEFAULT_WAIT_MS = 30 * 60 * 1000;
+const WAIT_KINDS = new Set(["run", "checks", "pr", "pages", "event"]);
 
 export function handleConnection(socket: Socket, ctx: DaemonContext): void {
   const cleanup: Array<() => void> = [];
@@ -49,7 +51,11 @@ function handleLine(
     writeLine(socket, { ok: false, error: "invalid json" });
     return;
   }
-  handleRequest(socket, message, ctx, cleanup);
+  try {
+    handleRequest(socket, message, ctx, cleanup);
+  } catch (error) {
+    writeLine(socket, { ok: false, error: `request failed: ${errorMessage(error)}` });
+  }
 }
 
 function handleRequest(
@@ -125,6 +131,10 @@ function onWait(
   const request = message.request as WaitRequest;
   if (!request || typeof request.kind !== "string") {
     writeLine(socket, { ok: false, error: "wait request missing" });
+    return;
+  }
+  if (!WAIT_KINDS.has(request.kind)) {
+    writeLine(socket, { ok: false, error: `unknown wait kind ${request.kind}` });
     return;
   }
   seedChecksHead(ctx, request);

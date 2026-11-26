@@ -136,7 +136,7 @@ function resolveEvent(
   const match = recent.find(
     (delivery) =>
       delivery.event === request.event &&
-      Object.entries(request.match).every(
+      Object.entries(request.match ?? {}).every(
         ([path, expected]) => String(pick(delivery.payload, path)) === expected,
       ),
   );

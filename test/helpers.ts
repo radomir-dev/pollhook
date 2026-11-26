@@ -1,5 +1,3 @@
-process.env.POLLHOOK_NO_AUTOSTART ??= "1";
-
 import { mkdtempSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";

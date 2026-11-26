@@ -1,5 +1,6 @@
 import type { Socket } from "node:net";
 import { resolveWait, type WaitOutcome, type WaitRequest } from "../waits.ts";
+import { errorMessage } from "../util.ts";
 import type { DaemonContext } from "./context.ts";
 
 const POLL_MS = 250;
@@ -31,8 +32,12 @@ export class Waiter {
   }
 
   wake = (): void => {
-    const outcome = resolveWait(this.ctx.db, this.request);
-    if (outcome) this.finish(outcome);
+    try {
+      const outcome = resolveWait(this.ctx.db, this.request);
+      if (outcome) this.finish(outcome);
+    } catch (error) {
+      this.finish({ exitCode: 2, body: { error: errorMessage(error) } });
+    }
   };
 
   finish(outcome: WaitOutcome): void {
