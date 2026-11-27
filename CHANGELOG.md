@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.10.0](https://github.com/radomir-dev/pollhook/compare/v0.9.0...v0.10.0) (2026-11-27)
+
+
+### Features
+
+* poll package and registry_package events ([44ec595](https://github.com/radomir-dev/pollhook/commit/44ec595975ab37e330b7af026a32bcd9b8536f95))
+* poll package and registry_package events ([65c2a5a](https://github.com/radomir-dev/pollhook/commit/65c2a5ad2ef87d17d864b82c9b50a427cbcaee0e))
+
 ## [0.9.0](https://github.com/radomir-dev/pollhook/compare/v0.8.0...v0.9.0) (2026-11-26)
 
 
