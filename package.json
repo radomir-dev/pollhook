@@ -1,6 +1,6 @@
 {
   "name": "pollhook",
-  "version": "0.9.0",
+  "version": "0.10.0",
   "description": "GitHub webhook deliveries without webhooks: a local listener fed by REST API polling",
   "bin": {
     "pollhook": "./dist/cli.js"
