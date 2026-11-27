@@ -2,7 +2,8 @@ import { readFileSync } from "node:fs";
 import { implementedEvents } from "./registry.ts";
 import { EVENTS_DOC_URL, MIN_INTERVAL_SECONDS, missingConfigMessage } from "./config/help.ts";
 import { parseTuning, type EventTuning } from "./config/tuning.ts";
-import type { AdapterScope, EventName } from "./types.ts";
+import type { AdapterScope, EventName, PackageType } from "./types.ts";
+import { PACKAGE_TYPES } from "./types.ts";
 import { errorMessage, expandHome } from "./util.ts";
 
 interface RepoConfig extends EventTuning {
@@ -16,6 +17,7 @@ interface OrgConfig extends EventTuning {
   org: string;
   events: EventName[];
   intervalMs: number;
+  packageTypes: PackageType[];
 }
 
 export interface DeliverConfig {
@@ -103,8 +105,24 @@ function parseOrg(value: unknown, index: number, path: string): OrgConfig {
     org,
     events,
     intervalMs: intervalSeconds * 1000,
+    packageTypes: parsePackageTypes(value.packageTypes, index, path),
     ...parseTuning(value, path, `orgs[${index}]`, events),
   };
+}
+
+function parsePackageTypes(value: unknown, index: number, path: string): PackageType[] {
+  if (value === undefined) return [...PACKAGE_TYPES];
+  if (!Array.isArray(value) || value.length === 0) {
+    throw new Error(`config ${path}: orgs[${index}].packageTypes must be a non-empty array`);
+  }
+  for (const type of value) {
+    if (!PACKAGE_TYPES.includes(type as PackageType)) {
+      throw new Error(
+        `config ${path}: orgs[${index}].packageTypes has "${type}"; supported: ${PACKAGE_TYPES.join(", ")}`,
+      );
+    }
+  }
+  return [...new Set(value as PackageType[])];
 }
 
 function parseEvents(

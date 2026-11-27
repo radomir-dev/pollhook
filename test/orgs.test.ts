@@ -29,8 +29,25 @@ test("config accepts orgs without repos and defaults to org events", () => {
     "org_block",
     "custom_property",
     "custom_property_values",
+    "package",
+    "registry_package",
   ]);
   assert.equal(config.orgs[0]!.intervalMs, 300_000);
+});
+
+test("config narrows the package types and rejects unknown ones", () => {
+  const config = loadConfig(
+    configFile({ orgs: [{ org: "acme", packageTypes: ["container", "npm", "npm"] }] }),
+  );
+  assert.deepEqual(config.orgs[0]!.packageTypes, ["container", "npm"]);
+  assert.throws(
+    () => loadConfig(configFile({ orgs: [{ org: "acme", packageTypes: ["pip"] }] })),
+    /packageTypes has "pip"/,
+  );
+  assert.throws(
+    () => loadConfig(configFile({ orgs: [{ org: "acme", packageTypes: [] }] })),
+    /non-empty array/,
+  );
 });
 
 test("config rejects a repo event on an org target", () => {
@@ -76,7 +93,7 @@ test("poller routes org events to the org target", async () => {
   const db = new StateStore(":memory:");
   const config: Config = {
     repos: [],
-    orgs: [{ org: "acme", events: ["team"], intervalMs: 1 }],
+    orgs: [{ org: "acme", events: ["team"], intervalMs: 1, packageTypes: ["npm"] }],
     stateDir: "/tmp",
   };
   const gh = new FakeGitHub({ [TEAMS]: [{ id: 1, name: "core" }] });

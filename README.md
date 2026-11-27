@@ -44,7 +44,7 @@ or run it without installing: `npx pollhook --help`. Needs Node.js 22.13 or newe
 
 1. Authenticate. pollhook uses `POLLHOOK_TOKEN`, then your `gh auth login`, then
    `GH_TOKEN` or `GITHUB_TOKEN`. A token that can read the repository is enough;
-   Projects v2 events also need the `project` scope.
+   Projects v2 events also need the `project` scope, package events `read:packages`.
 2. Create the config:
 
         pollhook init --repo owner/name --events workflow_run,pull_request,check_run
@@ -115,7 +115,9 @@ reported as `configError` in `pollhook status` and the old config keeps running.
 3. **`strategies`** picks `fixed` (default) or `while-active`. With `while-active`
    on `workflow_run`, polling relaxes to 30 seconds while every running workflow is
    still under half of its typical duration.
-4. **`orgs`** covers organisation-level events (`team`, `membership`).
+4. **`orgs`** covers organisation-level events (`team`, `membership`, `package`,
+   `registry_package`). `packageTypes` narrows the package registries polled; the
+   default is all six, and the narrowing applies to both package events.
 5. **`deliver.url`** must be loopback. The control socket is a unix socket at
    `$XDG_RUNTIME_DIR/pollhook.sock`, so pollhook opens no network port.
 6. **`$schema`** points editors at [pollhook.schema.json](pollhook.schema.json), which

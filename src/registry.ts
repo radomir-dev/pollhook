@@ -31,6 +31,7 @@ import { customProperty } from "./adapters/custom-property.ts";
 import { customPropertyValues } from "./adapters/custom-property-values.ts";
 import { orgBlock } from "./adapters/org-block.ts";
 import { organization } from "./adapters/organization.ts";
+import { packageEvent, registryPackage } from "./adapters/package.ts";
 import { team } from "./adapters/team.ts";
 import { milestone } from "./adapters/milestone.ts";
 import { publicEvent, repository } from "./adapters/repository.ts";
@@ -85,6 +86,8 @@ export const ADAPTERS: Record<EventName, Adapter> = {
   org_block: orgBlock,
   custom_property: customProperty,
   custom_property_values: customPropertyValues,
+  package: packageEvent,
+  registry_package: registryPackage,
   workflow_run: workflowRun,
   workflow_job: workflowJob,
   check_suite: checkSuite,

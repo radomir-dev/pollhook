@@ -1,4 +1,5 @@
 import { implementedEvents } from "../registry.ts";
+import { PACKAGE_TYPES } from "../types.ts";
 import type { EventName } from "../types.ts";
 import { MIN_INTERVAL_SECONDS } from "./help.ts";
 
@@ -65,6 +66,13 @@ function orgSchema(events: EventName[]): Schema {
       org: { type: "string", pattern: "^[A-Za-z0-9_.-]+$" },
       events: eventList(events),
       intervalSeconds: { ...interval("Default seconds between polls, 300 if unset") },
+      packageTypes: {
+        type: "array",
+        minItems: 1,
+        uniqueItems: true,
+        items: { enum: [...PACKAGE_TYPES] },
+        description: "Package types polled for package events; all six if unset",
+      },
       intervals: intervals(events),
       strategies: strategies(events),
     },
