@@ -1,0 +1,545 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>pollhook — GitHub webhook events without webhooks</title>
+    <meta
+      name="description"
+      content="Poll GitHub events locally with a read-only token. Wait for CI runs, stream activity, or feed local webhook handlers without admin rights or public URLs."
+    />
+    <meta
+      name="keywords"
+      content="github webhook alternative, gh run watch alternative, wait for github actions, github events cli, poll github api, ci status cli, webhook without webhook"
+    />
+    <link rel="canonical" href="https://radomir.dev/pollhook/" />
+    <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="pollhook — GitHub webhook events without webhooks" />
+    <meta
+      property="og:description"
+      content="Poll GitHub events locally with a read-only token. Wait for CI runs, stream activity, or feed local webhook handlers without admin rights or public URLs."
+    />
+    <meta property="og:url" content="https://radomir.dev/pollhook/" />
+    <meta property="og:image" content="https://radomir.dev/pollhook/og.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="pollhook — GitHub webhook events without webhooks" />
+    <meta
+      name="twitter:description"
+      content="Poll GitHub events locally with a read-only token. Wait for CI runs, stream activity, or feed local webhook handlers without admin rights or public URLs."
+    />
+    <meta name="twitter:image" content="https://radomir.dev/pollhook/og.png" />
+
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        "name": "pollhook",
+        "applicationCategory": "DeveloperApplication",
+        "operatingSystem": "Linux, macOS",
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "USD"
+        },
+        "license": "https://opensource.org/licenses/MIT",
+        "softwareVersion": "0.10.0",
+        "url": "https://radomir.dev/pollhook/",
+        "codeRepository": "https://github.com/radomir-dev/pollhook"
+      }
+    </script>
+
+    <script>
+      if (window.location.search.includes("record")) {
+        document.documentElement.classList.add("record-mode");
+      }
+    </script>
+
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <canvas id="bg-canvas" aria-hidden="true"></canvas>
+
+    <header class="site-header">
+      <a
+        href="https://github.com/radomir-dev/pollhook"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="octocat-link"
+        aria-label="Source on GitHub"
+        title="Source on GitHub"
+      >
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+          <path
+            fill-rule="evenodd"
+            clip-rule="evenodd"
+            d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"
+          />
+        </svg>
+      </a>
+    </header>
+
+    <main>
+      <section class="hero" aria-labelledby="hero-title">
+        <div class="container">
+          <div class="hero-pill">Open Source · MIT License · Node 22.13+</div>
+          <h1 id="hero-title">pollhook</h1>
+          <p class="hero-tagline">GitHub webhook deliveries without webhooks.</p>
+          <p class="hero-lead">
+            Poll the GitHub REST API with a read-only token and turn changes into GitHub-shaped
+            events. Wait for CI in scripts and agents, stream repository activity, or feed local
+            webhook handlers without admin rights, a public URL, or a GitHub App.
+          </p>
+
+          <div class="install-bar" role="region" aria-label="Install command">
+            <span class="install-prompt" aria-hidden="true">$</span>
+            <code class="install-code">npm install -g pollhook</code>
+            <button
+              class="copy-btn"
+              id="copy-btn"
+              type="button"
+              aria-label="Copy install command to clipboard"
+            >
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+              >
+                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+              </svg>
+              <span class="copy-label">Copy</span>
+            </button>
+          </div>
+
+          <p class="pricing-note">
+            Free and open source (MIT). Reading the GitHub API costs nothing; the rate limit is
+            5,000 requests an hour per token, and a 304 doesn't count against it.
+          </p>
+
+          <div class="hero-actions">
+            <a
+              href="https://github.com/radomir-dev/pollhook"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="btn btn-primary"
+            >
+              <svg
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="currentColor"
+                aria-hidden="true"
+              >
+                <path
+                  fill-rule="evenodd"
+                  clip-rule="evenodd"
+                  d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"
+                />
+              </svg>
+              GitHub
+            </a>
+            <a
+              href="https://www.npmjs.com/package/pollhook"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="btn btn-secondary"
+            >
+              <svg
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="currentColor"
+                aria-hidden="true"
+              >
+                <path
+                  d="M1.763 0C.786 0 0 .786 0 1.763v20.474C0 23.214.786 24 1.763 24h20.474c.981 0 1.763-.786 1.763-1.763V1.763C24 .786 23.214 0 22.237 0zM5.13 5.323l13.837.019-.009 13.836h-3.464l.01-10.382h-3.456L12.04 19.17H5.113z"
+                />
+              </svg>
+              npm
+            </a>
+          </div>
+        </div>
+      </section>
+
+      <section class="demo-section" aria-label="Terminal demonstration">
+        <div class="container">
+          <div
+            id="demo-terminal"
+            class="terminal-window"
+            tabindex="0"
+            role="region"
+            aria-label="Interactive terminal demo"
+          >
+            <div class="terminal-header">
+              <div class="terminal-dots" aria-hidden="true">
+                <span class="dot dot-red"></span>
+                <span class="dot dot-yellow"></span>
+                <span class="dot dot-green"></span>
+              </div>
+              <div class="terminal-title">pollhook</div>
+              <button
+                class="terminal-replay"
+                type="button"
+                aria-label="Replay terminal animation"
+                title="Replay demo"
+              >
+                <svg
+                  width="12"
+                  height="12"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2.5"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  aria-hidden="true"
+                >
+                  <polyline points="23 4 23 10 17 10"></polyline>
+                  <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
+                </svg>
+                Replay
+              </button>
+            </div>
+            <div class="terminal-body">
+              <pre
+                class="terminal-screen"
+                aria-label="Terminal session commands and output"
+              ><code><span class="t-line"><span class="t-prompt">$ </span><span class="t-cmd">pollhook init --repo acme/app --events workflow_run,pull_request</span></span>
+<span class="t-line t-out">wrote /home/you/.config/pollhook/config.json</span>
+<span class="t-line t-out">next: pollhook status</span>
+<span class="t-line"><span class="t-prompt">$ </span><span class="t-cmd">pollhook run 1234567890</span></span>
+<span class="t-line t-out">{&quot;name&quot;:&quot;CI&quot;,&quot;conclusion&quot;:&quot;<span class="t-success">success</span>&quot;,&quot;head_sha&quot;:&quot;abc1234&quot;,&quot;url&quot;:&quot;https://github.com/acme/app/actions/runs/1234567890&quot;}</span>
+<span class="t-line"><span class="t-prompt">$ </span><span class="t-cmd">echo $?</span></span>
+<span class="t-line t-out"><span class="t-success">0</span></span>
+<span class="t-line"><span class="t-prompt">$ </span><span class="t-cmd">pollhook emit --brief</span></span>
+<span class="t-line t-out">14:02:11 acme/app pull_request <span class="t-opened">opened</span> 42 Add retry to the uploader</span>
+<span class="t-line t-out">14:03:48 acme/app workflow_run completed 1234567890 CI <span class="t-success">success</span></span>
+<span class="t-line t-out">14:05:20 acme/app pull_request <span class="t-closed">closed</span> 42 Add retry to the uploader</span>
+<span class="cursor" aria-hidden="true"></span></code></pre>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section section-why" id="why" aria-labelledby="why-heading">
+        <div class="container">
+          <h2 id="why-heading" class="section-heading">Why pollhook?</h2>
+          <p class="section-desc">
+            Reliable GitHub event polling designed for fast local workflows, agent loops, and CI
+            scripts.
+          </p>
+
+          <div class="cards-grid">
+            <article class="card">
+              <div class="card-num" aria-hidden="true">01</div>
+              <h3>No webhook or admin rights</h3>
+              <p>
+                Works with any personal access token or existing <code>gh auth login</code> that can
+                read the repository. You don't need repository administration rights, no public URL
+                or ngrok tunnel, no GitHub App installation, and zero orphaned webhooks left in repo
+                settings.
+              </p>
+            </article>
+
+            <article class="card">
+              <div class="card-num" aria-hidden="true">02</div>
+              <h3>Waits that exit with the right code</h3>
+              <p>
+                A lightweight, robust <code>gh run watch</code> alternative. Wait for GitHub Actions
+                runs from the CLI with commands like <code>pollhook run &lt;id&gt;</code> that exit
+                <code>0</code> on success, <code>1</code> on failure, and <code>8</code> on timeout.
+                Drop it straight into shell scripts and autonomous agents.
+              </p>
+            </article>
+
+            <article class="card">
+              <div class="card-num" aria-hidden="true">03</div>
+              <h3>One daemon, zero wasted quota</h3>
+              <p>
+                A single local daemon serves every waiter and consumer over a fast unix socket.
+                Polls use HTTP <code>If-None-Match</code> ETags: unchanged repositories return
+                <code>304 Not Modified</code>, consuming zero rate limit quota.
+              </p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section
+        class="section section-quickstart"
+        id="quickstart"
+        aria-labelledby="quickstart-heading"
+      >
+        <div class="container">
+          <h2 id="quickstart-heading" class="section-heading">Quick start</h2>
+          <p class="section-desc">
+            Three quick steps to poll GitHub events locally and wait for CI workflows.
+          </p>
+
+          <ol class="steps-list">
+            <li class="step-card">
+              <div class="step-header">
+                <span class="step-num" aria-hidden="true">1.</span>
+                <h3>Install pollhook</h3>
+              </div>
+              <p>
+                Requires Node 22.13 or newer (utilizes native unflagged
+                <code>node:sqlite</code> store):
+              </p>
+              <div class="snippet">
+                <pre><code>npm install -g pollhook</code></pre>
+                <button class="snippet-copy" type="button" aria-label="Copy this command">
+                  <svg
+                    width="12"
+                    height="12"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    aria-hidden="true"
+                  >
+                    <rect x="9" y="9" width="13" height="13" rx="2"></rect>
+                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg
+                  ><span class="snippet-label">Copy</span>
+                </button>
+              </div>
+            </li>
+
+            <li class="step-card">
+              <div class="step-header">
+                <span class="step-num" aria-hidden="true">2.</span>
+                <h3>Generate configuration</h3>
+              </div>
+              <p>
+                Writes <code>~/.config/pollhook/config.json</code> with selected repositories and
+                events:
+              </p>
+              <div class="snippet">
+                <pre><code>pollhook init --repo owner/name --events workflow_run,pull_request</code></pre>
+                <button class="snippet-copy" type="button" aria-label="Copy this command">
+                  <svg
+                    width="12"
+                    height="12"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    aria-hidden="true"
+                  >
+                    <rect x="9" y="9" width="13" height="13" rx="2"></rect>
+                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg
+                  ><span class="snippet-label">Copy</span>
+                </button>
+              </div>
+            </li>
+
+            <li class="step-card">
+              <div class="step-header">
+                <span class="step-num" aria-hidden="true">3.</span>
+                <h3>Wait or stream events</h3>
+              </div>
+              <p>
+                The daemon starts itself automatically on the first command and exits after 30 idle
+                minutes (stop anytime with <code>pollhook stop</code>):
+              </p>
+              <div class="snippet">
+                <pre><code>pollhook run 1234567890</code></pre>
+                <button class="snippet-copy" type="button" aria-label="Copy this command">
+                  <svg
+                    width="12"
+                    height="12"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    aria-hidden="true"
+                  >
+                    <rect x="9" y="9" width="13" height="13" rx="2"></rect>
+                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg
+                  ><span class="snippet-label">Copy</span>
+                </button>
+              </div>
+            </li>
+          </ol>
+        </div>
+      </section>
+
+      <section
+        class="section section-usecases"
+        id="what-you-can-do"
+        aria-labelledby="usecases-heading"
+      >
+        <div class="container">
+          <h2 id="usecases-heading" class="section-heading">What you can do</h2>
+          <p class="section-desc">
+            Built for automation, terminal observation, and local integration testing.
+          </p>
+
+          <div class="cards-grid">
+            <article class="card">
+              <div class="card-num" aria-hidden="true">A</div>
+              <h3>Wait in scripts and agents</h3>
+              <p>
+                <code>pollhook run</code>, <code>checks</code>, and
+                <code>pr --until merged</code> block execution until the remote action finishes.
+                Perfect for AI coding agents, release scripts, and automated validation.
+              </p>
+            </article>
+
+            <article class="card">
+              <div class="card-num" aria-hidden="true">B</div>
+              <h3>Watch a live stream</h3>
+              <p>
+                <code>pollhook emit --brief</code> outputs human-readable events in real time. If
+                the daemon restarts, <code>emit</code> automatically reconnects with backoff and
+                replays missed deliveries from local storage.
+              </p>
+            </article>
+
+            <article class="card">
+              <div class="card-num" aria-hidden="true">C</div>
+              <h3>Feed a local webhook handler</h3>
+              <p>
+                Set <code>deliver.url</code> to a loopback address. pollhook delivers genuine
+                GitHub-formatted HTTP POST requests with <code>X-GitHub-Event</code> and HMAC
+                <code>X-Hub-Signature-256</code> without public tunnels.
+              </p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="section section-limits" id="limits" aria-labelledby="limits-heading">
+        <div class="container">
+          <h2 id="limits-heading" class="section-heading">Honest limits</h2>
+          <div class="limits-card">
+            <p>
+              Polling inspects state rather than an authoritative event journal, so behavior differs
+              naturally from server-pushed webhooks. Transitions that leave no persistent state
+              behind (such as an issue comment created and immediately deleted between polling
+              intervals) cannot be detected.
+            </p>
+            <p>
+              Very short-lived intermediate states can be coalesced: a fast workflow run may
+              transition directly from <code>queued</code> to <code>completed</code> in a single
+              delivery. pollhook is strictly read-only: it never writes to GitHub, requires no write
+              privileges, and opens no listening network ports.
+            </p>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="container footer-content">
+        <nav aria-label="Project links">
+          <ul class="footer-links">
+            <li><a href="https://github.com/radomir-dev/pollhook" target="_blank" rel="noopener noreferrer">GitHub</a></li>
+            <li>
+              <a
+                href="https://www.npmjs.com/package/pollhook"
+                target="_blank"
+                rel="noopener noreferrer"
+                >npm</a
+              >
+            </li>
+            <li>
+              <a href="https://github.com/radomir-dev/pollhook/releases/tag/v0.10.0" target="_blank" rel="noopener noreferrer">Releases</a>
+            </li>
+            <li>
+              <a href="https://github.com/radomir-dev/pollhook/issues" target="_blank" rel="noopener noreferrer">Issues</a>
+            </li>
+            <li>
+              <a href="https://github.com/radomir-dev/pollhook/blob/main/LICENSE" target="_blank" rel="noopener noreferrer"
+                >MIT License</a
+              >
+            </li>
+          </ul>
+        </nav>
+        <p class="footer-copy">
+          A lightweight GitHub webhook alternative to poll GitHub events locally and wait for GitHub
+          Actions runs from the CLI.
+        </p>
+      </div>
+    </footer>
+
+    <a
+      href="https://github.com/radomir-dev/pollhook/releases/tag/v0.10.0"
+      target="_blank"
+      rel="noopener noreferrer"
+      class="watermark watermark-version"
+      aria-label="Version 0.10.0 release on GitHub"
+      title="v0.10.0 release"
+      >v0.10.0</a
+    >
+    <a
+      href="https://radomir.dev/"
+      target="_blank"
+      rel="noopener noreferrer"
+      class="watermark watermark-author"
+      aria-label="Author: radomir.dev"
+      >author: radomir.dev</a
+    >
+
+    <script>
+      const copyBtn = document.getElementById("copy-btn");
+      if (copyBtn) {
+        copyBtn.addEventListener("click", async () => {
+          try {
+            await navigator.clipboard.writeText("npm install -g pollhook");
+            const label = copyBtn.querySelector(".copy-label");
+            if (label) {
+              const original = label.textContent;
+              label.textContent = "Copied!";
+              setTimeout(() => {
+                label.textContent = original;
+              }, 2000);
+            }
+          } catch {
+            // Fallback if clipboard API restricted
+          }
+        });
+      }
+    </script>
+    <script>
+      for (const button of document.querySelectorAll(".snippet-copy")) {
+        button.addEventListener("click", async () => {
+          const code = button.closest(".snippet").querySelector("code");
+          const label = button.querySelector(".snippet-label");
+          const original = label.textContent;
+          try {
+            await navigator.clipboard.writeText(code.textContent.trim());
+            label.textContent = "Copied";
+            button.classList.add("copied");
+            setTimeout(() => {
+              label.textContent = original;
+              button.classList.remove("copied");
+            }, 1600);
+          } catch {
+            label.textContent = "Press Ctrl+C";
+            setTimeout(() => (label.textContent = original), 2000);
+          }
+        });
+      }
+    </script>
+    <script src="terminal.js" defer></script>
+    <script src="background.js" defer></script>
+  </body>
+</html>
