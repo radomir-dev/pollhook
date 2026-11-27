@@ -74,8 +74,8 @@ already recorded: subscribe to `workflow_run` as well, or it has nothing to read
 | `release`                         | `/repos/{o}/{r}/releases`                     | `id` + `updated_at`               | object   | P2 done                                                                                                                    |
 | `deploy_key`                      | `/repos/{o}/{r}/keys`                         | `id` + `created_at`               | object   | P3 done                                                                                                                    |
 | `gollum`                          | wiki git remote `{repo}.wiki.git`             | commit SHA                        | derived  | P4                                                                                                                         |
-| `package`                         | `/user/packages`, `/orgs/{org}/packages`      | `id` + `updated_at`               | object   | P4                                                                                                                         |
-| `registry_package`                | same as `package`                             | `id` + `updated_at`               | object   | P4                                                                                                                         |
+| `package`                         | `/orgs/{org}/packages` (six types)            | `id` + `version_count`            | derived  | P4 done                                                                                                                    |
+| `registry_package`                | same as `package`, then `/versions`           | `id` + `updated_at` + tags        | derived  | P4 done                                                                                                                    |
 | `repository_dispatch`             | none, triggered by an API call                | —                                 | none     | —                                                                                                                          |
 | `repository_import`               | `/repos/{o}/{r}/import`                       | `status` + `updated_at`           | derived  | P3                                                                                                                         |
 | `repository_ruleset`              | `/repos/{o}/{r}/rulesets`                     | `id` + `updated_at`               | object   | P3 done                                                                                                                    |
@@ -154,6 +154,17 @@ schema. `custom_property_values` sends `updated` with the repository's old and n
 values, reads the first 100 repositories only, and ignores a repository that appears
 with no values. The organization events need an organization owner's token: without
 it they show up as degraded in `status`.
+
+`package` and `registry_package` read `/orgs/{org}/packages`, one ETagged request per
+package type. All six types (`npm`, `maven`, `rubygems`, `docker`, `nuget`,
+`container`) are polled unless the target's `packageTypes` narrows them. `package`
+compares `id`, `version_count` and `visibility`, so it infers `published`, `updated`
+and `deleted`: a rename reads as a removal and a publish, and GitHub's webhook only
+ever sends `published` and `updated`. `registry_package` repeats the list read, then
+reads the first 100 versions of each package whose state moved, and infers
+`published` for a new version and `updated` from changed container tags. Both need
+the `read:packages` scope, and `registry_package` reads every package's versions on
+its first poll. Versions past the first 100 and deleted versions are not reported.
 
 Discussions come from REST, not GraphQL, and revalidate with `304` like the rest.
 `discussion` infers `created`, `edited`, `closed`, `reopened`, `locked`, `unlocked`,

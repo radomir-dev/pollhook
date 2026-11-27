@@ -1,7 +1,7 @@
 import type { Config } from "./config.ts";
-import type { EventTuning, Strategy } from "./config/tuning.ts";
+import type { EventTuning } from "./config/tuning.ts";
 import type { StateStore } from "./db.ts";
-import type { Adapter, AdapterScope, Emit, EventName, GithubClient } from "./types.ts";
+import type { Adapter, AdapterScope, Emit, EventName, GithubClient, PackageType } from "./types.ts";
 import { adaptersFor } from "./registry.ts";
 import { HeadCache, refsFor } from "./poller/refs.ts";
 import { delayFor, jitterMs, resolveInterval, resolveStrategy } from "./poller/schedule.ts";
@@ -15,6 +15,12 @@ import {
 import { errorMessage, nowIso } from "./util.ts";
 
 const TICK_MS = 1000;
+
+interface PollTarget extends EventTuning {
+  intervalMs: number;
+  checkRefLimit?: number;
+  packageTypes?: PackageType[];
+}
 
 export class Poller {
   private readonly nextDue = new Map<string, number>();
@@ -71,10 +77,10 @@ export class Poller {
   async pollOnce(): Promise<void> {
     if (this.stopped) return;
     for (const repo of this.config.repos) {
-      await this.pollTarget("repo", repo.repo, repo.events, repo, repo.checkRefLimit);
+      await this.pollTarget("repo", repo.repo, repo.events, repo);
     }
     for (const org of this.config.orgs) {
-      await this.pollTarget("org", org.org, org.events, org, 0);
+      await this.pollTarget("org", org.org, org.events, org);
     }
   }
 
@@ -82,10 +88,9 @@ export class Poller {
     kind: AdapterScope,
     name: string,
     events: EventName[],
-    target: EventTuning & { intervalMs: number },
-    checkRefLimit: number,
+    target: PollTarget,
   ): Promise<void> {
-    const roundError = await this.pollAdapters(kind, name, events, target, checkRefLimit);
+    const roundError = await this.pollAdapters(kind, name, events, target);
     const status = this.statuses.get(name);
     if (!status) return;
     if (roundError) {
@@ -100,28 +105,27 @@ export class Poller {
     kind: AdapterScope,
     name: string,
     events: EventName[],
-    target: EventTuning & { intervalMs: number },
-    checkRefLimit: number,
+    target: PollTarget,
   ): Promise<string | null> {
     let roundError: string | null = null;
     let refs: string[] = [];
     if (kind === "repo") {
       try {
-        refs = await refsFor(this.db, this.headCache, this.gh, name, events, checkRefLimit);
+        refs = await refsFor(
+          this.db,
+          this.headCache,
+          this.gh,
+          name,
+          events,
+          target.checkRefLimit ?? 0,
+        );
       } catch (error) {
         roundError = errorMessage(error);
       }
     }
     for (const adapter of adaptersFor(events, kind)) {
       try {
-        const polled = await this.pollAdapter(
-          kind,
-          name,
-          refs,
-          resolveInterval(this.config, target, adapter),
-          resolveStrategy(this.config, target, adapter),
-          adapter,
-        );
+        const polled = await this.pollAdapter(kind, name, refs, target, adapter);
         if (polled) this.clearDegraded(name, adapter.name);
       } catch (error) {
         if (isPermanent(error)) {
@@ -149,13 +153,14 @@ export class Poller {
     kind: AdapterScope,
     name: string,
     refs: string[],
-    intervalMs: number,
-    strategy: Strategy,
+    target: PollTarget,
     adapter: Adapter,
   ): Promise<boolean> {
     const dueKey = `${kind}:${name}:${adapter.name}`;
     if ((this.nextDue.get(dueKey) ?? 0) > Date.now()) return false;
     const pressure = this.gh.pressure?.() ?? 1;
+    const intervalMs = resolveInterval(this.config, target, adapter);
+    const strategy = resolveStrategy(this.config, target, adapter);
     const delay = delayFor(adapter, intervalMs, this.db, name, strategy, pressure);
     this.nextDue.set(dueKey, Date.now() + delay + jitterMs(delay, this.random));
     const primedKey = `primed:${kind}:${name}:${adapter.name}`;
@@ -163,6 +168,7 @@ export class Poller {
     await adapter.poll({
       repo: name,
       org: kind === "org" ? name : null,
+      packageTypes: target.packageTypes,
       refs,
       db: this.db,
       durations: this.db.durations,

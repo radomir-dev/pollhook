@@ -48,7 +48,13 @@ export type EventName =
   | "pull_request_review_comment"
   | "page_build"
   | "workflow_job"
-  | "status";
+  | "status"
+  | "package"
+  | "registry_package";
+
+export const PACKAGE_TYPES = ["npm", "maven", "rubygems", "docker", "nuget", "container"] as const;
+
+export type PackageType = (typeof PACKAGE_TYPES)[number];
 
 export interface RepoInfo {
   id: number;
@@ -134,6 +140,7 @@ export type AdapterEmit = (
 export interface AdapterContext {
   repo: string;
   org?: string | null;
+  packageTypes?: PackageType[];
   refs: string[];
   db: SnapshotStore;
   durations: DurationStore;
